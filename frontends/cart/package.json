@@ -1,0 +1,24 @@
+{
+  "name": "cart",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "ts-node src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsc -p ."
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.6",
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.13.1",
+    "jest": "^25.4.0",
+    "jest-environment-jsdom-sixteen": "^1.0.3",
+    "ts-jest": "^25.4.0",
+    "ts-node": "^8.9.0",
+    "typescript": "^3.8.3"
+  }
+}
