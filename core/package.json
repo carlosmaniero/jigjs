@@ -1,0 +1,28 @@
+{
+  "name": "@micro-pokeshop/core",
+  "version": "1.0.0",
+  "description": "A core library to work with micro front-ends",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carlosmaniero/micro-pokeshop.git"
+  },
+  "author": "Maniero",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/carlosmaniero/micro-pokeshop/issues"
+  },
+  "homepage": "https://github.com/carlosmaniero/micro-pokeshop#readme",
+  "jest": {
+    "testEnvironment": "jest-environment-jsdom-sixteen"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.2.1",
+    "jest": "^25.4.0",
+    "jest-environment-jsdom-sixteen": "^1.0.3",
+    "ts-jest": "^25.4.0",
+    "typescript": "^3.8.3"
+  }
+}
