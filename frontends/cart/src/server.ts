@@ -1,4 +1,6 @@
 import * as express from 'express';
+import {CART_SERVICE_EVENTS} from "./services/CartService";
+
 const app = express();
 
 app.use(function(req, res, next) {
@@ -7,7 +9,16 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.use(express.static('public'));
+app.use(express.static('dist'));
+
+app.get('/metadata', (req, res) => {
+    res.send({
+        eventsProvider: {
+            events: Object.values(CART_SERVICE_EVENTS),
+            serviceFile: '/services/service.js'
+        }
+    })
+})
 
 app.get('/', function (req, res) {
     res.send('Cart 0');

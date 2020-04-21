@@ -17,7 +17,7 @@ module.exports = {
         extensions: [ '.ts' ]
     },
     output: {
-        filename: 'service.js',
+        filename: 'services/service.js',
         path: path.resolve(__dirname, 'dist'),
     }
 };

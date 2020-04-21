@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node src/server.ts",
+    "start": "npm run build:services && ts-node src/server.ts",
     "build": "tsc -p .",
     "test": "jest --show-config",
     "build:services": "webpack --config webpack.services.config.js"
