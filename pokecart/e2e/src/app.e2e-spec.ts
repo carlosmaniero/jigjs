@@ -13,6 +13,11 @@ describe('workspace-project App', () => {
     expect(page.getTitleText()).toEqual('Welcome to PokéShop!');
   });
 
+  it('fetches the cart cart service', () => {
+    page.navigateTo();
+    expect(page.getCartCount()).toEqual(0);
+  })
+
   afterEach(async () => {
     // Assert that there are no errors emitted from the browser
     const logs = await browser.manage().logs().get(logging.Type.BROWSER);

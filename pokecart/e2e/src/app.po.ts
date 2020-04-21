@@ -8,4 +8,9 @@ export class AppPage {
   getTitleText(): Promise<string> {
     return element(by.css('h1')).getText() as Promise<string>;
   }
+
+  getCartCount(): Promise<number> {
+    return element(by.id('fragment-cart')).getText()
+      .then((value) => parseInt(value.replace( /^\D+/g, ''))) as Promise<number>;
+  }
 }
