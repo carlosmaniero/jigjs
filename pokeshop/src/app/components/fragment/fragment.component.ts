@@ -9,10 +9,10 @@ import {FragmentService} from "./services/fragment.service";
 export class FragmentComponent implements OnInit {
 
   @Input()
-  private fragmentId: string;
+  public fragmentId: string;
 
   @Input()
-  private url: string
+  public url: string
 
   public html: string;
 
