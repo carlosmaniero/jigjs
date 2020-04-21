@@ -18,6 +18,7 @@
     "@types/node": "^13.13.1",
     "jest": "^25.4.0",
     "jest-environment-jsdom-sixteen": "^1.0.3",
+    "randomstring": "^1.1.5",
     "terser-webpack-plugin": "^2.3.5",
     "ts-jest": "^25.4.0",
     "ts-loader": "^7.0.1",

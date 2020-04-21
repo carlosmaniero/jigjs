@@ -1,8 +1,9 @@
 import {EventPublisher, EventSubscriber} from "../../../../core/src/event-bus";
 
 export const CART_SERVICE_EVENTS = {
+    CART_ITEMS: "CART_SERVICE_ITEMS",
     ADD_TO_CART: "CART_SERVICE_ADD_TO_CART",
-    ITEMS_UPDATED: "CART_SERVICE_ITEMS_UPDATED"
+    ASK_FOR_ITEMS: "CART_SERVICE_ASK_FOR_ITEMS"
 }
 
 interface Pokemon {
@@ -17,7 +18,11 @@ export class CartService {
     addToCart(payload: Pokemon) {
         const newPokemonList = [...this.getPokemons(), payload];
         this.savePokemonList(newPokemonList);
-        this.publishEvent(CART_SERVICE_EVENTS.ITEMS_UPDATED, newPokemonList);
+        this.publishCart();
+    }
+
+    publishCart() {
+        this.publishEvent(CART_SERVICE_EVENTS.CART_ITEMS, this.getPokemons())
     }
 
     private getPokemons(): Pokemon[] {
@@ -34,5 +39,9 @@ export const registerCartService = (publishEvent: EventPublisher, subscribeToEve
 
     subscribeToEvent(CART_SERVICE_EVENTS.ADD_TO_CART, (payload: Pokemon) => {
         cartService.addToCart(payload);
+    });
+
+    subscribeToEvent(CART_SERVICE_EVENTS.ASK_FOR_ITEMS, () => {
+        cartService.publishCart();
     });
 }

@@ -4,11 +4,11 @@ export interface EventSubscription {
     unsubscribe: () => void;
 }
 
-export type EventPublisher = <T>(eventName: string, detail: T) => void;
+export type EventPublisher = <T>(eventName: string, detail?: T) => void;
 
 export type EventSubscriber = <T>(eventName: string, listener: EventBusListener<T>) => EventSubscription;
 
-export const publishEvent: EventPublisher = <T>(eventName: string, detail: T) => {
+export const publishEvent: EventPublisher = <T>(eventName: string, detail?: T) => {
     const event = new CustomEvent(eventName, {
         bubbles: true,
         detail: detail
