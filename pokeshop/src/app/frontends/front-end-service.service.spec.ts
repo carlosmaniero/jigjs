@@ -32,6 +32,6 @@ describe('FrontEndServiceService', () => {
     await registration;
 
     expect(frontEndService.getServiceForEvent('CART_SERVICE_ADD_TO_CART'))
-      .toBe(`${url}services/service.js`);
+      .toBe(`services/service.js`);
   });
 });

@@ -2,7 +2,11 @@ const path = require('path');
 
 
 module.exports = {
-    entry: './src/services/services.ts',
+    mode: 'production',
+    entry: {
+        "services/services": './src/services/services.ts',
+        "components/cart-count-component": './src/components/cart-count-component.ts',
+    },
     devtool: 'inline-source-map',
     module: {
         rules: [
@@ -17,7 +21,7 @@ module.exports = {
         extensions: [ '.ts' ]
     },
     output: {
-        filename: 'services/service.js',
+        filename: '[name].js',
         path: path.resolve(__dirname, 'dist'),
     }
 };

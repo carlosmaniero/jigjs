@@ -29,6 +29,6 @@ export const subscribeToEvent = <T>(eventName: string, listener: EventBusListene
 
 const createSubscription = <T>(eventName: string, listener: EventListener): EventSubscription => ({
     unsubscribe: () => {
-        document.removeEventListener(eventName, listener);
+        document?.removeEventListener(eventName, listener);
     },
 })

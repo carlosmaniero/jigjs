@@ -1,5 +1,5 @@
-import {registerCartService} from "./CartService";
 import {publishEvent, subscribeToEvent} from "../../../../core/src/event-bus";
+import {registerCartService} from "./cart-service";
 
 
 

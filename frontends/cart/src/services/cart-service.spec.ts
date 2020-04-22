@@ -1,4 +1,4 @@
-import {CART_SERVICE_EVENTS, CartService, registerCartService} from "./CartService";
+import {CART_SERVICE_EVENTS, registerCartService} from "./cart-service";
 import randomstring from 'randomstring';
 import {publishEvent, subscribeToEvent} from "../../../../core/src/event-bus";
 

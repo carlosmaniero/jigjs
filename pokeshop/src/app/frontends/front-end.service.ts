@@ -18,7 +18,7 @@ export class FrontEndService {
       .pipe(tap((metadataResponse: any) => {
         metadataResponse.eventsProvider.forEach((eventProvider) => {
           eventProvider.events.forEach((event) => {
-            this.eventMap[event] = `${url}${eventProvider.serviceFile}`;
+            this.eventMap[event] = eventProvider.serviceFile;
           });
         })
       }))
