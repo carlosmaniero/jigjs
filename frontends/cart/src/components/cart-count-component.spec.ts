@@ -1,7 +1,7 @@
 import * as testingLibrary from '@testing-library/dom';
 
 import './cart-count-component';
-import {publishEvent} from "../../../../core/src/event-bus";
+import {publishEvent, subscribeToEvent} from "../../../../core/src/event-bus";
 import {CART_SERVICE_EVENTS} from "../services/cart-service";
 
 describe('CartCountComponent', () => {
@@ -14,6 +14,16 @@ describe('CartCountComponent', () => {
         document.body.appendChild(cartCount);
 
         expect(testingLibrary.queryByText(document.body, "0")).not.toBeNull();
+    });
+
+    it("asks for the total when mount", () => {
+        const listenerMock = jest.fn();
+        subscribeToEvent(CART_SERVICE_EVENTS.ASK_FOR_ITEMS, listenerMock)
+
+        const cartCount = document.createElement('cart-count-component');
+        document.body.appendChild(cartCount);
+
+        expect(listenerMock).toBeCalled();
     });
 
     it("renders the cart items count", () => {

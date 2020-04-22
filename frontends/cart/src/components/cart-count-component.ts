@@ -1,4 +1,4 @@
-import {EventSubscription, subscribeToEvent} from "../../../../core/src/event-bus";
+import {EventSubscription, publishEvent, subscribeToEvent} from "../../../../core/src/event-bus";
 import {CART_SERVICE_EVENTS} from "../services/cart-service";
 
 
@@ -13,10 +13,12 @@ class CartCountComponent extends HTMLElement {
     connectedCallback() {
         this.render();
 
-        this.subscription = subscribeToEvent(CART_SERVICE_EVENTS.CART_ITEMS, (items: any) => {
+        this.subscription = subscribeToEvent(CART_SERVICE_EVENTS.CART_ITEMS, (items: object[]) => {
             this.count = items?.length || this.count;
             this.render();
         })
+
+        publishEvent(CART_SERVICE_EVENTS.ASK_FOR_ITEMS);
     }
 
     disconnectedCallback() {

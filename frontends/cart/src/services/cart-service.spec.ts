@@ -58,6 +58,8 @@ describe('CartService', () => {
     });
 
     it('responds a message asking for the card items', () => {
+        registerCartService(publishEvent, subscribeToEvent);
+
         const pokemon = {id: 2, pokemonName: 'Pikachu'};
         const listener = jest.fn();
 
@@ -65,6 +67,21 @@ describe('CartService', () => {
 
         subscribeToEvent(CART_SERVICE_EVENTS.CART_ITEMS, listener);
         publishEvent(CART_SERVICE_EVENTS.ASK_FOR_ITEMS);
+
+        expect(listener).toBeCalledWith([
+            pokemon
+        ])
+    });
+
+    it('publishes a message with the cart as soon as it is registered', () => {
+        const pokemon = {id: 2, pokemonName: 'Pikachu'};
+        const listener = jest.fn();
+
+        localStorage.setItem('cart-service-items', JSON.stringify([pokemon]));
+
+        subscribeToEvent(CART_SERVICE_EVENTS.CART_ITEMS, listener);
+
+        registerCartService(publishEvent, subscribeToEvent);
 
         expect(listener).toBeCalledWith([
             pokemon

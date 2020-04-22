@@ -13,6 +13,7 @@ interface Pokemon {
 
 export class CartService {
     constructor(private readonly publishEvent: EventPublisher) {
+        this.publishCart();
     }
 
     addToCart(payload: Pokemon) {
