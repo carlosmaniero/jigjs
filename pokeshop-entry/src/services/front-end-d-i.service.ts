@@ -1,16 +1,11 @@
-import {Inject, Injectable} from '@angular/core';
 import {FrontEndService} from "./front-end.service";
-import {DOCUMENT} from "@angular/common";
 
-@Injectable({
-  providedIn: 'root'
-})
 export class FrontEndDIService {
   private readonly filesAppended = [];
 
   constructor(
     private readonly frontEndService: FrontEndService,
-    @Inject(DOCUMENT) private readonly document: Document) {
+    private readonly document: Document) {
 
   }
 

@@ -1,12 +1,13 @@
-import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Inject, Input, OnInit, PLATFORM_ID, ViewChild} from '@angular/core';
 import {FragmentService} from "./services/fragment.service";
+import {DOCUMENT, isPlatformBrowser} from "@angular/common";
 
 @Component({
   selector: 'app-fragment',
   templateUrl: './fragment.component.html',
   styleUrls: ['./fragment.component.css']
 })
-export class FragmentComponent implements OnInit {
+export class FragmentComponent implements AfterViewInit {
 
   @Input()
   public fragmentId: string;
@@ -16,17 +17,28 @@ export class FragmentComponent implements OnInit {
 
   @ViewChild("fragmentContainer")
   public container: ElementRef;
+  public html: string;
 
-  constructor(private readonly fragmentService: FragmentService) {
+  private readonly isBrowser: boolean;
 
+  constructor(
+    private readonly fragmentService: FragmentService,
+    @Inject(DOCUMENT) private readonly document: Document,
+    @Inject(PLATFORM_ID) private readonly platformId,
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
   }
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
     this.fragmentService.fetch({url: this.url})
       .subscribe((data) => {
+        if (!this.isBrowser) {
+          this.html = data;
+          return;
+        }
         this.container.nativeElement.innerHTML = data;
 
-        const htmlDivElement = document.createElement('div');
+        const htmlDivElement = this.document.createElement('div');
 
         this.container.nativeElement.querySelectorAll('script:not([async])').forEach((script) => {
           this.copyScript(script, htmlDivElement);
@@ -47,7 +59,7 @@ export class FragmentComponent implements OnInit {
   }
 
   private appendScript(originalScript, element) {
-    const script = document.createElement("script");
+    const script = this.document.createElement("script");
 
     script.src = originalScript.src;
     script.id = originalScript.id;
