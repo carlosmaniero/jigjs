@@ -25,17 +25,38 @@ export class FragmentComponent implements OnInit {
     this.fragmentService.fetch({url: this.url})
       .subscribe((data) => {
         this.container.nativeElement.innerHTML = data;
-        this.container.nativeElement.querySelectorAll('script').forEach((script) => {
-          this.container.nativeElement.removeChild(script);
-          this.appendScript(script.src);
 
-        })
+        const htmlDivElement = document.createElement('div');
+
+        this.container.nativeElement.querySelectorAll('script:not([async])').forEach((script) => {
+          this.copyScript(script, htmlDivElement);
+        });
+
+        this.container.nativeElement.querySelectorAll('script[async]').forEach((script) => {
+          this.copyScript(script, htmlDivElement);
+        });
+
+        this.container.nativeElement.appendChild(htmlDivElement);
       })
   }
 
-  private appendScript(src: string) {
+  private copyScript(script: HTMLScriptElement, htmlDivElement: HTMLDivElement) {
+    this.container.nativeElement.removeChild(script);
+
+    this.appendScript(script, htmlDivElement);
+  }
+
+  private appendScript(originalScript, element) {
     const script = document.createElement("script");
-    script.src = src;
-    this.container.nativeElement.appendChild(script);
+
+    script.src = originalScript.src;
+    script.id = originalScript.id;
+    script.type = originalScript.type;
+    script.async = originalScript.async;
+    script.innerHTML = originalScript.innerHTML;
+    script['data-next-page'] = originalScript['data-next-page'];
+    script['nomodule'] = originalScript['nomodule'];
+
+    element.appendChild(script);
   }
 }

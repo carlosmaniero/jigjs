@@ -1,0 +1,29 @@
+{
+  "devDependencies": {
+    "@testing-library/react": "^10.0.3",
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.13.2",
+    "@types/react": "^16.9.34",
+    "jest": "^25.4.0",
+    "jest-environment-jsdom-sixteen": "^1.0.3",
+    "jest-fetch-mock": "^3.0.3",
+    "typescript": "^3.8.3"
+  },
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start",
+    "build:and:run": "npm run build && npm start",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@types/next": "^9.0.0",
+    "@types/react-dom": "^16.9.6",
+    "cors": "^2.8.5",
+    "isomorphic-fetch": "^2.2.1",
+    "next": "^9.3.5",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "ts-jest": "^25.4.0"
+  }
+}

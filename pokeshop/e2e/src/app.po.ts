@@ -13,4 +13,8 @@ export class AppPage {
     return element(by.id('fragment-cart')).getText()
       .then((value) => parseInt(value.replace( /^\D+/g, ''))) as Promise<number>;
   }
+
+  getFirstPokemon(): Promise<string> {
+    return element(by.css('#fragment-catalog h3')).getText() as Promise<string>;
+  }
 }

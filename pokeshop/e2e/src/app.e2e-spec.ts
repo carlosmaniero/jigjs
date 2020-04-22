@@ -16,6 +16,11 @@ describe('workspace-project App', () => {
   it('fetches the cart cart service', () => {
     page.navigateTo();
     expect(page.getCartCount()).toEqual(0);
+  });
+
+  it('fetches the catalog service', () => {
+    page.navigateTo();
+    expect(page.getFirstPokemon()).toEqual('BULBASAUR');
   })
 
   afterEach(async () => {
