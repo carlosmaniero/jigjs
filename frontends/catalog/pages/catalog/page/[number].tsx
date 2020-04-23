@@ -1,7 +1,8 @@
 import React from "react";
-import {PokemonList} from "../../../components/pokemon-list";
 import {fetchPokemons, FetchPokemonsResponse} from "../../../services/catalog-service";
 import {publishEvent} from "../../../core/event-bus";
+import {PokemonList} from "../../../components/pokemons/pokemon-list";
+import {Pagination} from "../../../components/pagination/pagination";
 
 export default class Number extends React.Component<FetchPokemonsResponse, FetchPokemonsResponse> {
     constructor(props) {
@@ -25,6 +26,10 @@ export default class Number extends React.Component<FetchPokemonsResponse, Fetch
                 <main>
                     {this.state && this.renderPokemons()}
                 </main>
+                <Pagination
+                    currentPage={this.state.currentPage}
+                    totalPages={this.state.totalPages}
+                    onPageChange={(pageNumber) => this.handlePageChange(pageNumber)} />
             </section>
         );
     }
@@ -33,6 +38,12 @@ export default class Number extends React.Component<FetchPokemonsResponse, Fetch
         return <PokemonList
             pokemons={this.state.pokemons}
             eventPublisher={publishEvent} />
+    }
+
+    private async handlePageChange(pageNumber: number) {
+        this.setState({
+            ...await fetchPokemons(pageNumber)
+        })
     }
 }
 

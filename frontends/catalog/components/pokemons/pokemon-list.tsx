@@ -1,7 +1,7 @@
 import React from "react";
-import {EventPublisher} from "../../../core/src/event-bus";
+import {Pokemon} from "../../models/pokemon";
+import {EventPublisher} from "../../core/event-bus";
 import {PokemonCard} from "./pokemon-card";
-import {Pokemon} from "../models/pokemon";
 
 interface Props {
     pokemons: Pokemon[];
