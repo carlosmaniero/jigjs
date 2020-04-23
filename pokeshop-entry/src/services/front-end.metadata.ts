@@ -1,5 +1,7 @@
 import 'isomorphic-fetch'
 
+export const MICRO_FRONT_END_METADATA_ID = '__micro_front_end_metadata__';
+
 export class FrontEndMetadata {
   constructor(private readonly eventMap: Object = {}) {}
 
@@ -9,6 +11,26 @@ export class FrontEndMetadata {
 
   getServiceForEvent(event: string) {
     return this.eventMap[event];
+  }
+
+  createScript(document: Document) {
+    const script = document.createElement('script');
+
+    script.id = MICRO_FRONT_END_METADATA_ID;
+    script.type = 'application/json';
+    script.textContent = JSON.stringify(this.getEventMap());
+
+    return script;
+  }
+
+  static fromDocument(document: Document): FrontEndMetadata {
+    const eventMap = JSON.parse(document
+        .getElementById(MICRO_FRONT_END_METADATA_ID).textContent
+    );
+
+    return new FrontEndMetadata(
+        eventMap
+    );
   }
 }
 

@@ -1,3 +1,5 @@
+import {frontEndDIServiceFromDocument} from "../../services/front-end-di.service";
+
 export const registerMicroFrontEndComponent = (window, resolver, isBrowser = false) => {
     class MicroFrontEndComponent extends window.HTMLElement {
         constructor() {
@@ -18,7 +20,11 @@ export const registerMicroFrontEndComponent = (window, resolver, isBrowser = fal
         async renderContent () {
             const url = this.getAttribute('url');
             const response = await resolver.resolve(url);
+
             this.innerHTML = response.html;
+            this.forceJavascriptToLoad();
+            this.injectDependencies(response);
+
             this.finish(response);
             this.setAttribute("already-loaded", true);
         }
@@ -27,6 +33,35 @@ export const registerMicroFrontEndComponent = (window, resolver, isBrowser = fal
             const onFinish = this.onFinish;
 
             onFinish && onFinish(this, response);
+        }
+
+        private injectDependencies({eventDependencies}) {
+            if (!eventDependencies) {
+                return;
+            }
+            frontEndDIServiceFromDocument(this.ownerDocument)
+                .injectDependencyOfEvent(eventDependencies);
+        }
+
+        private forceJavascriptToLoad() {
+            if (!isBrowser) {
+                return;
+            }
+
+            this.querySelectorAll('script')
+                .forEach((script: HTMLScriptElement) => {
+                    const recreatedScript = window.document.createElement('script');
+                    recreatedScript.textContent = script.textContent;
+                    recreatedScript.setAttribute('data-dynamic-loaded', "true");
+
+                    for (let attribute of script.getAttributeNames()) {
+                        recreatedScript.setAttribute(attribute, script.getAttribute(attribute));
+                    }
+
+                    this.appendChild(recreatedScript);
+
+                    script.remove();
+                })
         }
     }
 

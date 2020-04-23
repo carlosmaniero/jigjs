@@ -7,11 +7,47 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="components.js"></script>
     <title>Pokémon Shop!</title>
+
+    <style>
+        #main-header {
+            background: #ee8329;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            left: 0;
+            display: flex;
+            height: 60px;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1;
+            box-sizing: border-box;
+            padding: 0 10px;
+            border-bottom: 5px solid #cd5241;
+            box-shadow: 0px 0px 6px rgba(0, 0, 0, 1);
+        }
+
+        #main-header h1 {
+            color: white;
+            font-family: sans-serif;
+            margin: 0;
+            font-size: 22px;
+        }
+
+        body {
+            padding-top: 60px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to Pokémon Shop!</h1>
+    <header id="main-header">
+        <h1>Welcome to Pokémon Shop!</h1>
 
-    <front-end-fragment async="true" id="cart-fragment" url="http://localhost:3001/"></front-end-fragment>
+        <div id="cart-container">
+            <front-end-fragment async="true" id="cart-fragment" url="http://localhost:3001/"></front-end-fragment>
+        </div>
+    </header>
+
+
     <front-end-fragment id="catalog-fragment" url="http://localhost:3000/catalog/page/1"></front-end-fragment>
 
 </body>
