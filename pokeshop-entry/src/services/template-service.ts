@@ -1,7 +1,7 @@
 import {JSDOM} from 'jsdom';
 import {FragmentResolver} from "./fragment-resolver";
 import {FrontEndDIService} from "./front-end-d-i.service";
-import {FrontEndService} from "./front-end.service";
+import {FrontEndMetadataService} from "./front-end-metadata.service";
 import fs from "fs";
 import {registerMicroFrontEndComponent} from "../components/micro-front-ends/MicroFrontEndComponent";
 
@@ -9,10 +9,13 @@ class TemplateService {
     constructor(
         private readonly dom: JSDOM,
         private readonly fragmentResolver: FragmentResolver,
+        private readonly frontEndService: FrontEndMetadataService,
         private readonly frontEndDIService: FrontEndDIService,
     ) {}
 
     async render() {
+        this.appendMetadata();
+
         const waitForRenderPromise = this.waitUntilAllFragmentsAreResolved();
 
         registerMicroFrontEndComponent(this.dom.window, this.fragmentResolver);
@@ -43,9 +46,19 @@ class TemplateService {
             })
         });
     }
+
+    private appendMetadata() {
+        const script = this.dom.window.document.createElement('script');
+
+        script.id = '__micro_front_end_metadata__';
+        script.type = 'application/json';
+        script.textContent = JSON.stringify(this.frontEndService.getEventMap());
+
+        this.dom.window.document.body.appendChild(script)
+    }
 }
 
-export const templateServiceFactory = async (templatePath: string, fragmentResolver: FragmentResolver, frontEndService: FrontEndService): Promise<TemplateService> => {
+export const templateServiceFactory = async (templatePath: string, fragmentResolver: FragmentResolver, frontEndService: FrontEndMetadataService): Promise<TemplateService> => {
     const html: string = await new Promise((resolve => {
         fs.readFile(templatePath, 'utf8', (err, data) => {
             resolve(data);
@@ -57,6 +70,7 @@ export const templateServiceFactory = async (templatePath: string, fragmentResol
     return new TemplateService(
         jsdom,
         fragmentResolver,
+        frontEndService,
         new FrontEndDIService(frontEndService, jsdom.window.document)
     )
 }

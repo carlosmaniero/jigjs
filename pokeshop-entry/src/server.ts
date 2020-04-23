@@ -1,10 +1,10 @@
 import express from 'express';
 import {FragmentResolver} from "./services/fragment-resolver";
 import {renderHome} from "./views/home";
-import {FrontEndService} from "./services/front-end.service";
+import {FrontEndMetadataService} from "./services/front-end-metadata.service";
 
 const app = express();
-const frontEndService = new FrontEndService();
+const frontEndService = new FrontEndMetadataService();
 
 app.use(express.static('dist'));
 

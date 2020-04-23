@@ -5,18 +5,12 @@ export const registerMicroFrontEndComponent = (window, resolver, isBrowser = fal
         }
 
         connectedCallback() {
-            console.log(this);
-            console.log(isBrowser);
-            console.log(this.getAttribute('async'));
-            console.log(this.getAttribute('already-loaded'));
-
             if (!isBrowser && this.getAttribute('async')) {
                 this.finish({});
                 return;
             }
 
             if (!this.getAttribute('already-loaded')) {
-                console.log('rendering...');
                 this.renderContent();
             }
         }

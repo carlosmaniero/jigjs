@@ -1,15 +1,15 @@
 import fetchMock from "jest-fetch-mock";
-import {FrontEndService} from "./front-end.service";
+import {FrontEndMetadataService} from "./front-end-metadata.service";
 
 describe('FrontEndServiceService', () => {
-  let frontEndService: FrontEndService;
+  let frontEndService: FrontEndMetadataService;
 
   beforeAll(() => {
     fetchMock.enableMocks()
   });
 
   beforeEach(() => {
-    frontEndService = new FrontEndService();
+    frontEndService = new FrontEndMetadataService();
     fetchMock.resetMocks()
   })
 

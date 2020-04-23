@@ -1,11 +1,7 @@
 import 'isomorphic-fetch'
 
-export class FrontEndService {
-  private readonly eventMap: Object;
-
-  constructor() {
-    this.eventMap = {};
-  }
+export class FrontEndMetadataService {
+  constructor(private readonly eventMap: Object = {}) {}
 
   async register(url: string): Promise<void> {
     const response: any = await fetch(`${url}metadata`);
@@ -16,6 +12,10 @@ export class FrontEndService {
           this.eventMap[event] = eventProvider.serviceFile;
         });
     });
+  }
+
+  getEventMap() {
+    return {...this.eventMap};
   }
 
   getServiceForEvent(event: string) {

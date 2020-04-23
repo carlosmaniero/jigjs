@@ -1,6 +1,6 @@
 import {JSDOM} from 'jsdom';
 import {when} from 'jest-when';
-import {FrontEndService} from "./front-end.service";
+import {FrontEndMetadataService} from "./front-end-metadata.service";
 import {templateServiceFactory} from "./template-service";
 import path from "path";
 
@@ -8,16 +8,16 @@ import path from "path";
 describe('TemplateService', () => {
     const testTemplateFile = path.join(__dirname, './__tests_assets__/index.html');
 
-    it('renders the home view template', async () => {
+    it('renders the template view template', async () => {
         const microFrontEndResolverMock = jest.fn(() => Promise.resolve({
             html: 'stub',
             eventDependencies: null
         }));
 
-        const homeHtml = await templateServiceFactory(testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndService());
-        const home = new JSDOM(await homeHtml.render()).window.document.body;
+        const templateHtml = await templateServiceFactory(testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndMetadataService());
+        const template = new JSDOM(await templateHtml.render()).window.document.body;
 
-        expect(home.querySelector('h1').textContent)
+        expect(template.querySelector('h1').textContent)
             .toContain('Welcome to Pokémon Shop')
     });
 
@@ -35,10 +35,10 @@ describe('TemplateService', () => {
                 eventDependencies: null
             }));
 
-        const homeHtml = await templateServiceFactory(testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndService());
-        const home = new JSDOM(await homeHtml.render()).window.document.body;
+        const templateHtml = await templateServiceFactory(testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndMetadataService());
+        const template = new JSDOM(await templateHtml.render()).window.document.body;
 
-        expect(home.querySelector('#catalog-fragment').textContent)
+        expect(template.querySelector('#catalog-fragment').textContent)
             .toContain('yay!')
     });
 
@@ -56,16 +56,15 @@ describe('TemplateService', () => {
                 eventDependencies: null
             }));
 
-        const homeHtml = await templateServiceFactory(testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndService());
-        const home = new JSDOM(await homeHtml.render()).window.document.body;
+        const templateHtml = await templateServiceFactory(testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndMetadataService());
+        const template = new JSDOM(await templateHtml.render()).window.document.body;
 
-        expect(home.querySelector('#cart-fragment').textContent)
+        expect(template.querySelector('#cart-fragment').textContent)
             .toContain('yoy!')
     });
 
     it('appends the dependency script', async () => {
         const microFrontEndResolverMock = jest.fn();
-        const getServiceForEventMock = jest.fn();
 
         when(microFrontEndResolverMock)
             .mockReturnValue(Promise.resolve({
@@ -78,19 +77,39 @@ describe('TemplateService', () => {
                 eventDependencies: 'my-event'
             }));
 
-        when(getServiceForEventMock)
-            .calledWith('my-event')
-            .mockReturnValue('my-service.js');
-
-        const homeHtml = await templateServiceFactory(
+        const templateHtml = await templateServiceFactory(
             testTemplateFile,
             {resolve: microFrontEndResolverMock},
-            {getServiceForEvent: getServiceForEventMock} as any
+            new FrontEndMetadataService({
+                'my-event': 'my-service.js',
+            })
         );
 
-        const home = new JSDOM(await homeHtml.render()).window.document.body;
+        const template = new JSDOM(await templateHtml.render()).window.document.body;
 
-        expect(home.querySelector('script').src)
+        expect((template.querySelector('script:not(#__micro_front_end_metadata__)') as HTMLScriptElement).src)
             .toContain('my-service.js')
     });
+
+    it('adds a script with the the front-end meta data', async () => {
+        const microFrontEndResolverMock = jest.fn(() => {
+            return Promise.resolve({
+                html: 'stub',
+                eventDependencies: null
+            })
+        });
+
+        const eventMap = {
+            'EVENT_BLA': '/service.js',
+        };
+
+        const templateHtml = await templateServiceFactory(
+            testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndMetadataService(eventMap)
+        );
+
+        const template = new JSDOM(await templateHtml.render()).window.document.body;
+
+        expect(template.querySelector('script#__micro_front_end_metadata__').textContent)
+            .toBe(JSON.stringify(eventMap));
+    })
 });
