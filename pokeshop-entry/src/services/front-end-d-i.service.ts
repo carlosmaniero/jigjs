@@ -1,10 +1,10 @@
-import {FrontEndMetadataService} from "./front-end-metadata.service";
+import {FrontEndMetadata} from "./front-end.metadata";
 
 export class FrontEndDIService {
   private readonly filesAppended = [];
 
   constructor(
-    private readonly frontEndService: FrontEndMetadataService,
+    private readonly frontEndService: FrontEndMetadata,
     private readonly document: Document) {
 
   }

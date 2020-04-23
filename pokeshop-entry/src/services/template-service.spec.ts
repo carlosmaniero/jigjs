@@ -1,6 +1,6 @@
 import {JSDOM} from 'jsdom';
 import {when} from 'jest-when';
-import {FrontEndMetadataService} from "./front-end-metadata.service";
+import {FrontEndMetadata} from "./front-end.metadata";
 import {templateServiceFactory} from "./template-service";
 import path from "path";
 
@@ -14,7 +14,8 @@ describe('TemplateService', () => {
             eventDependencies: null
         }));
 
-        const templateHtml = await templateServiceFactory(testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndMetadataService());
+        const templateHtml = await templateServiceFactory(
+            testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndMetadata());
         const template = new JSDOM(await templateHtml.render()).window.document.body;
 
         expect(template.querySelector('h1').textContent)
@@ -35,7 +36,7 @@ describe('TemplateService', () => {
                 eventDependencies: null
             }));
 
-        const templateHtml = await templateServiceFactory(testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndMetadataService());
+        const templateHtml = await templateServiceFactory(testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndMetadata());
         const template = new JSDOM(await templateHtml.render()).window.document.body;
 
         expect(template.querySelector('#catalog-fragment').textContent)
@@ -56,7 +57,7 @@ describe('TemplateService', () => {
                 eventDependencies: null
             }));
 
-        const templateHtml = await templateServiceFactory(testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndMetadataService());
+        const templateHtml = await templateServiceFactory(testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndMetadata());
         const template = new JSDOM(await templateHtml.render()).window.document.body;
 
         expect(template.querySelector('#cart-fragment').textContent)
@@ -80,7 +81,7 @@ describe('TemplateService', () => {
         const templateHtml = await templateServiceFactory(
             testTemplateFile,
             {resolve: microFrontEndResolverMock},
-            new FrontEndMetadataService({
+            new FrontEndMetadata({
                 'my-event': 'my-service.js',
             })
         );
@@ -104,7 +105,7 @@ describe('TemplateService', () => {
         };
 
         const templateHtml = await templateServiceFactory(
-            testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndMetadataService(eventMap)
+            testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndMetadata(eventMap)
         );
 
         const template = new JSDOM(await templateHtml.render()).window.document.body;

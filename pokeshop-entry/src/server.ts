@@ -1,23 +1,23 @@
 import express from 'express';
 import {FragmentResolver} from "./services/fragment-resolver";
 import {renderHome} from "./views/home";
-import {FrontEndMetadataService} from "./services/front-end-metadata.service";
+import {FrontEndMetadataRegisterService, FrontEndMetadata} from "./services/front-end.metadata";
 
 const app = express();
-const frontEndService = new FrontEndMetadataService();
+const frontEndService = new FrontEndMetadataRegisterService();
 
 app.use(express.static('dist'));
 
-app.get('/', (req, res) => {
-    renderHome(new FragmentResolver(), frontEndService)
-        .then((view) => {
-            res.send(view);
-        });
-});
-
 console.log('Registering dependencies');
 
-frontEndService.register('http://localhost:3001/').then(() => {
+frontEndService.register('http://localhost:3001/').then((frontEndMetadata) => {
+    app.get('/', (req, res) => {
+        renderHome(new FragmentResolver(), frontEndMetadata)
+            .then((view) => {
+                res.send(view);
+            });
+    });
+
     console.log('starting server');
 
     app.listen(4200, function () {

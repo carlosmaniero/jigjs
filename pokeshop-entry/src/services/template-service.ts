@@ -1,7 +1,7 @@
 import {JSDOM} from 'jsdom';
 import {FragmentResolver} from "./fragment-resolver";
 import {FrontEndDIService} from "./front-end-d-i.service";
-import {FrontEndMetadataService} from "./front-end-metadata.service";
+import {FrontEndMetadata} from "./front-end.metadata";
 import fs from "fs";
 import {registerMicroFrontEndComponent} from "../components/micro-front-ends/MicroFrontEndComponent";
 
@@ -9,7 +9,7 @@ class TemplateService {
     constructor(
         private readonly dom: JSDOM,
         private readonly fragmentResolver: FragmentResolver,
-        private readonly frontEndService: FrontEndMetadataService,
+        private readonly frontEndService: FrontEndMetadata,
         private readonly frontEndDIService: FrontEndDIService,
     ) {}
 
@@ -58,7 +58,7 @@ class TemplateService {
     }
 }
 
-export const templateServiceFactory = async (templatePath: string, fragmentResolver: FragmentResolver, frontEndService: FrontEndMetadataService): Promise<TemplateService> => {
+export const templateServiceFactory = async (templatePath: string, fragmentResolver: FragmentResolver, frontEndService: FrontEndMetadata): Promise<TemplateService> => {
     const html: string = await new Promise((resolve => {
         fs.readFile(templatePath, 'utf8', (err, data) => {
             resolve(data);
