@@ -10,8 +10,20 @@
 <body>
     <h1>Welcome to Pokémon Shop!</h1>
 
-    <front-end-fragment id="cart-fragment" url="http://localhost:3001/"></front-end-fragment>
-    <front-end-fragment id="catalog-fragment" url="http://localhost:3000/catalog/page/1"></front-end-fragment>
+    <h2>Hello, {name}</h2>
+    <h3>Hello, {name}</h3>
+
+    <front-end-fragment
+            id="cart-fragment"
+            url="http://localhost:3001/"
+            headers='{"key": "value"}'
+    >
+    </front-end-fragment>
+
+    <front-end-fragment
+            id="catalog-fragment"
+            url="http://localhost:3000/catalog/page/1">
+    </front-end-fragment>
 
 </body>
 </html>

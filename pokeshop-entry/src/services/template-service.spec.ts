@@ -2,11 +2,30 @@ import {JSDOM} from 'jsdom';
 import {when} from 'jest-when';
 import {FrontEndMetadata} from "./front-end.metadata";
 import {templateServiceFactory} from "./template-service";
-import path from "path";
+const path = require('path');
 
 
 describe('TemplateService', () => {
     const testTemplateFile = path.join(__dirname, './__tests_assets__/index.html');
+
+    it('renders with template context', async () => {
+        const microFrontEndResolverMock = jest.fn(() => Promise.resolve({
+            html: 'stub',
+            eventDependencies: null
+        }));
+
+        const templateHtml = await templateServiceFactory(
+            testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndMetadata(),
+            {name: 'World'}
+        );
+
+        const template = new JSDOM(await templateHtml.render()).window.document.body;
+
+        expect(template.querySelector('h2').textContent)
+            .toContain('Hello, World');
+        expect(template.querySelector('h3').textContent)
+            .toContain('Hello, World');
+    });
 
     it('renders the template view template', async () => {
         const microFrontEndResolverMock = jest.fn(() => Promise.resolve({

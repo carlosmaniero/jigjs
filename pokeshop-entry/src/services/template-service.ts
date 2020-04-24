@@ -51,14 +51,30 @@ class TemplateService {
     }
 }
 
-export const templateServiceFactory = async (templatePath: string, fragmentResolver: FragmentResolver, frontEndService: FrontEndMetadata): Promise<TemplateService> => {
+function processContext(html: string, renderContext: Record<string, string>) {
+    let processedHtml = html;
+
+    for (let key in renderContext) {
+        const templateReplacement = `{${key}}`;
+        processedHtml = processedHtml.replace(new RegExp(templateReplacement, 'g'), renderContext[key])
+    }
+
+    return processedHtml
+}
+
+export const templateServiceFactory = async (
+    templatePath: string,
+    fragmentResolver: FragmentResolver,
+    frontEndService: FrontEndMetadata,
+    renderContext: Record<string, string> = {}
+): Promise<TemplateService> => {
     const html: string = await new Promise((resolve => {
         fs.readFile(templatePath, 'utf8', (err, data) => {
             resolve(data);
         });
     }));
 
-    const jsdom = new JSDOM(html);
+    const jsdom = new JSDOM(processContext(html, renderContext));
 
     return new TemplateService(
         jsdom,

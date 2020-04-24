@@ -4,9 +4,9 @@ import {FragmentResolver} from "../services/fragment-resolver";
 import {FrontEndMetadata} from "../services/front-end.metadata";
 
 
-export const renderHome = async (resolver: FragmentResolver, frontEndService: FrontEndMetadata) => {
+export const renderCatalog = async (resolver: FragmentResolver, frontEndService: FrontEndMetadata, pageNumber: string = '1') => {
     const templatePath = path.join(__dirname, '../template/index.html');
-    const templateService = await templateServiceFactory(templatePath, resolver, frontEndService)
+    const templateService = await templateServiceFactory(templatePath, resolver, frontEndService, {currentPageNumber: pageNumber})
 
     return templateService.render();
 }

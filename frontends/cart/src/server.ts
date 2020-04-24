@@ -28,7 +28,7 @@ app.get('/metadata', (req, res) => {
 })
 
 app.get('/', function (req, res) {
-    res.header("X-Event-Dependency", [CART_SERVICE_EVENTS.ADD_TO_CART]);
+    res.header("X-Event-Dependency", [CART_SERVICE_EVENTS.CART_ITEMS]);
     fs.readFile('src/template/cart-count.html', "utf8", (err, data) => {
         res.send(data.replace('{componentFile}', `${currentHost(req)}/components/cart-count-component.js`));
     })

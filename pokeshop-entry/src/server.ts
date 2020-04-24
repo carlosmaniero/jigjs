@@ -1,7 +1,7 @@
 import express from 'express';
 import {FragmentResolver} from "./services/fragment-resolver";
-import {renderHome} from "./views/home";
-import {FrontEndMetadataRegisterService, FrontEndMetadata} from "./services/front-end.metadata";
+import {renderCatalog} from "./views/catalog-view";
+import {FrontEndMetadataRegisterService} from "./services/front-end.metadata";
 
 const app = express();
 const frontEndService = new FrontEndMetadataRegisterService();
@@ -12,7 +12,14 @@ console.log('Registering dependencies');
 
 frontEndService.register('http://localhost:3001/').then((frontEndMetadata) => {
     app.get('/', (req, res) => {
-        renderHome(new FragmentResolver(), frontEndMetadata)
+        renderCatalog(new FragmentResolver(), frontEndMetadata)
+            .then((view) => {
+                res.send(view);
+            });
+    });
+
+    app.get('/catalog/:number', (req, res) => {
+        renderCatalog(new FragmentResolver(), frontEndMetadata, req.params.number)
             .then((view) => {
                 res.send(view);
             });

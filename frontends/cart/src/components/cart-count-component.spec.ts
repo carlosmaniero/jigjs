@@ -7,6 +7,10 @@ import {CART_SERVICE_EVENTS} from "../services/cart-service";
 describe('CartCountComponent', () => {
     beforeEach(() => {
         document.body.innerHTML = "";
+    });
+
+    afterEach(() => {
+        document.body.innerHTML = "";
     })
 
     it("renders the cart count with zero as default value", () => {
@@ -30,10 +34,13 @@ describe('CartCountComponent', () => {
         const cartCount = document.createElement('cart-count-component');
         document.body.appendChild(cartCount);
 
-        publishEvent(CART_SERVICE_EVENTS.CART_ITEMS, [{
-            id: 1,
-            name: 'hi'
-        }]);
+        publishEvent(CART_SERVICE_EVENTS.CART_ITEMS, {
+            items: [{
+                id: 1,
+                name: 'hi'
+            }],
+            total: 1
+        });
 
         expect(testingLibrary.queryByText(document.body, "1")).not.toBeNull();
     });

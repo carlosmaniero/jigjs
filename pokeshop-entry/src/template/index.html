@@ -5,12 +5,16 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="components.js"></script>
+    <script src="/components.js"></script>
     <title>Pokémon Shop!</title>
 
     <style>
+        body {
+            background: #060C0D;
+            padding: 60px;
+        }
         #main-header {
-            background: #ee8329;
+            background: #544F73;
             position: fixed;
             top: 0;
             width: 100%;
@@ -21,8 +25,8 @@
             justify-content: space-between;
             z-index: 1;
             box-sizing: border-box;
-            padding: 0 10px;
-            border-bottom: 5px solid #cd5241;
+            padding: 0 60px;
+            border-bottom: 5px solid rgba(255, 255, 255, 0.02);
             box-shadow: 0px 0px 6px rgba(0, 0, 0, 1);
         }
 
@@ -33,22 +37,39 @@
             font-size: 22px;
         }
 
-        body {
-            padding-top: 60px;
+        @media only screen and (max-width: 600px) {
+            #main-header h1 {
+                font-size: 16px;
+            }
+
+            body {
+                padding: 60px 20px;
+            }
+
+            #main-header {
+                padding: 0 20px;
+            }
         }
     </style>
 </head>
 <body>
     <header id="main-header">
-        <h1>Welcome to Pokémon Shop!</h1>
+        <h1>Pokémon Shop!</h1>
 
         <div id="cart-container">
-            <front-end-fragment async="true" id="cart-fragment" url="http://localhost:3001/"></front-end-fragment>
+            <front-end-fragment
+                    async="true"
+                    id="cart-fragment"
+                    url="http://localhost:3001/">
+            </front-end-fragment>
         </div>
     </header>
 
-
-    <front-end-fragment id="catalog-fragment" url="http://localhost:3000/catalog/page/1"></front-end-fragment>
+    <front-end-fragment
+            id="catalog-fragment"
+            url="http://localhost:3000/catalog/page/{currentPageNumber}"
+            headers='{"X-Pagination-Url-Template": "/catalog/{number}"}'>
+    </front-end-fragment>
 
 </body>
 </html>

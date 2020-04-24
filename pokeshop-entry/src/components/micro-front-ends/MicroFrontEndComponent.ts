@@ -19,9 +19,12 @@ export const registerMicroFrontEndComponent = (window, resolver, isBrowser = fal
 
         async renderContent () {
             const url = this.getAttribute('url');
-            const response = await resolver.resolve(url);
+            const headers = this.getAttribute('headers') || '{}';
+
+            const response = await resolver.resolve(url, JSON.parse(headers));
 
             this.innerHTML = response.html;
+
             this.forceJavascriptToLoad();
             this.injectDependencies(response);
 
@@ -51,6 +54,7 @@ export const registerMicroFrontEndComponent = (window, resolver, isBrowser = fal
             this.querySelectorAll('script')
                 .forEach((script: HTMLScriptElement) => {
                     const recreatedScript = window.document.createElement('script');
+
                     recreatedScript.textContent = script.textContent;
                     recreatedScript.setAttribute('data-dynamic-loaded', "true");
 

@@ -11,6 +11,10 @@ interface Pokemon {
     name: string
 }
 
+type PokemonItem = Pokemon & {
+    total: number
+}
+
 export class CartService {
     constructor(private readonly publishEvent: EventPublisher) {
         this.publishCart();
@@ -23,7 +27,26 @@ export class CartService {
     }
 
     publishCart() {
-        this.publishEvent(CART_SERVICE_EVENTS.CART_ITEMS, this.getPokemons())
+        this.publishEvent(CART_SERVICE_EVENTS.CART_ITEMS, {
+            items: this.getItemsWithTotal(),
+            total: this.getPokemons().length
+        })
+    }
+
+    private getItemsWithTotal() {
+        return this.getPokemons().reduce((acc, pokemon) => {
+            const pokemonItem: PokemonItem = acc
+                .find((item) => item.id === pokemon.id);
+
+            if (pokemonItem) {
+                return [
+                    ...acc.filter((item) => pokemonItem !== item),
+                    {...pokemonItem, total: pokemonItem.total + 1}
+                ]
+            }
+
+            return [...acc, {...pokemon, total: 1}]
+        }, [] as PokemonItem[])
     }
 
     private getPokemons(): Pokemon[] {

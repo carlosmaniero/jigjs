@@ -24,7 +24,29 @@ describe('CartService', () => {
 
         publishEvent(CART_SERVICE_EVENTS.ADD_TO_CART, {id: 1, pokemonName: 'Bulbasaur'});
 
-        expect(listener).toBeCalledWith([{id: 1, pokemonName: 'Bulbasaur'}]);
+        expect(listener).toBeCalledWith({
+            items: [
+                {id: 1, pokemonName: "Bulbasaur", total: 1}
+            ],
+            total: 1
+        });
+    });
+
+    it('computate the total of pokemons added', () => {
+        const listener = jest.fn();
+
+        registerCartService(publishEvent, subscribeToEvent)
+        subscribeToEvent(CART_SERVICE_EVENTS.CART_ITEMS, listener);
+
+        publishEvent(CART_SERVICE_EVENTS.ADD_TO_CART, {id: 1, pokemonName: 'Bulbasaur'});
+        publishEvent(CART_SERVICE_EVENTS.ADD_TO_CART, {id: 1, pokemonName: 'Bulbasaur'});
+
+        expect(listener).toBeCalledWith({
+            items: [
+                {id: 1, pokemonName: "Bulbasaur", total: 2}
+            ],
+            total: 2
+        });
     });
 
     it('appends the pokemon cart list when adding', () => {
@@ -42,10 +64,13 @@ describe('CartService', () => {
             {id: 1, pokemonName: 'Bulbasaur'}
         );
 
-        expect(listener).toBeCalledWith([
-            {id: 2, pokemonName: 'Pikachu'},
-            {id: 1, pokemonName: 'Bulbasaur'}
-        ]);
+        expect(listener).toBeCalledWith({
+            items: [
+                {id: 2, pokemonName: 'Pikachu', total: 1},
+                {id: 1, pokemonName: 'Bulbasaur', total: 1}
+            ],
+            total: 2
+        });
     });
 
     it('stores pokemon into localstorage', () => {
@@ -68,9 +93,12 @@ describe('CartService', () => {
         subscribeToEvent(CART_SERVICE_EVENTS.CART_ITEMS, listener);
         publishEvent(CART_SERVICE_EVENTS.ASK_FOR_ITEMS);
 
-        expect(listener).toBeCalledWith([
-            pokemon
-        ])
+        expect(listener).toBeCalledWith({
+            items: [
+                {...pokemon, total: 1}
+            ],
+            total: 1
+        })
     });
 
     it('publishes a message with the cart as soon as it is registered', () => {
@@ -83,8 +111,11 @@ describe('CartService', () => {
 
         registerCartService(publishEvent, subscribeToEvent);
 
-        expect(listener).toBeCalledWith([
-            pokemon
-        ])
+        expect(listener).toBeCalledWith({
+            items: [
+                {...pokemon, total: 1}
+            ],
+            total: 1
+        })
     });
 });
