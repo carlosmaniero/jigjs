@@ -6,6 +6,7 @@ module.exports = {
     entry: {
         "services/services": './src/services/services.ts',
         "components/cart-count-component": './src/components/cart-count-component.ts',
+        "components/cart-component": './src/components/cart-component.ts',
     },
     devtool: 'inline-source-map',
     module: {

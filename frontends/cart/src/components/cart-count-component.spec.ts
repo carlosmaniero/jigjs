@@ -2,7 +2,7 @@ import * as testingLibrary from '@testing-library/dom';
 
 import './cart-count-component';
 import {publishEvent, subscribeToEvent} from "../../../../core/src/event-bus";
-import {CART_SERVICE_EVENTS} from "../services/cart-service";
+import {CART_SERVICE_EVENTS} from "../models/models";
 
 describe('CartCountComponent', () => {
     beforeEach(() => {

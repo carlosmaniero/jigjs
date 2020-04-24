@@ -1,5 +1,5 @@
 import {EventSubscription, publishEvent, subscribeToEvent} from "../../../../core/src/event-bus";
-import {CART_SERVICE_EVENTS} from "../services/cart-service";
+import {CART_SERVICE_EVENTS} from "../models/models";
 
 class CartCountComponent extends HTMLElement {
     private count: number;

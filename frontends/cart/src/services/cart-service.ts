@@ -1,65 +1,84 @@
 import {EventPublisher, EventSubscriber} from "../../../../core/src/event-bus";
+import {CART_SERVICE_EVENTS, Pokemon, PokemonItem} from "../models/models";
 
-export const CART_SERVICE_EVENTS = {
-    CART_ITEMS: "CART_SERVICE_ITEMS",
-    ADD_TO_CART: "CART_SERVICE_ADD_TO_CART",
-    ASK_FOR_ITEMS: "CART_SERVICE_ASK_FOR_ITEMS"
-}
+class CartRepository {
+    private lsKey = 'cart-service-items';
 
-interface Pokemon {
-    id: number,
-    name: string
-}
+    all(): PokemonItem[] {
+        return JSON.parse(localStorage.getItem(this.lsKey) || '[]');
+    }
 
-type PokemonItem = Pokemon & {
-    total: number
+    byId(id: string) {
+        const item = this.byIdInList(id, this.all());
+
+        if (item) {
+            return {...item};
+        }
+    }
+    save(item: PokemonItem) {
+        const list = this.all();
+        const storedItem = this.byIdInList(item.id, list);
+
+        if (storedItem) {
+            const storedIndex = list.indexOf(storedItem);
+            list[storedIndex] = item;
+        } else {
+            list.push(item);
+        }
+
+        this.saveAll(list);
+    }
+
+    totalItems() {
+        return this.all()
+            .reduce((acc: number, pokemonItem) => acc + pokemonItem.total, 0)
+    }
+
+    private saveAll(newPokemonList) {
+        localStorage.setItem(this.lsKey, JSON.stringify(newPokemonList));
+    }
+
+    private byIdInList(id: string, list: PokemonItem[]) {
+        return list.find((item) => item.id === id);
+    }
 }
 
 export class CartService {
-    constructor(private readonly publishEvent: EventPublisher) {
+    private readonly cartRepository;
+
+    constructor(private readonly publishEvent: EventPublisher, cartRepository: CartRepository) {
+        this.cartRepository = cartRepository;
         this.publishCart();
     }
 
-    addToCart(payload: Pokemon) {
-        const newPokemonList = [...this.getPokemons(), payload];
-        this.savePokemonList(newPokemonList);
+    addToCart(pokemon: Pokemon) {
+        const cartItem = this.getItemOrEmptyItem(pokemon);
+
+        cartItem.total++;
+        this.cartRepository.save(cartItem);
+
+        this.publishCart();
+    }
+
+    updateItem(updateItem: PokemonItem) {
+        this.cartRepository.save(updateItem);
         this.publishCart();
     }
 
     publishCart() {
         this.publishEvent(CART_SERVICE_EVENTS.CART_ITEMS, {
-            items: this.getItemsWithTotal(),
-            total: this.getPokemons().length
+            items: this.cartRepository.all(),
+            total: this.cartRepository.totalItems()
         })
     }
 
-    private getItemsWithTotal() {
-        return this.getPokemons().reduce((acc, pokemon) => {
-            const pokemonItem: PokemonItem = acc
-                .find((item) => item.id === pokemon.id);
-
-            if (pokemonItem) {
-                return [
-                    ...acc.filter((item) => pokemonItem !== item),
-                    {...pokemonItem, total: pokemonItem.total + 1}
-                ]
-            }
-
-            return [...acc, {...pokemon, total: 1}]
-        }, [] as PokemonItem[])
-    }
-
-    private getPokemons(): Pokemon[] {
-        return JSON.parse(localStorage.getItem('cart-service-items') || '[]');
-    }
-
-    private savePokemonList(newPokemonList: Pokemon[]) {
-        localStorage.setItem('cart-service-items', JSON.stringify(newPokemonList));
+    private getItemOrEmptyItem(pokemon: Pokemon): PokemonItem {
+        return this.cartRepository.byId(pokemon.id) || {...pokemon, total: 0};
     }
 }
 
 export const registerCartService = (publishEvent: EventPublisher, subscribeToEvent: EventSubscriber) => {
-    const cartService = new CartService(publishEvent);
+    const cartService = new CartService(publishEvent, new CartRepository());
 
     subscribeToEvent(CART_SERVICE_EVENTS.ADD_TO_CART, (payload: Pokemon) => {
         cartService.addToCart(payload);
@@ -68,4 +87,8 @@ export const registerCartService = (publishEvent: EventPublisher, subscribeToEve
     subscribeToEvent(CART_SERVICE_EVENTS.ASK_FOR_ITEMS, () => {
         cartService.publishCart();
     });
+
+    subscribeToEvent(CART_SERVICE_EVENTS.UPDATE_ITEM, (updateItem: PokemonItem) => {
+        cartService.updateItem(updateItem);
+    })
 }

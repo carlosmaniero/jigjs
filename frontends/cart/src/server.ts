@@ -1,6 +1,6 @@
 import express from 'express';
-import {CART_SERVICE_EVENTS} from "./services/cart-service";
 import fs from 'fs';
+import {CART_SERVICE_EVENTS} from "./models/models";
 
 const app = express();
 
@@ -31,6 +31,13 @@ app.get('/', function (req, res) {
     res.header("X-Event-Dependency", [CART_SERVICE_EVENTS.CART_ITEMS]);
     fs.readFile('src/template/cart-count.html', "utf8", (err, data) => {
         res.send(data.replace('{componentFile}', `${currentHost(req)}/components/cart-count-component.js`));
+    })
+});
+
+app.get('/cart', function (req, res) {
+    res.header("X-Event-Dependency", [CART_SERVICE_EVENTS.CART_ITEMS]);
+    fs.readFile('src/template/cart.html', "utf8", (err, data) => {
+        res.send(data.replace('{componentFile}', `${currentHost(req)}/components/cart-component.js`));
     })
 });
 
