@@ -23,11 +23,11 @@ describe('CartService', () => {
         registerCartService(publishEvent, subscribeToEvent)
         subscribeToEvent(CART_SERVICE_EVENTS.CART_ITEMS, listener);
 
-        publishEvent(CART_SERVICE_EVENTS.ADD_TO_CART, {id: 1, pokemonName: 'Bulbasaur'});
+        publishEvent(CART_SERVICE_EVENTS.ADD_TO_CART, {number: 1, pokemonName: 'Bulbasaur'});
 
         expect(listener).toBeCalledWith({
             items: [
-                {id: 1, pokemonName: "Bulbasaur", total: 1}
+                {number: 1, pokemonName: "Bulbasaur", total: 1}
             ],
             total: 1
         });
@@ -39,12 +39,12 @@ describe('CartService', () => {
         registerCartService(publishEvent, subscribeToEvent)
         subscribeToEvent(CART_SERVICE_EVENTS.CART_ITEMS, listener);
 
-        publishEvent(CART_SERVICE_EVENTS.ADD_TO_CART, {id: 1, pokemonName: 'Bulbasaur'});
-        publishEvent(CART_SERVICE_EVENTS.ADD_TO_CART, {id: 1, pokemonName: 'Bulbasaur'});
+        publishEvent(CART_SERVICE_EVENTS.ADD_TO_CART, {number: 1, pokemonName: 'Bulbasaur'});
+        publishEvent(CART_SERVICE_EVENTS.ADD_TO_CART, {number: 1, pokemonName: 'Bulbasaur'});
 
         expect(listener).toBeCalledWith({
             items: [
-                {id: 1, pokemonName: "Bulbasaur", total: 2}
+                {number: 1, pokemonName: "Bulbasaur", total: 2}
             ],
             total: 2
         });
@@ -54,7 +54,7 @@ describe('CartService', () => {
         const listener = jest.fn();
 
         localStorage.setItem('cart-service-items', JSON.stringify([
-            {id: 2, pokemonName: 'Pikachu', total: 1}
+            {number: 2, pokemonName: 'Pikachu', total: 1}
         ]));
 
         registerCartService(publishEvent, subscribeToEvent)
@@ -62,13 +62,13 @@ describe('CartService', () => {
 
         publishEvent(
             CART_SERVICE_EVENTS.ADD_TO_CART,
-            {id: 1, pokemonName: 'Bulbasaur'}
+            {number: 1, pokemonName: 'Bulbasaur'}
         );
 
         expect(listener).toBeCalledWith({
             items: [
-                {id: 2, pokemonName: 'Pikachu', total: 1},
-                {id: 1, pokemonName: 'Bulbasaur', total: 1}
+                {number: 2, pokemonName: 'Pikachu', total: 1},
+                {number: 1, pokemonName: 'Bulbasaur', total: 1}
             ],
             total: 2
         });
@@ -77,17 +77,17 @@ describe('CartService', () => {
     it('stores pokemon into localstorage', () => {
         registerCartService(publishEvent, subscribeToEvent)
 
-        publishEvent(CART_SERVICE_EVENTS.ADD_TO_CART, {id: 1, pokemonName: 'Bulbasaur'});
-        publishEvent(CART_SERVICE_EVENTS.ADD_TO_CART, {id: 1, pokemonName: 'Bulbasaur'});
+        publishEvent(CART_SERVICE_EVENTS.ADD_TO_CART, {number: 1, pokemonName: 'Bulbasaur'});
+        publishEvent(CART_SERVICE_EVENTS.ADD_TO_CART, {number: 1, pokemonName: 'Bulbasaur'});
 
         expect(localStorage.getItem('cart-service-items'))
-            .toBe(JSON.stringify([{id: 1, pokemonName: 'Bulbasaur', total: 2}]));
+            .toBe(JSON.stringify([{number: 1, pokemonName: 'Bulbasaur', total: 2}]));
     });
 
     it('responds a message asking for the card items', () => {
         registerCartService(publishEvent, subscribeToEvent);
 
-        const pokemon = {id: 2, pokemonName: 'Pikachu', total: 1};
+        const pokemon = {number: 2, pokemonName: 'Pikachu', total: 1};
         const listener = jest.fn();
 
         localStorage.setItem('cart-service-items', JSON.stringify([pokemon]));
@@ -104,7 +104,7 @@ describe('CartService', () => {
     });
 
     it('publishes a message with the cart as soon as it is registered', () => {
-        const pokemon = {id: 2, pokemonName: 'Pikachu', total: 1};
+        const pokemon = {number: 2, pokemonName: 'Pikachu', total: 1};
         const listener = jest.fn();
 
         localStorage.setItem('cart-service-items', JSON.stringify([pokemon]));
@@ -122,7 +122,7 @@ describe('CartService', () => {
     });
 
     it('updates the value', () => {
-        const pokemon = {id: 2, pokemonName: 'Pikachu', total: 10};
+        const pokemon = {number: 2, pokemonName: 'Pikachu', total: 10};
         const listener = jest.fn();
 
         localStorage.setItem('cart-service-items', JSON.stringify([pokemon]));
@@ -141,7 +141,7 @@ describe('CartService', () => {
     });
 
     it('deletes an item', () => {
-        const pokemon = {id: 2, pokemonName: 'Pikachu', total: 10};
+        const pokemon = {number: 2, pokemonName: 'Pikachu', total: 10};
         const listener = jest.fn();
 
         localStorage.setItem('cart-service-items', JSON.stringify([pokemon]));

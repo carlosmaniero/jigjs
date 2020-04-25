@@ -8,8 +8,8 @@ class CartRepository {
         return JSON.parse(localStorage.getItem(this.lsKey) || '[]');
     }
 
-    byId(id: string) {
-        const item = this.byIdInList(id, this.all());
+    byId(number: string) {
+        const item = this.byIdInList(number, this.all());
 
         if (item) {
             return {...item};
@@ -17,7 +17,7 @@ class CartRepository {
     }
     save(item: PokemonItem) {
         const list = this.all();
-        const storedItem = this.byIdInList(item.id, list);
+        const storedItem = this.byIdInList(item.number, list);
 
         if (storedItem) {
             const storedIndex = list.indexOf(storedItem);
@@ -35,15 +35,15 @@ class CartRepository {
     }
 
     delete(toBeDeleted: PokemonItem) {
-        this.saveAll(this.all().filter((item) => item.id !== toBeDeleted.id))
+        this.saveAll(this.all().filter((item) => item.number !== toBeDeleted.number))
     }
 
     private saveAll(newPokemonList) {
         localStorage.setItem(this.lsKey, JSON.stringify(newPokemonList));
     }
 
-    private byIdInList(id: string, list: PokemonItem[]) {
-        return list.find((item) => item.id === id);
+    private byIdInList(number: string, list: PokemonItem[]) {
+        return list.find((item) => item.number === number);
     }
 }
 
@@ -81,7 +81,7 @@ export class CartService {
     }
 
     private getItemOrEmptyItem(pokemon: Pokemon): PokemonItem {
-        return this.cartRepository.byId(pokemon.id) || {...pokemon, total: 0};
+        return this.cartRepository.byId(pokemon.number) || {...pokemon, total: 0};
     }
 }
 

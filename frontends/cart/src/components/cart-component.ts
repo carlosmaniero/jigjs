@@ -46,7 +46,7 @@ class CartComponent extends HTMLElement {
         itemRow.innerHTML = `
             <div class="cart-component__item__photo-column">
                 <img 
-                    src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${cartItem.id}.png" 
+                    src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${cartItem.number}.png" 
                     alt="${pokemonName}"
                 >
             </div>

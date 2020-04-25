@@ -36,7 +36,7 @@ describe('CartCountComponent', () => {
 
         publishEvent(CART_SERVICE_EVENTS.CART_ITEMS, {
             items: [{
-                id: 1,
+                number: 1,
                 name: 'hi'
             }],
             total: 1
@@ -51,7 +51,7 @@ describe('CartCountComponent', () => {
 
         publishEvent(CART_SERVICE_EVENTS.CART_ITEMS, {
             items: [{
-                id: 1,
+                number: 1,
                 name: 'hi'
             }],
             total: 1

@@ -1,15 +1,15 @@
 import fetchMock from "jest-fetch-mock";
-import {FrontEndMetadata} from "./front-end.metadata";
+import {FrontEndMetadataRegisterService} from "./front-end.metadata";
 
 describe('FrontEndServiceService', () => {
-  let frontEndService: FrontEndMetadata;
+  let frontEndService: FrontEndMetadataRegisterService;
 
   beforeAll(() => {
     fetchMock.enableMocks()
   });
 
   beforeEach(() => {
-    frontEndService = new FrontEndMetadata();
+    frontEndService = new FrontEndMetadataRegisterService();
     fetchMock.resetMocks()
   })
 
@@ -29,10 +29,10 @@ describe('FrontEndServiceService', () => {
         })
     )
 
-    await frontEndService.register(url);
+    const registration = await frontEndService.register(url);
 
 
-    expect(frontEndService.getServiceForEvent('CART_SERVICE_ADD_TO_CART'))
+    expect(registration.getServiceForEvent('CART_SERVICE_ADD_TO_CART'))
       .toBe(`services/service.js`);
   });
 });
