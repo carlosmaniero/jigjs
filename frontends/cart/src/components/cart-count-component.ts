@@ -25,12 +25,19 @@ class CartCountComponent extends HTMLElement {
     }
 
     render() {
-        this.style.background = '#5a6283';
-        this.style.color = '#ffffff';
-        this.style.padding = '10px';
-        this.style.fontFamily = 'sans-serif';
-        this.style.borderRadius = '20px';
-        this.innerHTML = `Cart: <strong>${this.count}</strong>`
+        this.innerHTML = '';
+        const linkAddress = document.createElement('a');
+        linkAddress.href = '/cart';
+
+        linkAddress.style.background = '#5a6283';
+        linkAddress.style.color = '#ffffff';
+        linkAddress.style.padding = '10px';
+        linkAddress.style.fontFamily = 'sans-serif';
+        linkAddress.style.borderRadius = '20px';
+        linkAddress.style.textDecoration = 'none';
+        linkAddress.innerHTML = `Cart: <strong>${this.count}</strong>`
+
+        this.appendChild(linkAddress);
     }
 }
 

@@ -7,15 +7,11 @@ class CartComponent extends HTMLElement {
 
     constructor() {
         super();
-        this.cart = {
-            items: [],
-            total: 0
-        }
     }
 
     connectedCallback() {
         this.cartSubscription = subscribeToEvent(CART_SERVICE_EVENTS.CART_ITEMS, (cart: Cart) => {
-            if (JSON.stringify(cart.items) === JSON.stringify(this.cart.items)) {
+            if (this.cart && JSON.stringify(cart.items) === JSON.stringify(this.cart.items)) {
                 return;
             }
 

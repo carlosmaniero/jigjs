@@ -63,11 +63,11 @@ export class PokemonList extends React.Component<Props, State> {
               }
             `}</style>
             <section>
-                {this.state.pokemons.map((pokemon) =>
+                {this.props.pokemons.map((pokemon) =>
                     <PokemonCard
                         key={pokemon.id}
                         pokemon={pokemon}
-                        total={pokemon.total}
+                        total={this.getTotalForPokemon(pokemon)}
                         eventPublisher={this.props.eventPublisher} />)}
 
                     {this.props.children}
@@ -76,12 +76,15 @@ export class PokemonList extends React.Component<Props, State> {
     }
 
     componentDidMount(): void {
+        this.setState({
+            items: [],
+        });
+
         this.subscription = this.props.eventListener('CART_SERVICE_ITEMS', (cart: CartEventContract) => {
             this.setState({
                 items: cart.items,
-                pokemons: this.mapPokemonWithCartItems(cart.items)
-            })
-        })
+            });
+        });
 
         this.addPokemonsToState();
     }
@@ -95,25 +98,14 @@ export class PokemonList extends React.Component<Props, State> {
 
     private addPokemonsToState() {
         this.props.eventPublisher('CART_SERVICE_ASK_FOR_ITEMS');
-
-        this.setState({
-            pokemons: this.mapPokemonWithCartItems(this.state.items)
-        });
     }
 
     componentWillUnmount(): void {
         this.subscription.unsubscribe();
     }
 
-    private mapPokemonWithCartItems(cartItems: CartEventItemContract[]) {
-        return this.props.pokemons.map((pokemon) => ({
-            ...pokemon,
-            total: this.getTotalForPokemon(cartItems, pokemon),
-        }));
-    }
-
-    private getTotalForPokemon(cartItems: CartEventItemContract[], pokemon: Pokemon) {
-        const item = cartItems.find((item) => item.id === pokemon.id);
+    private getTotalForPokemon(pokemon: Pokemon) {
+        const item = this.state.items.find((item) => item.id === pokemon.id);
 
         if (item) {
             return item.total;

@@ -23,6 +23,11 @@ export const registerHeaderComponent = (window) => {
                         border-bottom: 5px solid rgba(255, 255, 255, 0.02);
                         box-shadow: 0px 0px 6px rgba(0, 0, 0, 1);
                     }
+                    
+                    #main-header a {
+                        text-decoration: none;
+                        color: #fff;
+                    }
             
                     #main-header h1 {
                         color: white;
@@ -42,7 +47,7 @@ export const registerHeaderComponent = (window) => {
                     }
                 </style>
                 <header id="main-header">
-                    <h1>Pokémon Shop!</h1>
+                    <h1><a href="/">Pokémon Shop!</a></h1>
             
                     <div id="cart-container">
                         <front-end-fragment
