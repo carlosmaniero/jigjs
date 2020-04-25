@@ -9,11 +9,11 @@ describe('PokemonList', () => {
     const pokemons = [
         {
             name: "bulbasaur",
-            id: "1"
+            number: "1"
         },
         {
             name: "pikachu",
-            id: "2"
+            number: "2"
         },
     ]
 
@@ -36,7 +36,7 @@ describe('PokemonList', () => {
         const component = await render(<PokemonList
             pokemons={[{
                 name: "bulbasaur",
-                id: "1"
+                number: "1"
             }]}
             eventListener={subscribeToEvent}
             eventPublisher={mockPublisher}
@@ -45,7 +45,7 @@ describe('PokemonList', () => {
         component.rerender(<PokemonList
             pokemons={[{
                 name: "Pikachu",
-                id: "2"
+                number: "2"
             }]}
             eventListener={subscribeToEvent}
             eventPublisher={mockPublisher}
@@ -59,7 +59,7 @@ describe('PokemonList', () => {
         const component = await render(<PokemonList
             pokemons={[{
                 name: "bulbasaur",
-                id: "1"
+                number: "1"
             }]}
             eventListener={subscribeToEvent}
             eventPublisher={mockPublisher}
@@ -69,7 +69,7 @@ describe('PokemonList', () => {
             items: [{
                 items: [{
                     name: "bulbasaur",
-                    id: "1",
+                    number: "1",
                     total: 67
                 }]
             }],
@@ -83,7 +83,7 @@ describe('PokemonList', () => {
         const component = await render(<PokemonList
             pokemons={[{
                 name: "bulbasaur",
-                id: "1"
+                number: "1"
             }]}
             eventListener={subscribeToEvent}
             eventPublisher={mockPublisher}
@@ -92,7 +92,7 @@ describe('PokemonList', () => {
         component.rerender(<PokemonList
             pokemons={[{
                 name: "Pikachu",
-                id: "2"
+                number: "2"
             }]}
             eventListener={subscribeToEvent}
             eventPublisher={mockPublisher}
