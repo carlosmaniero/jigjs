@@ -1,6 +1,8 @@
 module.exports = {
     roots: [
-        "<rootDir>/components"
+        "<rootDir>/components",
+        "<rootDir>/pages",
+        "<rootDir>/services",
     ],
     preset: "ts-jest",
     transform: {

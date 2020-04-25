@@ -65,7 +65,7 @@ export class PokemonList extends React.Component<Props, State> {
             <section>
                 {this.props.pokemons.map((pokemon) =>
                     <PokemonCard
-                        key={pokemon.id}
+                        key={pokemon.number}
                         pokemon={pokemon}
                         total={this.getTotalForPokemon(pokemon)}
                         eventPublisher={this.props.eventPublisher} />)}
@@ -105,7 +105,7 @@ export class PokemonList extends React.Component<Props, State> {
     }
 
     private getTotalForPokemon(pokemon: Pokemon) {
-        const item = this.state.items.find((item) => item.id === pokemon.id);
+        const item = this.state.items.find((item) => item.number === pokemon.number);
 
         if (item) {
             return item.total;

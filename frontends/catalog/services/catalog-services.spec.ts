@@ -17,15 +17,16 @@ describe('catalog-service', () => {
     it('fetches pokemons', async () => {
         fetchMock.mockResponseOnce(
             JSON.stringify({
-                count: 964,
-                results: [
+                currentPage: 1,
+                totalPages: 49,
+                pokemons: [
                     {
                         name: "bulbasaur",
-                        url: "https://pokeapi.co/api/v2/pokemon/1/"
+                        id: "1"
                     },
                     {
                         name: "ivysaur",
-                        url: "https://pokeapi.co/api/v2/pokemon/2/"
+                        id: "2"
                     }
                 ]
             })
@@ -51,15 +52,11 @@ describe('catalog-service', () => {
 
     it('configures request', async () => {
         fetchMock.mockResponseOnce(
-            JSON.stringify({
-                count: 964,
-                results: []
-            })
+            JSON.stringify({})
         )
 
         await fetchPokemons(3);
 
-        expect(fetchMock.mock.calls[0][0]).toContain('limit=20');
-        expect(fetchMock.mock.calls[0][0]).toContain('offset=40');
+        expect(fetchMock.mock.calls[0][0]).toContain('page=3');
     });
 });

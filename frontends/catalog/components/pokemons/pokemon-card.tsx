@@ -61,7 +61,7 @@ export const PokemonCard = ({pokemon, eventPublisher, total}: Props) =>
                 {total}
             </span>
 
-            <img src={'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + pokemon.id +  '.png'} alt=""/>
+            <img src={'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + pokemon.number +  '.png'} alt=""/>
 
             <h3>{pokemon.name.toUpperCase()}</h3>
 

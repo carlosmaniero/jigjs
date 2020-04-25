@@ -8,7 +8,7 @@ type Props = FetchPokemonsResponse & {
     paginationUrlTemplate: string
 }
 
-export default class Number extends React.Component<Props, FetchPokemonsResponse> {
+export default class NumberPage extends React.Component<Props, FetchPokemonsResponse> {
     constructor(props) {
         super(props);
         this.state = {...props};
