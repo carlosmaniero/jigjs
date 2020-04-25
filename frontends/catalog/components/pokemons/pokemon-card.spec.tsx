@@ -7,7 +7,7 @@ describe('PokemonCard', () => {
 
     const pokemon = {
         name: "bulbasaur",
-        id: "1"
+        number: "1"
     }
 
     beforeEach(() => {
