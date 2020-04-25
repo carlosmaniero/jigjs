@@ -7,9 +7,9 @@ export interface FetchPokemonsResponse {
     totalPages: number
 }
 
-export const fetchPokemons = async (pageNumber: number): Promise<FetchPokemonsResponse> => {
+export const fetchPokemons = async (pageNumber: number, host): Promise<FetchPokemonsResponse> => {
 
-    const response = await fetch(`http://localhost:3000/api/pokemons?page=${pageNumber}`);
+    const response = await fetch(`${host}/api/pokemons?page=${pageNumber}`);
     const body = await response.json();
 
     return body

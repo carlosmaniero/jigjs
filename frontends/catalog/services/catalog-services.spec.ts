@@ -32,7 +32,7 @@ describe('catalog-service', () => {
             })
         )
 
-        const result = await fetchPokemons(1);
+        const result = await fetchPokemons(1, 'http://localhost:3000');
 
         expect(result).toEqual({
             currentPage: 1,
@@ -55,7 +55,7 @@ describe('catalog-service', () => {
             JSON.stringify({})
         )
 
-        await fetchPokemons(3);
+        await fetchPokemons(3, 'http://localhost:3000');
 
         expect(fetchMock.mock.calls[0][0]).toContain('page=3');
     });
