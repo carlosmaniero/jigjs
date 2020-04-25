@@ -13,7 +13,7 @@ class CartCountComponent extends HTMLElement {
         this.render();
 
         this.subscription = subscribeToEvent(CART_SERVICE_EVENTS.CART_ITEMS, ({total}: {total: number}) => {
-            this.count = total || this.count;
+            this.count = total;
             this.render();
         })
 

@@ -34,6 +34,10 @@ class CartRepository {
             .reduce((acc: number, pokemonItem) => acc + pokemonItem.total, 0)
     }
 
+    delete(toBeDeleted: PokemonItem) {
+        this.saveAll(this.all().filter((item) => item.id !== toBeDeleted.id))
+    }
+
     private saveAll(newPokemonList) {
         localStorage.setItem(this.lsKey, JSON.stringify(newPokemonList));
     }
@@ -45,7 +49,6 @@ class CartRepository {
 
 export class CartService {
     private readonly cartRepository;
-
     constructor(private readonly publishEvent: EventPublisher, cartRepository: CartRepository) {
         this.cartRepository = cartRepository;
         this.publishCart();
@@ -57,6 +60,11 @@ export class CartService {
         cartItem.total++;
         this.cartRepository.save(cartItem);
 
+        this.publishCart();
+    }
+
+    deleteItem(itemToBeDeleted: PokemonItem) {
+        this.cartRepository.delete(itemToBeDeleted);
         this.publishCart();
     }
 
@@ -90,5 +98,9 @@ export const registerCartService = (publishEvent: EventPublisher, subscribeToEve
 
     subscribeToEvent(CART_SERVICE_EVENTS.UPDATE_ITEM, (updateItem: PokemonItem) => {
         cartService.updateItem(updateItem);
-    })
+    });
+
+    subscribeToEvent(CART_SERVICE_EVENTS.DELETE_ITEM, (itemToBeDeleted: PokemonItem) => {
+        cartService.deleteItem(itemToBeDeleted);
+    });
 }

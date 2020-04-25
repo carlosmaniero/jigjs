@@ -1,5 +1,5 @@
 import {JSDOM} from "jsdom";
-import {registerMicroFrontEndComponent} from "./MicroFrontEndComponent";
+import {registerMicroFrontEndComponent} from "./micro-front-end.component";
 
 describe('MicroFrontEndComponent', () => {
     it('resolves with headers', (done) => {

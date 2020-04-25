@@ -6,7 +6,25 @@ const path = require('path');
 
 
 describe('TemplateService', () => {
+    const singleFragmentFile = path.join(__dirname, './__tests_assets__/single-fragment.html');
     const testTemplateFile = path.join(__dirname, './__tests_assets__/index.html');
+
+    it('releases the result when the fetch is finished', async () => {
+        const microFrontEndResolverMock = jest.fn(() => Promise.resolve({
+            html: 'stub',
+            eventDependencies: null
+        }));
+
+        const templateHtml = await templateServiceFactory(
+            singleFragmentFile, {resolve: microFrontEndResolverMock}, new FrontEndMetadata(),
+            {name: 'World'}
+        );
+
+        const template = new JSDOM(await templateHtml.render()).window.document.body;
+
+        expect(template.querySelector('front-end-fragment').textContent)
+            .toContain('stub');
+    });
 
     it('renders with template context', async () => {
         const microFrontEndResolverMock = jest.fn(() => Promise.resolve({

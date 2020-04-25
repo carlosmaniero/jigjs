@@ -54,20 +54,37 @@ describe('Cart Component', () => {
 
         publishEvent(CART_SERVICE_EVENTS.CART_ITEMS, {
             items: [
-                {id: 2, name: 'Pikachu', total: 97},
+                {id: 2, name: 'Pikachu', total: 9},
             ],
             total: 2
         });
 
-        const inputTotal = testingLibrary.queryByDisplayValue(document.body, '97') as HTMLInputElement;
+        const inputTotal = testingLibrary.queryByDisplayValue(document.body, '9') as HTMLInputElement;
         const listenerMock = jest.fn();
 
         subscribeToEvent(CART_SERVICE_EVENTS.UPDATE_ITEM, listenerMock);
 
-        testingLibrary.fireEvent.focus(inputTotal);
-        inputTotal.value = "90";
-        testingLibrary.fireEvent.blur(inputTotal);
+        testingLibrary.fireEvent.input(inputTotal, { target: { value: '90' } })
 
         expect(listenerMock).toBeCalledWith({id: 2, name: 'Pikachu', total: 90})
+    });
+
+    it('deletes an item', () => {
+        const cartCount = document.createElement('cart-component');
+        document.body.appendChild(cartCount);
+
+        publishEvent(CART_SERVICE_EVENTS.CART_ITEMS, {
+            items: [
+                {id: 2, name: 'Pikachu', total: 9},
+            ],
+            total: 2
+        });
+
+        const listenerMock = jest.fn();
+        subscribeToEvent(CART_SERVICE_EVENTS.DELETE_ITEM, listenerMock);
+
+        testingLibrary.getByText(document.body, 'delete').click();
+
+        expect(listenerMock).toBeCalledWith({id: 2, name: 'Pikachu', total: 9})
     });
 });

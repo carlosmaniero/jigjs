@@ -139,4 +139,21 @@ describe('CartService', () => {
             total: 90
         })
     });
+
+    it('deletes an item', () => {
+        const pokemon = {id: 2, pokemonName: 'Pikachu', total: 10};
+        const listener = jest.fn();
+
+        localStorage.setItem('cart-service-items', JSON.stringify([pokemon]));
+
+        subscribeToEvent(CART_SERVICE_EVENTS.CART_ITEMS, listener);
+        registerCartService(publishEvent, subscribeToEvent);
+
+        publishEvent(CART_SERVICE_EVENTS.DELETE_ITEM, {...pokemon})
+
+        expect(listener).toBeCalledWith({
+            items: [],
+            total: 0
+        })
+    });
 });

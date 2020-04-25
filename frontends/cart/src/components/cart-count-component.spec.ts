@@ -44,4 +44,24 @@ describe('CartCountComponent', () => {
 
         expect(testingLibrary.queryByText(document.body, "1")).not.toBeNull();
     });
+
+    it("updates cart to zero when all items are removed", () => {
+        const cartCount = document.createElement('cart-count-component');
+        document.body.appendChild(cartCount);
+
+        publishEvent(CART_SERVICE_EVENTS.CART_ITEMS, {
+            items: [{
+                id: 1,
+                name: 'hi'
+            }],
+            total: 1
+        });
+
+        publishEvent(CART_SERVICE_EVENTS.CART_ITEMS, {
+            items: [],
+            total: 0
+        });
+
+        expect(testingLibrary.queryByText(document.body, "0")).not.toBeNull();
+    });
 })

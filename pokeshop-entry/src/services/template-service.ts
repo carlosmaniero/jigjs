@@ -3,7 +3,7 @@ import {FragmentResolver} from "./fragment-resolver";
 import {FrontEndDiService} from "./front-end-di.service";
 import {FrontEndMetadata, MICRO_FRONT_END_METADATA_ID} from "./front-end.metadata";
 import fs from "fs";
-import {registerMicroFrontEndComponent} from "../components/micro-front-ends/MicroFrontEndComponent";
+import {registerMicroFrontEndComponent} from "../components/micro-front-ends/micro-front-end.component";
 
 
 class TemplateService {
@@ -34,7 +34,7 @@ class TemplateService {
 
             this.dom.window.document.querySelectorAll('front-end-fragment').forEach((fragment: any) => {
                 fragment.onFinish = (el) => {
-                    waitingFor = waitingFor.filter((id) => el.id === id);
+                    waitingFor = waitingFor.filter((id) => el.id !== id);
 
                     if (waitingFor.length === 0) {
                         resolve();
