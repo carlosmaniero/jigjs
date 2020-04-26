@@ -4,6 +4,7 @@ import {Cart, CART_SERVICE_EVENTS, PokemonItem} from "../models/models";
 class CartComponent extends HTMLElement {
     private cartSubscription: EventSubscription;
     private cart: Cart;
+    private static CART_PRICE_CLASS: string = 'cart-component__item__price-column';
 
     constructor() {
         super();
@@ -41,7 +42,7 @@ class CartComponent extends HTMLElement {
     private renderCartItem(cartItem: PokemonItem) {
         const itemRow = document.createElement('div');
         itemRow.classList.add('cart-component__item')
-        const pokemonName = cartItem.name.toUpperCase();
+        const pokemonName = cartItem.name;
 
         itemRow.innerHTML = `
             <div class="cart-component__item__photo-column">
@@ -55,9 +56,9 @@ class CartComponent extends HTMLElement {
                 <input type="number" value="${cartItem.total}">
                 <button class="cart-component__item__delete_button">delete</button>
             </div>
-            <div class="cart-component__item__price-column"></div>
+            <div class="${CartComponent.CART_PRICE_CLASS}"></div>
         `;
-
+        this.populatePrice(itemRow, cartItem);
         this.registerInputEvents(itemRow, cartItem);
         this.registerDeleteButtonEvents(itemRow, cartItem);
         return itemRow;
@@ -75,6 +76,8 @@ class CartComponent extends HTMLElement {
             }
             target['cartItem'].total = newTotal;
 
+            this.populatePrice(itemRow, target['cartItem']);
+
             publishEvent<PokemonItem>(CART_SERVICE_EVENTS.UPDATE_ITEM,
                 {
                     ...cartItem,
@@ -88,7 +91,7 @@ class CartComponent extends HTMLElement {
         return `
             <style>
                 .cart-component {
-                    box-shadow: rgb(30, 48, 64) 5px 5px;
+                    box-shadow: rgb(30,48,64) 5px 5px;
                     border-radius: 20px;
                     overflow: hidden;
                     display: block;
@@ -99,16 +102,15 @@ class CartComponent extends HTMLElement {
                 
                 .cart-component__header {
                     display: grid;
-                    grid-template-columns: 96px 3fr 1fr 1fr;
-                    background: rgb(166, 123, 146);
-                    color: #fff;
+                    grid-template-columns: 96px 3fr 100px 150px;
+                    background: rgb(30,48,64);
+                    color: #ffffff;
                 }
                 
                 .cart-component__header > * {
                     padding: 20px;
                     font-size: 14px;
                     font-weight: bold;
-                    text-transform: uppercase;
                 }
                 
                 .cart-component__header > *:first-child {
@@ -124,7 +126,7 @@ class CartComponent extends HTMLElement {
                     border-bottom: 4px solid rgb(30, 48, 64);
                     align-items: center;
                     display: grid;
-                    grid-template-columns: 96px 3fr 1fr 1fr;
+                    grid-template-columns: 96px 3fr 100px 150px;
                     transition: 0.5s;
                 }
                 .cart-component__item:hover {
@@ -155,12 +157,42 @@ class CartComponent extends HTMLElement {
                     background: rgb(44,70,94);
                 }
                 .cart-component__item__delete_button {
-                    color: #792929;
+                    color: #9d646d;
                     border: 0;
                     background: none;
                     cursor: pointer;
                     outline: none;
                     margin-top: 10px;
+                }
+                .cart-component__item__delete_button:hover {
+                    color: #cea5ac;
+                }
+                .${CartComponent.CART_PRICE_CLASS} {
+                    color: #C8B594;
+                }
+                
+                @media screen and (max-width: 500px) {
+                    .cart-component__item {
+                        display: block;
+                        text-align: center;
+                        padding-bottom: 20px;
+                    }
+                    .cart-component__item > div {
+                        width: 100%;
+                        padding: 0 20px;
+                    }
+                    .cart-component__item > div.cart-component__item__action-column {
+                        padding: 20px;
+                    }
+                    .cart-component__header {
+                        display: block;
+                    }
+                    .cart-component__header div {
+                        text-align: center;
+                    }
+                    .cart-component__header div:not(:first-child) {
+                        display: none;
+                    }
                 }
             </style>
         `;
@@ -183,6 +215,17 @@ class CartComponent extends HTMLElement {
         itemRow.querySelector('button').addEventListener('click', () => {
             publishEvent(CART_SERVICE_EVENTS.DELETE_ITEM, cartItem);
         });
+    }
+
+    private populatePrice(itemRow: HTMLDivElement, cartItem: PokemonItem) {
+        itemRow.querySelector('.' + CartComponent.CART_PRICE_CLASS).innerHTML =
+            (cartItem.total * cartItem.price)
+                .toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    maximumFractionDigits: 0,
+                    minimumFractionDigits: 0,
+                });
     }
 }
 

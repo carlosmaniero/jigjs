@@ -33,7 +33,7 @@ describe("pokemons handler", () => {
             "name": "Bulbasaur",
             "primaryType": "Grass",
             "secondaryType": "Poison",
-            "totalPower": 318,
+            "price": 318,
             "hp": 45,
             "attack": 49,
             "defense": 49,

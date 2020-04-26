@@ -8,7 +8,7 @@ class CartRepository {
         return JSON.parse(localStorage.getItem(this.lsKey) || '[]');
     }
 
-    byId(number: string) {
+    byId(number: number) {
         const item = this.byIdInList(number, this.all());
 
         if (item) {
@@ -42,7 +42,7 @@ class CartRepository {
         localStorage.setItem(this.lsKey, JSON.stringify(newPokemonList));
     }
 
-    private byIdInList(number: string, list: PokemonItem[]) {
+    private byIdInList(number: number, list: PokemonItem[]) {
         return list.find((item) => item.number === number);
     }
 }

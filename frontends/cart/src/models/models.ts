@@ -7,8 +7,9 @@ export const CART_SERVICE_EVENTS = {
 }
 
 export interface Pokemon {
-    number: string,
-    name: string
+    number: number,
+    name: string,
+    price: number
 }
 
 export type PokemonItem = Pokemon & {

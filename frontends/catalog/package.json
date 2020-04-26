@@ -16,7 +16,7 @@
     "build": "next build",
     "start": "next start",
     "build:and:run": "npm run build && npm start",
-    "test": "jest"
+    "test": "jest --no-cache"
   },
   "dependencies": {
     "@types/next": "^9.0.0",

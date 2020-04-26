@@ -67,7 +67,7 @@ export class PokemonList extends React.Component<Props, State> {
                     <PokemonCard
                         key={pokemon.number}
                         pokemon={pokemon}
-                        total={this.getTotalForPokemon(pokemon)}
+                        totalIntoCart={this.getTotalForPokemon(pokemon)}
                         eventPublisher={this.props.eventPublisher} />)}
 
                     {this.props.children}

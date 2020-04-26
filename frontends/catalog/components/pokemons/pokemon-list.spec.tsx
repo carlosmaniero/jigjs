@@ -2,19 +2,44 @@ import {render} from "@testing-library/react";
 import React from "react";
 import {PokemonList} from "./pokemon-list";
 import {publishEvent, subscribeToEvent} from "../../core/event-bus";
+import {Pokemon} from "../../models/pokemon";
 
 describe('PokemonList', () => {
     let mockPublisher;
 
+    const bulbasaur: Pokemon = {
+        number: 1,
+        name: "Bulbasaur",
+        primaryType: "Grass",
+        secondaryType: "Poison",
+        price: 318,
+        hp: 45,
+        attack: 49,
+        defense: 49,
+        spAtk: 65,
+        spDef: 65,
+        speed: 45,
+        generation: 1,
+        legendary: false
+    };
+    const pikachu: Pokemon = {
+        number: 2,
+        name: "Pikachu",
+        primaryType: "Electric",
+        secondaryType: "",
+        price: 320,
+        hp: 35,
+        attack: 55,
+        defense: 40,
+        spAtk: 50,
+        spDef: 50,
+        speed: 90,
+        generation: 1,
+        legendary: false
+    };
     const pokemons = [
-        {
-            name: "bulbasaur",
-            number: "1"
-        },
-        {
-            name: "pikachu",
-            number: "2"
-        },
+        bulbasaur,
+        pikachu,
     ]
 
     beforeEach(() => {
@@ -28,39 +53,30 @@ describe('PokemonList', () => {
             eventPublisher={mockPublisher}
         />);
 
-        expect(component.queryByText('BULBASAUR')).not.toBeNull();
-        expect(component.queryByText('PIKACHU')).not.toBeNull();
+        expect(component.queryByText('Bulbasaur')).not.toBeNull();
+        expect(component.queryByText('Pikachu')).not.toBeNull();
     });
 
     it('updates state when props changes', async () => {
         const component = await render(<PokemonList
-            pokemons={[{
-                name: "bulbasaur",
-                number: "1"
-            }]}
+            pokemons={[bulbasaur]}
             eventListener={subscribeToEvent}
             eventPublisher={mockPublisher}
         />);
 
         component.rerender(<PokemonList
-            pokemons={[{
-                name: "Pikachu",
-                number: "2"
-            }]}
+            pokemons={[pikachu]}
             eventListener={subscribeToEvent}
             eventPublisher={mockPublisher}
         />);
 
 
-        expect(component.queryByText('PIKACHU')).not.toBeNull();
+        expect(component.queryByText('Pikachu')).not.toBeNull();
     });
 
     it('renders the total of items on cart', async () => {
         const component = await render(<PokemonList
-            pokemons={[{
-                name: "bulbasaur",
-                number: "1"
-            }]}
+            pokemons={[bulbasaur]}
             eventListener={subscribeToEvent}
             eventPublisher={mockPublisher}
         />);
@@ -68,8 +84,7 @@ describe('PokemonList', () => {
         publishEvent('CART_SERVICE_ITEMS', {
             items: [{
                 items: [{
-                    name: "bulbasaur",
-                    number: "1",
+                    ...bulbasaur,
                     total: 67
                 }]
             }],
@@ -81,19 +96,13 @@ describe('PokemonList', () => {
 
     it('renders the total of items on cart', async () => {
         const component = await render(<PokemonList
-            pokemons={[{
-                name: "bulbasaur",
-                number: "1"
-            }]}
+            pokemons={[bulbasaur]}
             eventListener={subscribeToEvent}
             eventPublisher={mockPublisher}
         />);
 
         component.rerender(<PokemonList
-            pokemons={[{
-                name: "Pikachu",
-                number: "2"
-            }]}
+            pokemons={[pikachu]}
             eventListener={subscribeToEvent}
             eventPublisher={mockPublisher}
         />);

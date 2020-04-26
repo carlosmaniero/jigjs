@@ -5,10 +5,10 @@ import {EventPublisher} from "../../core/event-bus";
 interface Props {
     pokemon: Pokemon;
     eventPublisher: EventPublisher;
-    total?: number;
+    totalIntoCart?: number;
 }
 
-export const PokemonCard = ({pokemon, eventPublisher, total}: Props) =>
+export const PokemonCard = ({pokemon, eventPublisher, totalIntoCart}: Props) =>
     <>
         <style jsx>{`
             .cart-count {
@@ -55,15 +55,31 @@ export const PokemonCard = ({pokemon, eventPublisher, total}: Props) =>
               border: 1px solid #24384b;
               box-shadow: 3px 3px #24384b;
             }
+            .price {
+              color: #986A54;
+            }
         `}</style>
         <div>
-            <span className="cart-count">
-                {total}
-            </span>
+            {
+                totalIntoCart > 0 &&
+
+                <span className="cart-count">
+                    {totalIntoCart}
+                </span>
+            }
 
             <img src={'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + pokemon.number +  '.png'} alt=""/>
 
-            <h3>{pokemon.name.toUpperCase()}</h3>
+            <h3>{pokemon.name}</h3>
+
+            <p className="price">{
+                pokemon.price.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    maximumFractionDigits: 0,
+                    minimumFractionDigits: 0,
+                })
+            }</p>
 
             <button onClick={() => eventPublisher('CART_SERVICE_ADD_TO_CART', pokemon)}>add to cart</button>
         </div>
