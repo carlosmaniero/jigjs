@@ -21,15 +21,21 @@ export const registerMicroFrontEndComponent = (window, resolver, isBrowser = fal
             const url = this.getAttribute('url');
             const headers = this.getAttribute('headers') || '{}';
 
-            const response = await resolver.resolve(url, JSON.parse(headers));
+            try {
+                const response = await resolver.resolve(url, JSON.parse(headers));
 
-            this.innerHTML = response.html;
+                this.innerHTML = response.html;
 
-            this.forceJavascriptToLoad();
-            this.injectDependencies(response);
+                this.forceJavascriptToLoad();
+                this.injectDependencies(response);
 
-            this.finish(response);
-            this.setAttribute("already-loaded", true);
+                this.finish(response);
+                this.setAttribute("already-loaded", true);
+            } catch (e) {
+                const shadowDom = this.attachShadow({mode: 'open'});
+                shadowDom.innerHTML = `<slot name="fragment-error"></slot>`
+                this.finish(undefined);
+            }
         }
 
         private finish(response) {

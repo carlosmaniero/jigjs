@@ -1,6 +1,6 @@
 import {registerMicroFrontEndComponent} from "./micro-front-ends/micro-front-end.component";
 import {FragmentResolver} from "../services/fragment-resolver";
-import {registerHeaderComponent} from "./layout/header.component";
+import {registerFragmentError} from "./layout/fragment-error.component";
 
 registerMicroFrontEndComponent(window, new FragmentResolver(), true);
-registerHeaderComponent(window);
+registerFragmentError(window);
