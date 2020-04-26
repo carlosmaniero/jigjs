@@ -1,17 +1,17 @@
 import {JSDOM} from 'jsdom';
 import {FragmentResolver} from "./fragment-resolver";
-import {FrontEndDiService} from "./front-end-di.service";
-import {FrontEndMetadata, MICRO_FRONT_END_METADATA_ID} from "./front-end.metadata";
+import {FrontEndMetadata} from "./front-end.metadata";
 import fs from "fs";
 import {registerMicroFrontEndComponent} from "../components/micro-front-ends/micro-front-end.component";
 
+export type CustomElementRegistration = (window: Window) => void;
 
 class TemplateService {
     constructor(
         private readonly dom: JSDOM,
         private readonly fragmentResolver: FragmentResolver,
         private readonly frontEndService: FrontEndMetadata,
-        private readonly frontEndDIService: FrontEndDiService,
+        private readonly customElementRegistrations: CustomElementRegistration[]
     ) {}
 
     async render() {
@@ -19,11 +19,19 @@ class TemplateService {
 
         const waitForRenderPromise = this.waitUntilAllFragmentsAreResolved();
 
-        registerMicroFrontEndComponent(this.dom.window, this.fragmentResolver);
+        this.registerCustomElements();
 
         await waitForRenderPromise;
 
         return this.dom.serialize();
+    }
+
+    private registerCustomElements() {
+        registerMicroFrontEndComponent(this.dom.window, this.fragmentResolver);
+        this.customElementRegistrations.forEach((customElementRegistration) => {
+            const window: Window = this.dom.window as any;
+            customElementRegistration(window);
+        })
     }
 
     private waitUntilAllFragmentsAreResolved() {
@@ -31,6 +39,10 @@ class TemplateService {
             let waitingFor = Array
                 .apply(null, this.dom.window.document.querySelectorAll('front-end-fragment'))
                 .map((element) => element.id);
+
+            if (waitingFor.length === 0) {
+                resolve();
+            }
 
             this.dom.window.document.querySelectorAll('front-end-fragment').forEach((fragment: any) => {
                 fragment.onFinish = (el) => {
@@ -66,7 +78,8 @@ export const templateServiceFactory = async (
     templatePath: string,
     fragmentResolver: FragmentResolver,
     frontEndService: FrontEndMetadata,
-    renderContext: Record<string, string> = {}
+    renderContext: Record<string, string> = {},
+    customElementRegistrations: CustomElementRegistration[] = []
 ): Promise<TemplateService> => {
     const html: string = await new Promise((resolve => {
         fs.readFile(templatePath, 'utf8', (err, data) => {
@@ -80,6 +93,6 @@ export const templateServiceFactory = async (
         jsdom,
         fragmentResolver,
         frontEndService,
-        new FrontEndDiService(frontEndService, jsdom.window.document)
+        customElementRegistrations
     )
 }

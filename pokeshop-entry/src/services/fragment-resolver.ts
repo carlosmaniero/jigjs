@@ -1,8 +1,12 @@
 import 'isomorphic-fetch';
 
+export interface FragmentResult {
+    html: string,
+    eventDependencies: string | null
+}
 
 export class FragmentResolver {
-    async resolve(url: string, headers: Record<string, string> = {}) {
+    async resolve(url: string, headers: Record<string, string> = {}): Promise<FragmentResult> {
         const res = await fetch(new Request(url, {
             method: 'GET',
             headers: new Headers(headers),

@@ -2,11 +2,13 @@ import {JSDOM} from 'jsdom';
 import {when} from 'jest-when';
 import {FrontEndMetadata} from "./front-end.metadata";
 import {templateServiceFactory} from "./template-service";
+import {FragmentResult} from "./fragment-resolver";
 const path = require('path');
 
 
 describe('TemplateService', () => {
     const singleFragmentFile = path.join(__dirname, './__tests_assets__/single-fragment.html');
+    const customElementsFile = path.join(__dirname, './__tests_assets__/custom-elements.html');
     const testTemplateFile = path.join(__dirname, './__tests_assets__/index.html');
 
     it('releases the result when the fetch is finished', async () => {
@@ -149,5 +151,36 @@ describe('TemplateService', () => {
 
         expect(template.querySelector('script#__micro_front_end_metadata__').textContent)
             .toBe(JSON.stringify(eventMap));
+    });
+
+    it('renders a custom element', async () => {
+        const microFrontEndResolverMock = jest.fn(() => {
+            return new Promise<FragmentResult>(() => {});
+        });
+
+        const templateHtml = await templateServiceFactory(
+            customElementsFile,
+            {resolve: microFrontEndResolverMock},
+            new FrontEndMetadata({}),
+            {},
+            [
+                (window: any) => {
+                    class MyCoolComponent extends window.HTMLElement {
+                        constructor() {
+                            super();
+                        }
+                        connectedCallback() {
+                            this.innerHTML = 'cool!'
+                        }
+                    }
+
+                    window.customElements.define('my-cool-component', MyCoolComponent);
+                }
+            ]
+        );
+
+        const template = new JSDOM(await templateHtml.render()).window.document.body;
+
+        expect(template.querySelector('my-cool-component').textContent).toBe('cool!');
     })
 });
