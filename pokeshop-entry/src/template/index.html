@@ -28,7 +28,8 @@
     <front-end-fragment
             id="catalog-fragment"
             url="http://localhost:3000/catalog/page/{currentPageNumber}"
-            headers='{"X-Pagination-Url-Template": "/catalog/{number}"}'>
+            headers='{"X-Pagination-Url-Template": "/catalog/{number}"}'
+            required="true">
         <div slot="fragment-error">
             <fragment-error-component>
 

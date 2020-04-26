@@ -20,7 +20,10 @@ describe('MicroFrontEndComponent', () => {
         const fragmentElement = jsdom.window.document.querySelector('front-end-fragment');
 
         (fragmentElement as any).onFinish = () => {
-            expect(resolver).toBeCalledWith("http://localhost:3001/", {key: "value"});
+            expect(resolver).toBeCalledWith({
+                url: "http://localhost:3001/",
+                headers: {key: "value"}
+            });
             expect(fragmentElement.textContent).toBe('bla!');
             done();
         }
@@ -69,6 +72,36 @@ describe('MicroFrontEndComponent', () => {
 
         (fragmentElement as any).onFinish = () => {
             expect(testingLibrary.queryByText(jsdom.window.document as any, 'ERROR!')).not.toBeNull();
+            done();
+        }
+
+        registerMicroFrontEndComponent(jsdom.window, {resolve: resolver});
+    });
+
+    it('sends the required attribute', (done) => {
+        const fragment =
+            `<front-end-fragment
+                id="cart-fragment"
+                url="http://localhost:3001/"
+                headers='{"key": "value"}'
+                required="true">
+            </front-end-fragment>`;
+
+        const jsdom = new JSDOM(fragment);
+
+        const resolver = jest.fn(() => Promise.resolve({
+            html: 'bla!'
+        }));
+
+        const fragmentElement = jsdom.window.document.querySelector('front-end-fragment');
+
+        (fragmentElement as any).onFinish = () => {
+            expect(resolver).toBeCalledWith({
+                url: "http://localhost:3001/",
+                headers: {key: "value"},
+                required: true
+            });
+            expect(fragmentElement.textContent).toBe('bla!');
             done();
         }
 

@@ -13,7 +13,7 @@ describe('FrontEnd Dependency Injection', () => {
             jsdom.window.document
         );
 
-        di.injectDependencyOfEvent('my-event');
+        di.injectDependencyOfEvents(['my-event']);
 
         expect(jsdom.window.document.querySelector('script').src)
             .toBe('my-script.js');
@@ -27,7 +27,7 @@ describe('FrontEnd Dependency Injection', () => {
             jsdom.window.document
         );
 
-        di.injectDependencyOfEvent('my-event');
+        di.injectDependencyOfEvents(['my-event']);
 
         expect(jsdom.window.document.querySelectorAll('script').length)
             .toBe(0);
@@ -43,8 +43,24 @@ describe('FrontEnd Dependency Injection', () => {
             jsdom.window.document
         );
 
-        di.injectDependencyOfEvent('my-event');
-        di.injectDependencyOfEvent('my-event');
+        di.injectDependencyOfEvents(['my-event']);
+        di.injectDependencyOfEvents(['my-event']);
+
+        expect(jsdom.window.document.querySelectorAll('script').length)
+            .toBe(1);
+    });
+
+    it('does injects a script for a given event twice in same request', () => {
+        const jsdom = new JSDOM();
+
+        const di = new FrontEndDiService(
+            new FrontEndMetadata({
+                'my-event': 'my-script.js',
+            }),
+            jsdom.window.document
+        );
+
+        di.injectDependencyOfEvents(['my-event', 'my-event']);
 
         expect(jsdom.window.document.querySelectorAll('script').length)
             .toBe(1);
@@ -62,7 +78,7 @@ describe('FrontEnd Dependency Injection', () => {
 
             const di = frontEndDIServiceFromDocument(jsdom.window.document);
 
-            di.injectDependencyOfEvent('my-event');
+            di.injectDependencyOfEvents(['my-event']);
 
             expect((jsdom.window.document.querySelector('script[type="application/javascript"]') as HTMLScriptElement).src)
                 .toBe('my-script.js');

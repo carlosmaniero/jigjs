@@ -14,7 +14,7 @@ describe('TemplateService', () => {
     it('releases the result when the fetch is finished', async () => {
         const microFrontEndResolverMock = jest.fn(() => Promise.resolve({
             html: 'stub',
-            eventDependencies: null
+            eventDependencies: []
         }));
 
         const templateHtml = await templateServiceFactory(
@@ -31,7 +31,7 @@ describe('TemplateService', () => {
     it('renders with template context', async () => {
         const microFrontEndResolverMock = jest.fn(() => Promise.resolve({
             html: 'stub',
-            eventDependencies: null
+            eventDependencies: []
         }));
 
         const templateHtml = await templateServiceFactory(
@@ -50,7 +50,7 @@ describe('TemplateService', () => {
     it('renders the template view template', async () => {
         const microFrontEndResolverMock = jest.fn(() => Promise.resolve({
             html: 'stub',
-            eventDependencies: null
+            eventDependencies: []
         }));
 
         const templateHtml = await templateServiceFactory(
@@ -67,12 +67,12 @@ describe('TemplateService', () => {
         when(microFrontEndResolverMock)
             .mockReturnValue(Promise.resolve({
                 html: 'stub',
-                eventDependencies: null
+                eventDependencies: []
             }))
             .calledWith('http://localhost:3000/catalog/page/1')
             .mockReturnValue(Promise.resolve({
                 html: 'yay!',
-                eventDependencies: null
+                eventDependencies: []
             }));
 
         const templateHtml = await templateServiceFactory(testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndMetadata());
@@ -88,12 +88,12 @@ describe('TemplateService', () => {
         when(microFrontEndResolverMock)
             .mockReturnValue(Promise.resolve({
                 html: 'stub',
-                eventDependencies: null
+                eventDependencies: []
             }))
             .calledWith('http://localhost:3001/')
             .mockReturnValue(Promise.resolve({
                 html: 'yoy!',
-                eventDependencies: null
+                eventDependencies: []
             }));
 
         const templateHtml = await templateServiceFactory(testTemplateFile, {resolve: microFrontEndResolverMock}, new FrontEndMetadata());
@@ -109,12 +109,12 @@ describe('TemplateService', () => {
         when(microFrontEndResolverMock)
             .mockReturnValue(Promise.resolve({
                 html: 'stub',
-                eventDependencies: null
+                eventDependencies: []
             }))
             .calledWith('http://localhost:3001/')
             .mockReturnValue(Promise.resolve({
                 html: 'yoy!',
-                eventDependencies: 'my-event'
+                eventDependencies: ['my-event']
             }));
 
         const templateHtml = await templateServiceFactory(
@@ -135,7 +135,7 @@ describe('TemplateService', () => {
         const microFrontEndResolverMock = jest.fn(() => {
             return Promise.resolve({
                 html: 'stub',
-                eventDependencies: null
+                eventDependencies: []
             })
         });
 

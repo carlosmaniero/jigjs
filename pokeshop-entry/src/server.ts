@@ -1,5 +1,5 @@
 import express from 'express';
-import {FragmentResolver} from "./services/fragment-resolver";
+import {FragmentResolverImpl} from "./services/fragment-resolver";
 import {renderCatalog} from "./views/catalog-view";
 import {FrontEndMetadataRegisterService} from "./services/front-end.metadata";
 import {renderCart} from "./views/cart-view";
@@ -11,23 +11,41 @@ app.use(express.static('dist'));
 
 console.log('Registering dependencies');
 
-frontEndService.register('http://localhost:3001/').then((frontEndMetadata) => {
+function createFragmentResolver(res) {
+    return new FragmentResolverImpl({
+        onError: (url, error) => console.error(`it was not possible to fetch ${url}`, error),
+        onFatal: (url, error) => {
+            console.error(`Error: it was not possible to fetch ${url}`, error)
+            res.statusCode = 500;
+        }
+    });
+}
+
+let frontEndMetadata;
+
+setInterval(async () => {
+    frontEndMetadata = await frontEndService.register('http://localhost:3001/');
+}, 2000);
+
+frontEndService.register('http://localhost:3001/').then((initialMetadata) => {
+    frontEndMetadata = initialMetadata;
+
     app.get('/', (req, res) => {
-        renderCatalog(new FragmentResolver(), frontEndMetadata)
+        renderCatalog(createFragmentResolver(res), frontEndMetadata)
             .then((view) => {
                 res.send(view);
             });
     });
 
     app.get('/catalog/:number', (req, res) => {
-        renderCatalog(new FragmentResolver(), frontEndMetadata, req.params.number)
+        renderCatalog(createFragmentResolver(res), frontEndMetadata, req.params.number)
             .then((view) => {
                 res.send(view);
             });
     });
 
     app.get('/cart', (req, res) => {
-        renderCart(new FragmentResolver(), frontEndMetadata)
+        renderCart(createFragmentResolver(res), frontEndMetadata)
             .then((view) => {
                 res.send(view);
             });

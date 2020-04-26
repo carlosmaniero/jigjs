@@ -44,13 +44,18 @@ export class FrontEndMetadataRegisterService {
   }
 
   private async registerService(url: string) {
-    const response: any = await fetch(`${url}metadata`);
-    const responseBody = await response.json();
+    try {
+      const response: any = await fetch(`${url}metadata`);
+      const responseBody = await response.json();
 
-    responseBody.eventsProvider.forEach((eventProvider) => {
-      eventProvider.events.forEach((event) => {
-        this.eventMap[event] = eventProvider.serviceFile;
+      responseBody.eventsProvider.forEach((eventProvider) => {
+        eventProvider.events.forEach((event) => {
+          this.eventMap[event] = eventProvider.serviceFile;
+        });
       });
-    });
+    } catch (e) {
+      console.error(`could not fetch metadata from ${url}`);
+      console.error(e);
+    }
   }
 }

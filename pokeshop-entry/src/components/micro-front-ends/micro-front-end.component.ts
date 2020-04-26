@@ -22,7 +22,11 @@ export const registerMicroFrontEndComponent = (window, resolver, isBrowser = fal
             const headers = this.getAttribute('headers') || '{}';
 
             try {
-                const response = await resolver.resolve(url, JSON.parse(headers));
+                const response = await resolver.resolve({
+                    url,
+                    headers: JSON.parse(headers),
+                    required: this.isRequired()
+                });
 
                 this.innerHTML = response.html;
 
@@ -45,11 +49,11 @@ export const registerMicroFrontEndComponent = (window, resolver, isBrowser = fal
         }
 
         private injectDependencies({eventDependencies}) {
-            if (!eventDependencies) {
+            if (eventDependencies.length === 0) {
                 return;
             }
             frontEndDIServiceFromDocument(this.ownerDocument)
-                .injectDependencyOfEvent(eventDependencies);
+                .injectDependencyOfEvents(eventDependencies);
         }
 
         private forceJavascriptToLoad() {
@@ -72,6 +76,10 @@ export const registerMicroFrontEndComponent = (window, resolver, isBrowser = fal
 
                     script.remove();
                 })
+        }
+
+        private isRequired() {
+            return (this.getAttribute('required') || '').trim() === 'true';
         }
     }
 

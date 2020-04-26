@@ -7,7 +7,11 @@ export class FrontEndDiService {
 
   }
 
-  injectDependencyOfEvent(event: string) {
+  injectDependencyOfEvents(event: string[]) {
+    event.forEach((event) => this.injectDependencyOfEvent(event));
+  }
+
+  private injectDependencyOfEvent(event: string) {
     const scriptURL = this.frontEndMetadata.getServiceForEvent(event);
 
     if (this.isDependencyAlreadyInjected(scriptURL)) {
