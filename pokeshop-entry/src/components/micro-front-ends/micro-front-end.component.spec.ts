@@ -22,7 +22,8 @@ describe('MicroFrontEndComponent', () => {
         (fragmentElement as any).onFinish = () => {
             expect(resolver).toBeCalledWith({
                 url: "http://localhost:3001/",
-                headers: {key: "value"}
+                headers: {key: "value"},
+                required: false
             });
             expect(fragmentElement.textContent).toBe('bla!');
             done();

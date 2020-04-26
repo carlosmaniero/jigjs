@@ -69,7 +69,11 @@ describe('TemplateService', () => {
                 html: 'stub',
                 eventDependencies: []
             }))
-            .calledWith('http://localhost:3000/catalog/page/1')
+            .calledWith({
+                url: 'http://localhost:3000/catalog/page/1',
+                headers: {},
+                required: false
+            })
             .mockReturnValue(Promise.resolve({
                 html: 'yay!',
                 eventDependencies: []
@@ -90,7 +94,11 @@ describe('TemplateService', () => {
                 html: 'stub',
                 eventDependencies: []
             }))
-            .calledWith('http://localhost:3001/')
+            .calledWith({
+                    url: 'http://localhost:3001/',
+                    headers: {key: "value"},
+                    required: false
+                })
             .mockReturnValue(Promise.resolve({
                 html: 'yoy!',
                 eventDependencies: []
@@ -111,7 +119,11 @@ describe('TemplateService', () => {
                 html: 'stub',
                 eventDependencies: []
             }))
-            .calledWith('http://localhost:3001/')
+            .calledWith({
+                url: 'http://localhost:3000/catalog/page/1',
+                headers: {},
+                required: false
+            })
             .mockReturnValue(Promise.resolve({
                 html: 'yoy!',
                 eventDependencies: ['my-event']

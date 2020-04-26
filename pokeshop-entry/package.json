@@ -3,7 +3,7 @@
     "start": "ts-node src/server.ts",
     "dev": "npm run build:components && ts-node src/server.ts",
     "build:components": "webpack --config webpack.components.config.js",
-    "test": "jest"
+    "test": "jest --no-cache"
   },
   "dependencies": {
     "cors": "^2.8.5",
