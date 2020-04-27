@@ -1,6 +1,6 @@
 import express from 'express';
 import {FragmentResolverImpl} from "./services/fragment-resolver";
-import {renderCatalog} from "./views/catalog-view";
+import {renderCatalog, renderPokemon} from "./views/catalog-view";
 import {FrontEndMetadataRegisterService} from "./services/front-end.metadata";
 import {renderCart} from "./views/cart-view";
 import {registerHeaderComponent} from "./components/layout/header.component";
@@ -27,7 +27,7 @@ let frontEndMetadata;
 
 setInterval(async () => {
     frontEndMetadata = await frontEndService.register('http://localhost:3001/');
-}, 2000);
+}, 30000);
 
 frontEndService.register('http://localhost:3001/').then((initialMetadata) => {
     frontEndMetadata = initialMetadata;
@@ -43,6 +43,13 @@ frontEndService.register('http://localhost:3001/').then((initialMetadata) => {
 
     app.get('/catalog/:number', (req, res) => {
         renderCatalog(createFragmentResolver(res), frontEndMetadata, req.params.number, customElementRegistrations)
+            .then((view) => {
+                res.send(view);
+            });
+    });
+
+    app.get('/pokemon/:number', (req, res) => {
+        renderPokemon(createFragmentResolver(res), frontEndMetadata, req.params.number, customElementRegistrations)
             .then((view) => {
                 res.send(view);
             });

@@ -8,9 +8,12 @@ export interface FetchPokemonsResponse {
 }
 
 export const fetchPokemons = async (pageNumber: number, host): Promise<FetchPokemonsResponse> => {
-
     const response = await fetch(`${host}/api/pokemons?page=${pageNumber}`);
-    const body = await response.json();
+    return await response.json()
+}
 
-    return body
+export const fetchPokemon = async (pokemonNumber: number, host): Promise<FetchPokemonsResponse> => {
+
+    const response = await fetch(`${host}/api/pokemons/${pokemonNumber}`);
+    return await response.json()
 }

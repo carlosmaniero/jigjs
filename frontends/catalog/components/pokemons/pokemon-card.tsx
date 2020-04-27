@@ -1,6 +1,7 @@
 import React from "react";
 import {Pokemon} from "../../models/pokemon";
 import {EventPublisher} from "../../core/event-bus";
+import {AddToCartButton} from "../cart/add-to-cart-button";
 
 interface Props {
     pokemon: Pokemon;
@@ -24,6 +25,9 @@ export const PokemonCard = ({pokemon, eventPublisher, totalIntoCart}: Props) =>
               right: 20px;
               top: 20px;
             }
+            a {
+              text-decoration: none;
+            }
             div {
               border: 4px solid #1E3040;
               border-radius: 20px;
@@ -39,48 +43,34 @@ export const PokemonCard = ({pokemon, eventPublisher, totalIntoCart}: Props) =>
               width: 96px;
               height: 96px;
             }
-            button {
-              width: 100%;
-              background: #1E3040;
-              padding: 15px;
-              color: #ffffff;
-              border-radius: 10px;
-              border: 1px solid #24384b;
-              box-shadow: 3px 3px #24384b;
-              cursor: pointer;
-              transition-duration: 0.25s;
-            }
-            button:hover {
-              background: #35516c;
-              border: 1px solid #24384b;
-              box-shadow: 3px 3px #24384b;
-            }
             .price {
               color: #986A54;
             }
         `}</style>
-        <div>
-            {
-                totalIntoCart > 0 &&
+        <a href={"/pokemon/" + pokemon.number}>
+            <div>
+                {
+                    totalIntoCart > 0 &&
 
-                <span className="cart-count">
-                    {totalIntoCart}
-                </span>
-            }
+                    <span className="cart-count">
+                        {totalIntoCart}
+                    </span>
+                }
 
-            <img src={'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + pokemon.number +  '.png'} alt=""/>
+                <img src={'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + pokemon.number +  '.png'} alt=""/>
 
-            <h3>{pokemon.name}</h3>
+                <h3>{pokemon.name}</h3>
 
-            <p className="price">{
-                pokemon.price.toLocaleString('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                    maximumFractionDigits: 0,
-                    minimumFractionDigits: 0,
-                })
-            }</p>
+                <p className="price">{
+                    pokemon.price.toLocaleString('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                        maximumFractionDigits: 0,
+                        minimumFractionDigits: 0,
+                    })
+                }</p>
 
-            <button onClick={() => eventPublisher('CART_SERVICE_ADD_TO_CART', pokemon)}>add to cart</button>
-        </div>
+                <AddToCartButton pokemon={pokemon} eventPublisher={eventPublisher} />
+            </div>
+        </a>
     </>

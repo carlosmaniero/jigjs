@@ -14,3 +14,14 @@ export const renderCatalog = async (resolver: FragmentResolver, frontEndService:
 
     return templateService.render();
 }
+
+export const renderPokemon = async (resolver: FragmentResolver, frontEndService: FrontEndMetadata, pokemonNumber, customElementRegistrations: CustomElementRegistration[]) => {
+    const templatePath = path.join(__dirname, '../template/pokemon.html');
+    const templateService = await templateServiceFactory(
+        templatePath, resolver, frontEndService,
+        {number: pokemonNumber},
+        customElementRegistrations
+    )
+
+    return templateService.render();
+}
