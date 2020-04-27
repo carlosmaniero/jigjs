@@ -29,5 +29,5 @@ jobs:
       env:
         CI: true
     - run: yarn --cwd pokeshop-entry test
-        env:
-          CI: true
+      env:
+        CI: true

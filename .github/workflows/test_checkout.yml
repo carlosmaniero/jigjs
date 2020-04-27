@@ -29,5 +29,5 @@ jobs:
       env:
         CI: true
     - run: yarn --cwd frontends/checkout test
-        env:
-          CI: true
+      env:
+        CI: true
