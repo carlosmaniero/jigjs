@@ -3,6 +3,8 @@ import {FragmentResolverImpl} from "./services/fragment-resolver";
 import {renderCatalog} from "./views/catalog-view";
 import {FrontEndMetadataRegisterService} from "./services/front-end.metadata";
 import {renderCart} from "./views/cart-view";
+import {registerHeaderComponent} from "./components/layout/header.component";
+import {registerTitle} from "./components/layout/title.component";
 
 const app = express();
 const frontEndService = new FrontEndMetadataRegisterService();
@@ -30,22 +32,24 @@ setInterval(async () => {
 frontEndService.register('http://localhost:3001/').then((initialMetadata) => {
     frontEndMetadata = initialMetadata;
 
+    const customElementRegistrations = [registerHeaderComponent, registerTitle];
+
     app.get('/', (req, res) => {
-        renderCatalog(createFragmentResolver(res), frontEndMetadata)
+        renderCatalog(createFragmentResolver(res), frontEndMetadata, '1', customElementRegistrations)
             .then((view) => {
                 res.send(view);
             });
     });
 
     app.get('/catalog/:number', (req, res) => {
-        renderCatalog(createFragmentResolver(res), frontEndMetadata, req.params.number)
+        renderCatalog(createFragmentResolver(res), frontEndMetadata, req.params.number, customElementRegistrations)
             .then((view) => {
                 res.send(view);
             });
     });
 
     app.get('/cart', (req, res) => {
-        renderCart(createFragmentResolver(res), frontEndMetadata)
+        renderCart(createFragmentResolver(res), frontEndMetadata, customElementRegistrations)
             .then((view) => {
                 res.send(view);
             });

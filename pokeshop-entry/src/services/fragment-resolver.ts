@@ -63,6 +63,8 @@ export class FragmentResolverImpl implements FragmentResolver {
     }
 
     private static parseDependencies(eventDependencies: string) {
-        return eventDependencies.split(',').map((dep) => dep.trim());
+        return eventDependencies.split(',')
+            .map((dep) => dep.trim())
+            .filter((dep) => !!dep);
     }
 }

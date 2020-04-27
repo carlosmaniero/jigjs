@@ -1,0 +1,53 @@
+{
+  "name": "checkout",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "ts-node -P tsconfig.server.json server/server.ts",
+    "dev": "BASE_URL=http://localhost:8080 vue-cli-service serve",
+    "build": "BASE_URL=http://localhost:8080 vue-cli-service build && node remove_not_allowed_tags.js",
+    "test:unit": "vue-cli-service test:unit",
+    "lint": "vue-cli-service lint",
+    "test": "npm run lint && npm run test:unit"
+  },
+  "dependencies": {
+    "core-js": "^3.6.4",
+    "express": "^4.17.1",
+    "static-server": "^2.2.1",
+    "ts-node": "^8.9.1",
+    "vue": "^2.6.11",
+    "vue-class-component": "^7.2.3",
+    "vue-property-decorator": "^8.4.1"
+  },
+  "devDependencies": {
+    "@testing-library/vue": "^5.0.2",
+    "@types/express": "^4.17.6",
+    "@types/jest": "^24.0.19",
+    "@types/node": "^13.13.4",
+    "@typescript-eslint/eslint-plugin": "^2.26.0",
+    "@typescript-eslint/parser": "^2.26.0",
+    "@vue/cli-plugin-babel": "~4.3.0",
+    "@vue/cli-plugin-eslint": "~4.3.0",
+    "@vue/cli-plugin-typescript": "~4.3.0",
+    "@vue/cli-plugin-unit-jest": "~4.3.0",
+    "@vue/cli-service": "~4.3.0",
+    "@vue/eslint-config-airbnb": "^5.0.2",
+    "@vue/eslint-config-typescript": "^5.0.2",
+    "@vue/test-utils": "1.0.0-beta.31",
+    "eslint": "^6.7.2",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "lint-staged": "^9.5.0",
+    "typescript": "^3.8.3",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "gitHooks": {
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,jsx,vue,ts,tsx}": [
+      "vue-cli-service lint",
+      "git add"
+    ]
+  }
+}

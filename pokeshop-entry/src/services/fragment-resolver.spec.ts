@@ -61,6 +61,21 @@ describe('FragmentResolver', () => {
         expect(response.eventDependencies).toEqual(['event_dependency1', 'event_dependency2']);
     });
 
+    it('returns empty event dependencies when the service does not returns it', async () => {
+        const fragmentResolver = new FragmentResolverImpl();
+
+        const responseHtml = '<div>Hello, World!</div>';
+        fetchMock.mockResponseOnce(responseHtml, {
+            headers: {}
+        })
+
+        const response = await fragmentResolver.resolve({
+            url: 'http://localhost:1221',
+            headers: { ping: 'pong' }
+        });
+        expect(response.eventDependencies).toEqual([]);
+    });
+
     it('calls the error hook when the request fails', async () => {
         const onError = jest.fn();
         const fragmentResolver = new FragmentResolverImpl({

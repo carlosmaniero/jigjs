@@ -91,12 +91,7 @@ class CartComponent extends HTMLElement {
         return `
             <style>
                 .cart-component {
-                    box-shadow: rgb(30,48,64) 5px 5px;
-                    border-radius: 20px;
-                    overflow: hidden;
                     display: block;
-                    border: 4px solid rgb(30, 48, 64);                    
-                    border-bottom: 0;         
                     font-family: sans-serif;           
                 }
                 
@@ -123,7 +118,7 @@ class CartComponent extends HTMLElement {
                     background-color: rgb(6, 12, 13);
                     font-family: sans-serif;
                     position: relative;
-                    border-bottom: 4px solid rgb(30, 48, 64);
+                    border-bottom: 1px dotted rgb(30, 48, 64);
                     align-items: center;
                     display: grid;
                     grid-template-columns: 96px 3fr 100px 150px;

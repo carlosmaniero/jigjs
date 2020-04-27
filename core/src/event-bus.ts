@@ -22,9 +22,9 @@ export const subscribeToEvent = <T>(eventName: string, listener: EventBusListene
         listener(event.detail);
     };
 
-    document.addEventListener(eventName, listenerWrapped);
+    document.addEventListener(eventName, listenerWrapped as any);
 
-    return createSubscription(eventName, listenerWrapped);
+    return createSubscription(eventName, listenerWrapped as any);
 }
 
 const createSubscription = (eventName: string, listener: EventListener): EventSubscription => ({
