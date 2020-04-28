@@ -105,3 +105,8 @@ dist
 
 # IDE
 .idea/
+
+# Python
+venv/
+__pycache__
+*.sqlite3
