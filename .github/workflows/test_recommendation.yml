@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Entrypoint
+name: Reccomendation Micro-Front-End
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -26,7 +26,7 @@ jobs:
     - name: Install dependencies
       run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r frontends/recommendation/requirements.txt
     - name: Running tests
       run: |
           python manage.py test
