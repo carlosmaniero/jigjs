@@ -26,7 +26,9 @@ jobs:
     - name: Install dependencies
       run: |
           python -m pip install --upgrade pip
-          pip install -r frontends/recommendation/requirements.txt
+          pip install -r requirements.txt
+      working-directory: frontends/recommendation/
     - name: Running tests
       run: |
           python manage.py test
+      working-directory: frontends/recommendation/
