@@ -29,10 +29,11 @@ new JigJoyApp({
                 return new JigJoyModule({
                     components: [
                         fragmentFactory.createFragment({
+                            selector: 'cart-count-fragment',
                             options: {
                                 url: 'http://127.0.0.1:3001'
                             },
-                            selector: 'cart-count-fragment'
+                            onErrorRender: (error) => html`Error :(`
                         })
                     ]
                 })

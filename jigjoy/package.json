@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "build": "webpack --config webpack.library.config.js"
+    "build": "webpack --config webpack.library.config.js",
+    "test": "jest"
   },
   "dependencies": {
     "@types/jest": "^25.2.1",

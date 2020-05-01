@@ -3,6 +3,7 @@ import {render} from "../../testing/utils";
 import {FragmentComponent, resolverFragmentFactory} from "../fragment-component";
 import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentResponse} from "../fragments";
 import {DIContainer} from "../../core/di";
+import {html, RenderResult} from "../../components/component";
 
 describe('Fragment Component', () => {
     describe('component', () => {
@@ -42,6 +43,38 @@ describe('Fragment Component', () => {
             expect(component.getByText('How')).not.toBeNull();
             expect(fragmentResolverMock.resolve).toBeCalledWith(options);
             expect(fragmentContentRenderMock.render).toBeCalledWith(responseHtml);
+        });
+
+        it('renders the on error view given a resolver error', async () => {
+            const resolverError = new Error('my error');
+
+            const fragmentResolverMock = {
+                resolve: jest.fn(() => Promise.reject(resolverError))
+            };
+
+            const fragmentContentRenderMock = {
+                render: jest.fn()
+            };
+
+            const component = render(new class MyFragment extends FragmentComponent {
+                readonly selector: string = 'my-fragment';
+                readonly options: FragmentOptions = {url: 'http://localhost:3000/'};
+
+                protected response: FragmentResponse;
+
+                constructor() {
+                    super(fragmentResolverMock, fragmentContentRenderMock);
+                }
+
+                onErrorRender(error: Error): RenderResult {
+                    expect(error).toBe(resolverError);
+                    return html`It was not possible to fetch fragment`
+                }
+            });
+
+            await new Promise(resolve => setImmediate(() => resolve()));
+
+            expect(component.getByText('It was not possible to fetch fragment')).not.toBeNull();
         });
     });
 
