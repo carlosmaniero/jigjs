@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": "./src",
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "lib": [
+      "dom",
+      "es6"
+    ],
+    "target": "es2015",
+    "moduleResolution": "node"
+  },
+  "exclude": [
+    "**/*.spec.ts",
+    "/node_modules/",
+    "../jigjoy/node_modules/"
+  ],
+  "include": [
+    "./**/*.ts"
+  ]
+}

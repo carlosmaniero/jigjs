@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "baseUrl": "./src",
+    "allowJs": true,
+    "lib": [
+      "dom",
+      "es6"
+    ],
+    "target": "es2015"
+  },
+  "include": [
+    "./src/*",
+    "./node_modules/**/*.d.ts"
+  ]
+}
