@@ -2,7 +2,7 @@
   "scripts": {
     "start": "ts-node src/server.ts",
     "dev": "npm run build:components && ts-node src/server.ts",
-    "build:components": "webpack --mode development --config webpack.components.config.js",
+    "build:components": "webpack --mode production --config webpack.components.config.js",
     "test": "jest --no-cache"
   },
   "dependencies": {

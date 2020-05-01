@@ -3,32 +3,32 @@ import {container} from "tsyringe";
 import InjectionToken from "tsyringe/dist/typings/providers/injection-token";
 import {FragmentResolver} from "../fragments/fragments";
 import {BrowserFragmentResolver} from "../fragments/browser-fragment-resolver";
+import {DIContainer} from "./di";
+import {JigJoyModule} from "./module";
 
 export interface EntryPointOptions {
-    entryPoint: typeof Component,
-    components: Component[]
+    bootstrap: typeof Component,
+    module: JigJoyModule
 }
 
 
-export class JigJoyEntryPoint extends Component {
-    selector: string;
-    private entrypoint: Component;
+export class JigJoyApp extends Component {
+    readonly selector: string;
+    private bootstrap: Component;
 
     constructor(private readonly options: Readonly<EntryPointOptions>) {
         super();
         this.selector = "jig-joy"
-
-        container.register("FragmentResolver", BrowserFragmentResolver);
-
-        this.entrypoint = container.resolve(options.entryPoint as InjectionToken<Component>)
+        this.bootstrap = DIContainer.resolve(options.bootstrap as InjectionToken<Component>)
     }
 
     render() {
-        return document.createElement(this.entrypoint.selector);
+        return document.createElement(this.bootstrap.selector);
     }
 
     registerCustomElementClass(window: any) {
-        this.entrypoint.registerCustomElementClass(window);
+        this.bootstrap.registerCustomElementClass(window);
+        this.options.module.register(window);
         super.registerCustomElementClass(window);
     }
 }

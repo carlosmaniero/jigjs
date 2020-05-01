@@ -2,7 +2,7 @@ import * as di from './core/di'
 
 export const core = {
     di,
-    entrypoint: require('./core/entrypoint'),
+    entrypoint: require('./core/app'),
     register: require('./core/register'),
 };
 

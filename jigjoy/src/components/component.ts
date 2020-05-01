@@ -4,7 +4,7 @@ export type RenderResult = Renderable;
 
 export const html = lighterHtml;
 
-type JigJoyWindow = Window & {
+export type JigJoyWindow = Window & {
     HTMLElement: typeof HTMLElement
 }
 

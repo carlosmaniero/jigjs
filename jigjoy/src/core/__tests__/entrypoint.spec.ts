@@ -1,9 +1,10 @@
 import '../register';
-import {JigJoyEntryPoint} from "../entrypoint";
+import {JigJoyApp} from "../app";
 import {Injectable} from "../di";
 import {html} from "lighterhtml";
 import {JSDOM} from "jsdom";
 import {Component, RenderResult} from "../../components/component";
+import {JigJoyModule} from "../module";
 
 
 describe('JigJoyEntryPoint', () => {
@@ -19,9 +20,9 @@ describe('JigJoyEntryPoint', () => {
 
         }
 
-        const entryPoint = new JigJoyEntryPoint({
-            entryPoint: TestComponent,
-            components: []
+        const entryPoint = new JigJoyApp({
+            bootstrap: TestComponent,
+            module: new JigJoyModule({})
         });
 
         const jsdom = new JSDOM();
