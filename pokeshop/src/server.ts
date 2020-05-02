@@ -1,16 +1,55 @@
-import express from 'express';
+import '../../jigjoy/src/core/register';
+import {JigJoyServer} from "../../jigjoy/src/server/server";
+import path from "path";
+import {Component, html, RenderResult} from "../../jigjoy/src/components/component";
+import {JigJoyApp} from "../../jigjoy/src/core/app";
+import {JigJoyModule} from "../../jigjoy/src/core/module";
+import {browserFragmentModule} from "../../jigjoy/src/fragments/browser-fragment-module";
+import {FragmentComponentFactory} from "../../jigjoy/src/fragments/fragment-component";
 
+class Bla extends Component {
+    selector: string = "bla-component";
+    number = 0;
 
-const app = express();
+    render(): RenderResult {
+        return html`<cart-count-fragment></cart-count-fragment>`;
+    }
 
-app.use(express.static('dist'));
+    mount() {
+        this.number++;
+        this.updateRender();
+    }
+}
 
-app.get('/', (req, res) => {
-    res.send(`<script src="/components.js"></script><div id="app"></div>`);
-});
+const app = new JigJoyApp({
+    bootstrap: Bla,
+    module: new JigJoyModule({
+        modules: [
+            browserFragmentModule.andThen((container) => {
+                const fragmentFactory: FragmentComponentFactory = container.resolve(FragmentComponentFactory);
 
+                return new JigJoyModule({
+                    components: [
+                        fragmentFactory.createFragment({
+                            selector: 'cart-count-fragment',
+                            options: {
+                                url: 'http://127.0.0.1:3001'
+                            },
+                            onErrorRender: () => html`Error :(`
+                        })
+                    ]
+                })
+            }),
+        ]
+    })
+})
 
-app.listen(4200, function () {
-    console.log('Example app listening on port http://localhost:4200!');
-});
-
+new JigJoyServer({
+    routes: [{
+        route: '/',
+        templatePath: path.join(__dirname, 'templates', 'index.html'),
+        app
+    }],
+    assetsPath: path.join(__dirname, '../', 'dist'),
+    port: 4200
+}).start()
