@@ -1,8 +1,5 @@
 import {Component} from "../components/component";
-import {container} from "tsyringe";
 import InjectionToken from "tsyringe/dist/typings/providers/injection-token";
-import {FragmentResolver} from "../fragments/fragments";
-import {BrowserFragmentResolver} from "../fragments/browser-fragment-resolver";
 import {DIContainer} from "./di";
 import {JigJoyModule} from "./module";
 

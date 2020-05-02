@@ -1,7 +1,7 @@
 import express, {Express} from 'express';
-import * as fs from "fs";
 import {JigJoyApp} from "../core/app";
-import {JSDOM} from "jsdom";
+import {DIContainer} from "../core/di";
+import {ServerTemplateController} from "./controller";
 
 export interface TemplateRoute {
     route: string,
@@ -17,7 +17,7 @@ export interface JigJoyServerOptions {
 }
 
 export class JigJoyServer {
-    private readonly app: Express;
+    readonly app: Express;
     private readonly use: any;
 
     constructor(private readonly options: JigJoyServerOptions) {
@@ -41,16 +41,12 @@ export class JigJoyServer {
     }
 
     private setupStaticRoutes() {
+        const serverTemplateController = DIContainer.resolve(ServerTemplateController);
+
         this.options.routes.forEach((route) => {
-            this.app.get(route.route, async (req, res) => {
-                fs.readFile(route.templatePath, route.encode || 'utf-8', (err, data) => {
-                    const dom = new JSDOM(data);
-
-                    route.app.registerCustomElementClass(dom.window);
-
-                    res.send(dom.serialize());
-                });
-            });
-        })
+            this.app.get(route.route, async (req, res) => serverTemplateController.resolve({
+                ...route, res
+            }));
+        });
     }
 }
