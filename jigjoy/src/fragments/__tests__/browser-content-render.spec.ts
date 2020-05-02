@@ -1,5 +1,5 @@
 import '../../core/register';
-import {BrowserContentRender} from "../browser-content-render";
+import {BrowserContentRender} from "../browser/browser-content-render";
 
 describe('Browser Content Render', () => {
     it('renders a div with the content', () => {

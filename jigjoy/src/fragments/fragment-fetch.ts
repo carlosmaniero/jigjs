@@ -3,12 +3,6 @@ import {Injectable} from "../core/di";
 
 @Injectable()
 export class FragmentFetch {
-    private static parseDependencies(eventDependencies: string) {
-        return eventDependencies.split(',')
-            .map((dep) => dep.trim())
-            .filter((dep) => !!dep);
-    }
-
     async fetch(options: FragmentOptions): Promise<FragmentResponse> {
         const url = options.url;
         const headers = options.headers || {};
@@ -42,6 +36,12 @@ export class FragmentFetch {
             html,
             dependencies: FragmentFetch.parseDependencies(eventDependencies)
         };
+    }
+
+    private static parseDependencies(eventDependencies: string) {
+        return eventDependencies.split(',')
+            .map((dep) => dep.trim())
+            .filter((dep) => !!dep);
     }
 
 }

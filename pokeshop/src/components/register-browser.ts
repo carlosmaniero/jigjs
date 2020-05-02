@@ -5,7 +5,7 @@ import {JigJoyModule} from "../../../jigjoy/src/core/module";
 import {browserFragmentModule} from "../../../jigjoy/src/fragments/browser-fragment-module";
 import {FragmentComponentFactory} from "../../../jigjoy/src/fragments/fragment-component";
 
-class Bla extends Component {
+class AppComponent extends Component {
     selector: string = "bla-component";
     number = 0;
 
@@ -20,7 +20,7 @@ class Bla extends Component {
 }
 
 new JigJoyApp({
-    bootstrap: Bla,
+    bootstrap: AppComponent,
     module: new JigJoyModule({
         modules: [
             browserFragmentModule.andThen((container) => {

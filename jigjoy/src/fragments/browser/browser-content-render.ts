@@ -1,5 +1,5 @@
-import {Injectable} from "../core/di";
-import {FragmentContentRender} from "./fragments";
+import {Injectable} from "../../core/di";
+import {FragmentContentRender} from "../fragments";
 
 @Injectable()
 export class BrowserContentRender implements FragmentContentRender {
