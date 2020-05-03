@@ -1,6 +1,6 @@
 import {Component, RenderResult} from "../components/component";
 import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentResponse} from "./fragments";
-import {DIContainer, Inject, Injectable} from "../core/di";
+import {DIContainer, Inject, GlobalInjectable} from "../core/di";
 
 export abstract class FragmentComponent extends Component {
     abstract readonly options: FragmentOptions;
@@ -43,7 +43,7 @@ interface FragmentComponentFactoryProps {
     onErrorRender?: (error: Error) => RenderResult
 }
 
-@Injectable()
+@GlobalInjectable()
 export class FragmentComponentFactory {
     constructor(
         @Inject(FragmentResolver.InjectionToken) private readonly fragmentResolver: FragmentResolver,

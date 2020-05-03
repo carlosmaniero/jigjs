@@ -1,7 +1,8 @@
+import 'isomorphic-fetch'
 import {FragmentOptions, FragmentResolverError, FragmentResponse} from "./fragments";
-import {Injectable} from "../core/di";
+import {GlobalInjectable} from "../core/di";
 
-@Injectable()
+@GlobalInjectable()
 export class FragmentFetch {
     async fetch(options: FragmentOptions): Promise<FragmentResponse> {
         const url = options.url;
@@ -19,10 +20,10 @@ export class FragmentFetch {
             throw new FragmentResolverError(options, e);
         }
 
-        return await this.handleResponse(res, options);
+        return await FragmentFetch.handleResponse(res, options);
     }
 
-    private async handleResponse(res: Response, options: FragmentOptions) {
+    private static async handleResponse(res: Response, options: FragmentOptions) {
         if (res.status > 299) {
             return Promise.reject(
                 new FragmentResolverError(options, res)

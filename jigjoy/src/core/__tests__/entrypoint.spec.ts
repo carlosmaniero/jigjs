@@ -1,6 +1,6 @@
 import '../register';
 import {JigJoyApp} from "../app";
-import {Injectable} from "../di";
+import {GlobalInjectable} from "../di";
 import {html} from "lighterhtml";
 import {JSDOM} from "jsdom";
 import {Component, RenderResult} from "../../components/component";
@@ -10,7 +10,7 @@ import {JigJoyModule} from "../module";
 describe('JigJoyEntryPoint', () => {
 
     it('renders the given EntryPoint', () => {
-        @Injectable()
+        @GlobalInjectable()
         class TestComponent extends Component {
             selector: string = "my-test-component";
 

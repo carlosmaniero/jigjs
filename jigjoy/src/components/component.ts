@@ -34,11 +34,11 @@ export abstract class Component {
         this._updateRender();
     }
 
-    public registerCustomElementClass(window: JigJoyWindow) {
+    public registerCustomElementClass(myWindow: JigJoyWindow) {
         const component = this;
         const observableKeys = component.observedAttributes;
 
-        window.customElements.define(this.selector, class extends window.HTMLElement {
+        myWindow.customElements.define(this.selector, class extends myWindow.HTMLElement {
             private readonly updateRender: () => void;
 
             constructor() {

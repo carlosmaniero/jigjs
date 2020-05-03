@@ -1,13 +1,20 @@
 import "reflect-metadata";
+import {DIContainer} from "./di";
 
+export const ContainerInjectionToken = 'container'
 declare var global: any
 
-if (typeof window === 'undefined') {
-    const jsdom = require('jsdom');
+export const register = () => {
+    DIContainer.register(ContainerInjectionToken, {useValue: DIContainer});
 
-    const globalDom = new jsdom.JSDOM();
+    if (typeof window === 'undefined') {
+        const jsdom = require('jsdom');
 
-    global.window = globalDom.window;
-    global.document = globalDom.window.document;
+        const globalDom = new jsdom.JSDOM();
 
+        global.window = globalDom.window;
+        global.document = globalDom.window.document;
+    }
 }
+
+register();

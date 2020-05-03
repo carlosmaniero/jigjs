@@ -45,7 +45,7 @@ export class JigJoyServer {
 
         this.options.routes.forEach((route) => {
             this.app.get(route.route, async (req, res) => serverTemplateController.resolve({
-                ...route, res
+                ...route, res, req
             }));
         });
     }

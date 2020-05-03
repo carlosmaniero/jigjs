@@ -15,25 +15,25 @@ type RegistrationCallback = (container: DIContainer) => JigJoyModule;
 export class JigJoyModule {
     private readonly registrationCallbacks: RegistrationCallback[];
 
-    constructor(private readonly props: JigJoyModuleProps) {
+    constructor(private readonly props: JigJoyModuleProps = {}) {
         this.registrationCallbacks = [];
     }
 
-    register(window: JigJoyWindow) {
+    register(myWindow: JigJoyWindow, container) {
         this.props.modules?.forEach((module) => {
-            module.register(window);
+            module.register(myWindow, container);
         });
 
         this.props.providers?.forEach((provider) => {
-            DIContainer.register(provider.provide, provider as any);
+            container.register(provider.provide, provider as any);
         });
 
         this.props.components?.forEach((component) => {
-            component.registerCustomElementClass(window);
+            component.registerCustomElementClass(myWindow);
         });
 
         this.registrationCallbacks.forEach((callback) => {
-            callback(DIContainer).register(window);
+            callback(container).register(myWindow, container);
         });
     }
 

@@ -4,8 +4,8 @@ import path from "path";
 import {Component, html, RenderResult} from "../../jigjoy/src/components/component";
 import {JigJoyApp} from "../../jigjoy/src/core/app";
 import {JigJoyModule} from "../../jigjoy/src/core/module";
-import {browserFragmentModule} from "../../jigjoy/src/fragments/browser-fragment-module";
 import {FragmentComponentFactory} from "../../jigjoy/src/fragments/fragment-component";
+import "../../jigjoy/src/fragments/server/server-fragment-module";
 
 class Bla extends Component {
     selector: string = "bla-component";
@@ -23,24 +23,20 @@ class Bla extends Component {
 
 const app = new JigJoyApp({
     bootstrap: Bla,
-    module: new JigJoyModule({
-        modules: [
-            browserFragmentModule.andThen((container) => {
-                const fragmentFactory: FragmentComponentFactory = container.resolve(FragmentComponentFactory);
+    module: new JigJoyModule().andThen((container) => {
+        const fragmentFactory: FragmentComponentFactory = container.resolve(FragmentComponentFactory);
 
-                return new JigJoyModule({
-                    components: [
-                        fragmentFactory.createFragment({
-                            selector: 'cart-count-fragment',
-                            options: {
-                                url: 'http://127.0.0.1:3001'
-                            },
-                            onErrorRender: () => html`Error :(`
-                        })
-                    ]
+        return new JigJoyModule({
+            components: [
+                fragmentFactory.createFragment({
+                    selector: 'cart-count-fragment',
+                    options: {
+                        url: 'http://127.0.0.1:3001'
+                    },
+                    onErrorRender: () => html`Error :(`
                 })
-            }),
-        ]
+            ]
+        })
     })
 })
 

@@ -16,16 +16,16 @@ export class JigJoyApp extends Component {
     constructor(private readonly options: Readonly<EntryPointOptions>) {
         super();
         this.selector = "jig-joy"
-        this.bootstrap = DIContainer.resolve(options.bootstrap as InjectionToken<Component>)
     }
 
     render() {
         return document.createElement(this.bootstrap.selector);
     }
 
-    registerCustomElementClass(window: any) {
-        this.bootstrap.registerCustomElementClass(window);
-        this.options.module.register(window);
-        super.registerCustomElementClass(window);
+    registerCustomElementClass(myWindow: any, container = DIContainer) {
+        this.bootstrap = container.resolve(this.options.bootstrap as InjectionToken<Component>)
+        this.bootstrap.registerCustomElementClass(myWindow);
+        this.options.module.register(myWindow, container);
+        super.registerCustomElementClass(myWindow);
     }
 }

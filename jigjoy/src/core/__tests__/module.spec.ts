@@ -1,41 +1,43 @@
-import '../register';
 import {JigJoyModule} from "../module";
 import {DIContainer} from "../di";
-import {container} from "tsyringe";
 import {Component, html, RenderResult} from "../../components/component";
 
 describe('Module', () => {
-    beforeEach(() => {
-        container.reset();
-    })
-
     it('registers providers', function () {
+        const container = DIContainer.createChildContainer();
+
         new JigJoyModule({
             providers: [
                 {provide: "abc", useValue: "cba"},
                 {provide: "def", useValue: "fed"}
             ]
-        }).register(window);
+        }).register(window, container);
 
-        expect(DIContainer.resolve("abc")).toBe("cba");
-        expect(DIContainer.resolve("def")).toBe("fed");
+        expect(container.resolve("abc")).toBe("cba");
+        expect(container.resolve("def")).toBe("fed");
     });
 
     it('registers modules', function () {
-        new JigJoyModule({
-            modules: [new JigJoyModule({
-                providers: [
-                    {provide: "abc", useValue: "cba"},
-                    {provide: "def", useValue: "fed"}
-                ]
-            })]
-        }).register(window);
+        const container = DIContainer.createChildContainer();
 
-        expect(DIContainer.resolve("abc")).toBe("cba");
-        expect(DIContainer.resolve("def")).toBe("fed");
+        new JigJoyModule({
+            modules: [
+                new JigJoyModule({
+                    providers: [
+                        {provide: "abc", useValue: "cba"},
+                        {provide: "def", useValue: "fed"}
+                    ]
+                })
+            ]
+        }).register(window, container);
+
+        expect(container.resolve("abc")).toBe("cba");
+        expect(container.resolve("def")).toBe("fed");
     });
 
     it('registers components', function () {
+        const container = DIContainer.createChildContainer();
+
         new JigJoyModule({
             components: [
                 new class extends Component {
@@ -52,14 +54,16 @@ describe('Module', () => {
 
                 }
             ]
-        }).register(window);
+        }).register(window, container);
 
         document.body.appendChild(document.createElement('my-component'));
 
         expect(document.body.innerHTML).toContain('Hello, World!');
     });
 
-    it('registers providers', function () {
+    it('registers sub modules', function () {
+        const container = DIContainer.createChildContainer();
+
         new JigJoyModule({
             providers: [
                 {provide: "abc", useValue: "cba"},
@@ -73,8 +77,8 @@ describe('Module', () => {
                     useValue: value + "!"
                 }]
             });
-        }).register(window);
+        }).register(window, container);
 
-        expect(DIContainer.resolve("def")).toBe("cba!");
+        expect(container.resolve("def")).toBe("cba!");
     });
 });

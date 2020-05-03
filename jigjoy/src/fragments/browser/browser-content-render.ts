@@ -1,7 +1,7 @@
-import {Injectable} from "../../core/di";
+import {GlobalInjectable} from "../../core/di";
 import {FragmentContentRender} from "../fragments";
 
-@Injectable()
+@GlobalInjectable()
 export class BrowserContentRender implements FragmentContentRender {
     render(html: string): HTMLElement {
         const div = document.createElement('div');
