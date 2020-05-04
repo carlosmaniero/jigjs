@@ -70,5 +70,3 @@ export class FragmentComponentFactory {
         };
     }
 }
-
-export const resolverFragmentFactory = () => DIContainer.resolve(FragmentComponentFactory);

@@ -16,7 +16,7 @@ export interface ServerTemplateControllerResolver {
 
 @GlobalInjectable()
 export class ServerTemplateController {
-    constructor() {
+    constructor(private readonly perRequestContainer: PerRequestContainer) {
     }
 
     private static getWaitMiddlewareList(dependencyContainer: DIContainer): RequestWaitMiddleware[] {
@@ -28,23 +28,19 @@ export class ServerTemplateController {
     }
 
     resolve({app, templatePath, encode, req, res}: ServerTemplateControllerResolver) {
-        const perRequestContainer = DIContainer.resolve(PerRequestContainer);
-
         fs.readFile(templatePath, encode || 'utf-8', async (err, data) => {
-            const dependencyContainer = perRequestContainer.createRequestContainer(req, res);
-
+            const dependencyContainer = this.perRequestContainer.createRequestContainer(req, res);
             const dom = new JSDOM(data);
-            app.registerCustomElementClass(dom.window, dependencyContainer);
 
-            await new Promise((resolve) => setImmediate(() => resolve()));
+            app.registerCustomElementClass(dom.window as any, dependencyContainer);
 
-            await this.waitForMiddlewareList(dependencyContainer);
+            await ServerTemplateController.waitForMiddlewareList(dependencyContainer);
 
             res.send(dom.serialize());
         });
     }
 
-    private async waitForMiddlewareList(dependencyContainer: DIContainer) {
+    private static async waitForMiddlewareList(dependencyContainer: DIContainer) {
         const requestWaitMiddlewareList = ServerTemplateController.getWaitMiddlewareList(dependencyContainer);
 
         await Promise.all(

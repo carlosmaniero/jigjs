@@ -5,8 +5,6 @@ export const ContainerInjectionToken = 'container'
 declare var global: any
 
 export const register = () => {
-    DIContainer.register(ContainerInjectionToken, {useValue: DIContainer});
-
     if (typeof window === 'undefined') {
         const jsdom = require('jsdom');
 

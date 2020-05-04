@@ -21,9 +21,8 @@ class Bla extends Component {
     }
 }
 
-const app = new JigJoyApp({
-    bootstrap: Bla,
-    module: new JigJoyModule().andThen((container) => {
+const app = new JigJoyApp({bootstrap: Bla})
+    .registerModuleUsingContainer((container) => {
         const fragmentFactory: FragmentComponentFactory = container.resolve(FragmentComponentFactory);
 
         return new JigJoyModule({
@@ -37,8 +36,7 @@ const app = new JigJoyApp({
                 })
             ]
         })
-    })
-})
+    });
 
 new JigJoyServer({
     routes: [{

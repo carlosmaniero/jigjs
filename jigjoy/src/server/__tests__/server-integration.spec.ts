@@ -8,7 +8,7 @@ import * as path from "path";
 import {RequestWaitMiddleware} from "../middlewares";
 import {FragmentFetch} from "../../fragments/fragment-fetch";
 import {FragmentComponentFactory} from "../../fragments/fragment-component";
-import {DIContainer} from "../../core/di";
+import waitForExpect from "wait-for-expect";
 
 const request = require("supertest");
 
@@ -88,7 +88,10 @@ describe('Jig Joy Server', () => {
             .expect(200)
             .then((response) => responseBody = response.text);
 
-        await new Promise(resolve => setTimeout(() => resolve(), 100));
+        await waitForExpect(() => {
+            expect(firstResolver).toBeTruthy();
+            expect(secondResolver).toBeTruthy();
+        });
 
         expect(responseBody).toBeNull();
 
@@ -117,6 +120,13 @@ describe('Jig Joy Server', () => {
                     route: '/my-route',
                     templatePath: path.join(__dirname, 'basic.html'),
                     app: new JigJoyApp({
+                        bootstrap: class extends Component {
+                            readonly selector: string = 'my-component';
+
+                            render(): RenderResult {
+                                return document.createElement('first-fragment');
+                            }
+                        },
                         module: new JigJoyModule({
                             providers: [
                                 {
@@ -132,27 +142,20 @@ describe('Jig Joy Server', () => {
                                     }
                                 },
                             ]
-                        }).andThen((container) => {
-                            const fragmentComponentFactory = container.resolve(FragmentComponentFactory);
+                        })
+                    }).registerModuleUsingContainer((container) => {
+                        const fragmentComponentFactory = container.resolve(FragmentComponentFactory);
 
-                            return new JigJoyModule({
-                                components: [
-                                    fragmentComponentFactory.createFragment({
-                                        selector: 'first-fragment',
-                                        options: {
-                                            url: 'http://localhost:8000',
-                                        }
-                                    })
-                                ]
-                            })
-                        }),
-                        bootstrap: class extends Component {
-                            readonly selector: string = 'my-component';
-
-                            render(): RenderResult {
-                                return document.createElement('first-fragment');
-                            }
-                        }
+                        return new JigJoyModule({
+                            components: [
+                                fragmentComponentFactory.createFragment({
+                                    selector: 'first-fragment',
+                                    options: {
+                                        url: 'http://localhost:8000',
+                                    }
+                                })
+                            ]
+                        })
                     })
                 }
             ]
@@ -178,7 +181,10 @@ describe('Jig Joy Server', () => {
                 firstResponseBody = response.text
             });
 
-        await new Promise(resolve => setTimeout(() => resolve(), 1000));
+        await waitForExpect(() => {
+            expect(firstResolver).toBeTruthy();
+            expect(secondResolver).toBeTruthy();
+        });
 
         expect(firstResponseBody).toBeNull();
         expect(secondResponseBody).toBeNull();

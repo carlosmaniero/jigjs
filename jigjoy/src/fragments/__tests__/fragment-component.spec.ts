@@ -1,6 +1,6 @@
 import '../../core/register';
 import {render} from "../../testing/utils";
-import {FragmentComponent, resolverFragmentFactory} from "../fragment-component";
+import {FragmentComponent, FragmentComponentFactory} from "../fragment-component";
 import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentResponse} from "../fragments";
 import {DIContainer} from "../../core/di";
 import {html, RenderResult} from "../../components/component";
@@ -88,7 +88,7 @@ describe('Fragment Component', () => {
             DIContainer.register(FragmentResolver.InjectionToken, {useValue: fragmentResolverMock});
             DIContainer.register(FragmentContentRender.InjectionToken, {useValue: fragmentContentRenderMock});
 
-            const fragmentComponentFactory = resolverFragmentFactory();
+            const fragmentComponentFactory = DIContainer.resolve(FragmentComponentFactory);
 
             const fragment: FragmentComponent = fragmentComponentFactory.createFragment({
                 selector: "my-fragment",
