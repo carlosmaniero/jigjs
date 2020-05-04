@@ -27,7 +27,7 @@ describe('JigJoyEntryPoint', () => {
 
         const jsdom = new JSDOM();
 
-        entryPoint.registerCustomElementClass(jsdom.window);
+        entryPoint.registerCustomElementClass(jsdom.window as any);
 
         jsdom.window.document.body.innerHTML = `<jig-joy></jig-joy>`
 

@@ -8,7 +8,7 @@ module.exports = {
         new webpack.IgnorePlugin(/jsdom/),
     ],
     entry: {
-        "components": './src/components/register-browser.ts',
+        "init": './src/components/init.ts',
     },
     module: {
         rules: [
