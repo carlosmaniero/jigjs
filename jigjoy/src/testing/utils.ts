@@ -107,7 +107,7 @@ function renderTemplate(dom, component: Component, options: RenderOptions) {
     return element;
 }
 
-export const render = (component: Component, options?: RenderOptions): RenderResult => {
+export const render = (component: Component<any>, options?: RenderOptions): RenderResult => {
     const dom = new JSDOM();
     component.registerCustomElementClass(dom.window as any);
     const element = renderTemplate(dom, component, options);

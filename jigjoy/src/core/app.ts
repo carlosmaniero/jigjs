@@ -4,7 +4,7 @@ import {DIContainer} from "./di";
 import {JigJoyModule} from "./module";
 
 export interface EntryPointOptions {
-    bootstrap: typeof Component,
+    bootstrap: new() => Component<unknown>,
     module?: JigJoyModule
 }
 
