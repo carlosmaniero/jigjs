@@ -1,7 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Cart Micro-Front-End
-
+name: JigJoy
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
@@ -25,9 +24,9 @@ jobs:
       with:
         node-version: '12.x'
     - run: npm install yarn
-    - run: yarn --cwd frontends/cart
+    - run: yarn --cwd jigjoy
       env:
         CI: true
-    - run: yarn --cwd frontends/cart test
+    - run: yarn --cwd jigjoy test
       env:
         CI: true
