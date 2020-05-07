@@ -1,5 +1,5 @@
 import * as testingLibrary from '@testing-library/dom'
-import {Component} from "../components/component";
+import {Component, RehydrateService} from "../components/component";
 import {JSDOM} from "jsdom";
 import {Matcher} from "@testing-library/dom/matches";
 import {SelectorMatcherOptions} from "@testing-library/dom/query-helpers";
@@ -76,6 +76,7 @@ export type RenderResult = Matchers & {
 
 export type RenderOptions = {
     template?: string
+    rehydrateService?: RehydrateService
 }
 
 function getDocumentSnapshot(element) {
@@ -109,7 +110,7 @@ function renderTemplate(dom, component: Component, options: RenderOptions) {
 
 export const render = (component: Component<any>, options?: RenderOptions): RenderResult => {
     const dom = new JSDOM();
-    component.registerCustomElementClass(dom.window as any);
+    component.registerCustomElementClass(dom.window as any, options?.rehydrateService);
     const element = renderTemplate(dom, component, options);
 
     const matchers = testingLibraryMatchersFor(element, dom);

@@ -1,8 +1,13 @@
 import {JigJoyModule} from "../module";
 import {DIContainer} from "../di";
-import {Component, html, RenderResult} from "../../components/component";
+import {Component, html, RehydrateService, RenderResult} from "../../components/component";
+import {ServerRehydrateService} from "../../components/server/server-rehydrate-service";
 
 describe('Module', () => {
+    beforeEach(() => {
+        DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
+    })
+
     it('registers providers', function () {
         const container = DIContainer.createChildContainer();
 

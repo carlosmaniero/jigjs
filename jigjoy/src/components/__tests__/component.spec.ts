@@ -209,10 +209,6 @@ describe('Component', () => {
 
             public readonly selector: string = "component-custom";
 
-            constructor() {
-                super(rehydrateService);
-            }
-
             mount() {
                 this.setState({name: 'World'});
             }
@@ -220,7 +216,7 @@ describe('Component', () => {
             render(): RenderResult {
                 return html`Hey!`
             }
-        });
+        }, {rehydrateService});
 
         const contextName = component.element.getAttribute('rehydrate-context-name');
 
@@ -244,10 +240,6 @@ describe('Component', () => {
                     name: 'no-name'
                 };
 
-                constructor() {
-                    super(rehydrateService);
-                }
-
                 render(): RenderResult {
                     return html`<div>Hello, ${this.state.name}</div>`
                 }
@@ -267,7 +259,8 @@ describe('Component', () => {
             originalDiv = dom.window.document.querySelector('div');
 
             componentInstance = new MyComponent();
-            componentInstance.registerCustomElementClass(dom.window as any);
+            componentInstance.setRehydrateService(rehydrateService);
+            componentInstance.registerCustomElementClass(dom.window as any, rehydrateService);
         })
 
         it('renders the content of rehydration', async () => {

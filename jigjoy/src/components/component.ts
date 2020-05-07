@@ -20,25 +20,20 @@ export const RehydrateService = {
 
 export abstract class Component<T={}> {
     state: T;
-    private readonly contextName: string;
-
-    constructor(private readonly rehydrateService?: RehydrateService) {
-        if (this.rehydrateService) {
-            this.contextName = this.rehydrateService.createContext();
-        }
-    }
+    private contextName: string;
 
     public abstract readonly selector: string;
     protected readonly observedAttributes: string[];
     private _updateRender: () => void;
 
     private _props: Readonly<Record<string, string>>;
+    private rehydrateService: RehydrateService;
 
     protected setState(partialState: Partial<T>) {
         this.state = {...this.state, ...partialState};
         this.updateRender();
 
-        if (this.rehydrateService) {
+        if (this.contextName) {
             this.rehydrateService.updateContext(this.contextName, this.state);
         }
     }
@@ -66,7 +61,14 @@ export abstract class Component<T={}> {
         this._updateRender();
     }
 
-    public registerCustomElementClass(window: JigJoyWindow) {
+    setRehydrateService(rehydrateService: RehydrateService) {
+        if (rehydrateService) {
+            this.rehydrateService = rehydrateService;
+            this.contextName = this.rehydrateService.createContext();
+        }
+    }
+
+    public registerCustomElementClass(window: JigJoyWindow, rehydrateService: RehydrateService) {
         const originalComponent = this;
         const observableKeys = originalComponent.observedAttributes;
 
@@ -80,6 +82,10 @@ export abstract class Component<T={}> {
                 super();
 
                 this.componentInstance = this.createComponentInstance();
+
+                if (rehydrateService) {
+                    this.componentInstance.setRehydrateService(rehydrateService);
+                }
 
                 this.updateRender = render.bind(
                     null,
@@ -117,7 +123,8 @@ export abstract class Component<T={}> {
             }
 
             private getContext(): T {
-                return this.componentInstance.rehydrateService.getContext(this.getAttribute(this.REHYDRATE_CONTEXT_ATTRIBUTE_NAME));
+                return (rehydrateService || this.componentInstance.rehydrateService)
+                    .getContext(this.getAttribute(this.REHYDRATE_CONTEXT_ATTRIBUTE_NAME));
             }
 
             disconnectedCallback() {

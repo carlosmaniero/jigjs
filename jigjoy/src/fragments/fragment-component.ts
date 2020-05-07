@@ -12,9 +12,8 @@ export abstract class FragmentComponent extends Component<State> {
     abstract readonly options: FragmentOptions;
 
     protected constructor(private readonly fragmentResolver: FragmentResolver,
-                          private readonly fragmentContentRender: FragmentContentRender,
-                          rehydrateService?: RehydrateService) {
-        super(rehydrateService);
+                          private readonly fragmentContentRender: FragmentContentRender) {
+        super()
     }
 
     async mount() {
@@ -52,8 +51,7 @@ interface FragmentComponentFactoryProps {
 export class FragmentComponentFactory {
     constructor(
         @Inject(FragmentResolver.InjectionToken) private readonly fragmentResolver: FragmentResolver,
-        @Inject(FragmentContentRender.InjectionToken) private readonly fragmentContentRender: FragmentContentRender,
-        @Inject(RehydrateService.InjectionToken) private readonly rehydrateService: RehydrateService) {
+        @Inject(FragmentContentRender.InjectionToken) private readonly fragmentContentRender: FragmentContentRender) {
     }
 
     createFragment({selector, options, onErrorRender}: FragmentComponentFactoryProps): FragmentComponent {
@@ -64,7 +62,7 @@ export class FragmentComponentFactory {
             readonly options: FragmentOptions = options;
 
             constructor() {
-                super(factory.fragmentResolver, factory.fragmentContentRender, factory.rehydrateService);
+                super(factory.fragmentResolver, factory.fragmentContentRender);
             }
 
             protected onErrorRender(error: Error): RenderResult {

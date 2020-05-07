@@ -11,11 +11,8 @@ export interface EntryPointOptions {
 export class JigJoyComponent extends Component {
     readonly selector: string;
 
-    constructor(
-        private readonly bootstrap: Component<unknown>,
-        rehydrateService: RehydrateService
-    ) {
-        super(rehydrateService);
+    constructor(private readonly bootstrap: Component<unknown>) {
+        super();
         this.selector = "jig-joy"
     }
 
@@ -42,12 +39,11 @@ export class JigJoyApp {
         });
 
         const bootstrap = container.resolve(this.options.bootstrap as InjectionToken<Component>)
-        bootstrap.registerCustomElementClass(window);
+        const rehydrateService: RehydrateService = container.resolve(RehydrateService.InjectionToken);
 
-        new JigJoyComponent(
-            bootstrap,
-            container.resolve(RehydrateService.InjectionToken)
-        )
-            .registerCustomElementClass(window);
+        bootstrap.registerCustomElementClass(window, rehydrateService);
+
+        new JigJoyComponent(bootstrap)
+            .registerCustomElementClass(window, rehydrateService);
     }
 }

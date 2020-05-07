@@ -1,4 +1,4 @@
-import {Component, JigJoyWindow} from "../components/component";
+import {Component, JigJoyWindow, RehydrateService} from "../components/component";
 import {DIContainer, DIInjectionToken, DIRegistration} from "./di";
 
 
@@ -20,6 +20,8 @@ export class JigJoyModule {
     }
 
     register(myWindow: JigJoyWindow, container) {
+        const rehydrateService: RehydrateService = container.resolve(RehydrateService.InjectionToken);
+
         this.props.modules?.forEach((module) => {
             module.register(myWindow, container);
         });
@@ -29,7 +31,7 @@ export class JigJoyModule {
         });
 
         this.props.components?.forEach((component) => {
-            component.registerCustomElementClass(myWindow);
+            component.registerCustomElementClass(myWindow, rehydrateService);
         });
 
         this.registrationCallbacks.forEach((callback) => {

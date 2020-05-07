@@ -8,10 +8,6 @@ import {Inject, Injectable} from "../../../jigjoy/src/core/di";
 export class Index extends Component {
     selector: string = "index-component";
 
-    constructor(@Inject(RehydrateService.InjectionToken) rehydrateService) {
-        super(rehydrateService);
-    }
-
     render(): RenderResult {
         return html`<cart-count-fragment></cart-count-fragment>`;
     }
