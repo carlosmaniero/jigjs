@@ -2,6 +2,7 @@ import '../../jigjoy/src/core/register';
 import {JigJoyServer} from "../../jigjoy/src/server/server";
 import path from "path";
 import "../../jigjoy/src/fragments/server/server-fragment-module";
+import  "../../jigjoy/src/components/server/server-flush-rehydrate-state";
 import {app} from "./components/app";
 
 new JigJoyServer({

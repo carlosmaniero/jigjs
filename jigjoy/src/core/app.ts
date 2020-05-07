@@ -1,26 +1,33 @@
-import {Component, JigJoyWindow} from "../components/component";
+import {Component, JigJoyWindow, RehydrateService} from "../components/component";
 import InjectionToken from "tsyringe/dist/typings/providers/injection-token";
-import {DIContainer} from "./di";
+import {DIContainer, Inject} from "./di";
 import {JigJoyModule} from "./module";
 
 export interface EntryPointOptions {
-    bootstrap: new() => Component<unknown>,
+    bootstrap: new(...args: unknown[]) => Component<unknown>,
     module?: JigJoyModule
 }
 
-
-export class JigJoyApp extends Component {
+export class JigJoyComponent extends Component {
     readonly selector: string;
-    private bootstrap: Component;
-    private readonly moduleRegisters: ((container: DIContainer) => JigJoyModule)[] = [];
 
-    constructor(private readonly options: Readonly<EntryPointOptions>) {
-        super();
+    constructor(
+        private readonly bootstrap: Component<unknown>,
+        rehydrateService: RehydrateService
+    ) {
+        super(rehydrateService);
         this.selector = "jig-joy"
     }
 
     render() {
         return document.createElement(this.bootstrap.selector);
+    }
+}
+
+export class JigJoyApp {
+    private readonly moduleRegisters: ((container: DIContainer) => JigJoyModule)[] = [];
+
+    constructor(private readonly options: Readonly<EntryPointOptions>) {
     }
 
     registerModuleUsingContainer(moduleRegister: (container: DIContainer) => JigJoyModule) {
@@ -29,14 +36,18 @@ export class JigJoyApp extends Component {
     }
 
     registerCustomElementClass(window: JigJoyWindow, container = DIContainer) {
-        this.bootstrap = container.resolve(this.options.bootstrap as InjectionToken<Component>)
-        this.bootstrap.registerCustomElementClass(window);
         this.options.module?.register(window, container);
-
         this.moduleRegisters.forEach((moduleRegister) => {
             moduleRegister(container).register(window, container);
         });
 
-        super.registerCustomElementClass(window);
+        const bootstrap = container.resolve(this.options.bootstrap as InjectionToken<Component>)
+        bootstrap.registerCustomElementClass(window);
+
+        new JigJoyComponent(
+            bootstrap,
+            container.resolve(RehydrateService.InjectionToken)
+        )
+            .registerCustomElementClass(window);
     }
 }

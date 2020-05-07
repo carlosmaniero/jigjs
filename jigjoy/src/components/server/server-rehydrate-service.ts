@@ -4,7 +4,7 @@ import {Singleton} from "../../core/di";
 @Singleton([RehydrateService])
 export class ServerRehydrateService implements RehydrateService {
     private contextCount: number;
-    private readonly contextMap = {};
+    private readonly _contextMap = {};
 
     constructor() {
         this.contextCount = 0;
@@ -17,11 +17,15 @@ export class ServerRehydrateService implements RehydrateService {
     }
 
     getContext<T>(contextName: string): T {
-        return this.contextMap[contextName];
+        return this._contextMap[contextName];
     }
 
     updateContext<T>(contextName: string, object: T): void {
-        this.contextMap[contextName] = object;
+        this._contextMap[contextName] = object;
+    }
+
+    get contextMap() {
+        return {...this._contextMap}
     }
 
 }

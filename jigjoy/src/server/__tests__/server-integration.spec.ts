@@ -1,11 +1,12 @@
 import '../../core/register'
-import "../../fragments/server/server-fragment-module";
+import '../../fragments/server/server-fragment-module';
+import '../../components/server/server-rehydrate-service';
 import {JigJoyServer} from "../server";
 import {JigJoyApp} from "../../core/app";
 import {Component, html, RenderResult} from "../../components/component";
 import {JigJoyModule} from "../../core/module";
 import * as path from "path";
-import {RequestWaitMiddleware} from "../middlewares";
+import {BeforeFlushRequest, RequestWaitMiddleware} from "../middlewares";
 import {FragmentFetch} from "../../fragments/fragment-fetch";
 import {FragmentComponentFactory} from "../../fragments/fragment-component";
 import waitForExpect from "wait-for-expect";
@@ -40,6 +41,49 @@ describe('Jig Joy Server', () => {
             .expect(200);
 
         expect(response.text).toContain('Hello, World!');
+    });
+
+    it('calls all BeforeFlushRequest', async () => {
+        const firstMock = jest.fn();
+        const secondMock = jest.fn();
+        const server = new JigJoyServer({
+            port: 4200,
+            assetsPath: '/assets/',
+            routes: [
+                {
+                    route: '/my-route',
+                    templatePath: path.join(__dirname, 'basic.html'),
+                    app: new JigJoyApp({
+                        module: new JigJoyModule({
+                            providers: [
+                                {
+                                    provide: BeforeFlushRequest.InjectionToken,
+                                    useValue: {beforeFlushRequest: firstMock}
+                                 },
+                                {
+                                    provide: BeforeFlushRequest.InjectionToken,
+                                    useValue: {beforeFlushRequest: secondMock}
+                                },
+                            ]
+                        }),
+                        bootstrap: class extends Component {
+                            readonly selector: string = 'my-component';
+
+                            render(): RenderResult {
+                                return html`Hello, World!`;
+                            }
+                        }
+                    })
+                }
+            ]
+        });
+
+        const response = await request(server.app)
+            .get('/my-route')
+            .expect(200);
+
+        expect(firstMock).toBeCalled();
+        expect(secondMock).toBeCalled();
     });
 
     it('waits until all server RequestWaitMiddleware is done', async () => {

@@ -1,32 +1,37 @@
-import {Component, RenderResult} from "../components/component";
+import {Component, RehydrateService, RenderResult} from "../components/component";
 import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentResponse} from "./fragments";
 import {DIContainer, Inject, GlobalInjectable} from "../core/di";
 
-export abstract class FragmentComponent extends Component {
+interface State {
+    response?: FragmentResponse;
+    error?: Error;
+}
+
+export abstract class FragmentComponent extends Component<State> {
+    state: State = {}
     abstract readonly options: FragmentOptions;
-    protected response: FragmentResponse;
-    private error: Error;
 
     protected constructor(private readonly fragmentResolver: FragmentResolver,
-                          private readonly fragmentContentRender: FragmentContentRender) {
-        super();
+                          private readonly fragmentContentRender: FragmentContentRender,
+                          rehydrateService?: RehydrateService) {
+        super(rehydrateService);
     }
 
     async mount() {
         try {
-            this.response = await this.fragmentResolver.resolve(this.options);
+            this.setState({response: await this.fragmentResolver.resolve(this.options)});
         } catch (e) {
-            this.error = e;
+            this.setState({error: e});
         }
         this.updateRender();
     }
 
     render(): RenderResult {
-        if (this.error) {
-            return this.onErrorRender(this.error);
+        if (this.state.error) {
+            return this.onErrorRender(this.state.error);
         }
-        if (this.response) {
-            return this.fragmentContentRender.render(this.response.html);
+        if (this.state.response) {
+            return this.fragmentContentRender.render(this.state.response.html);
         }
         return document.createElement('div');
     }
@@ -47,7 +52,8 @@ interface FragmentComponentFactoryProps {
 export class FragmentComponentFactory {
     constructor(
         @Inject(FragmentResolver.InjectionToken) private readonly fragmentResolver: FragmentResolver,
-        @Inject(FragmentContentRender.InjectionToken) private readonly fragmentContentRender: FragmentContentRender) {
+        @Inject(FragmentContentRender.InjectionToken) private readonly fragmentContentRender: FragmentContentRender,
+        @Inject(RehydrateService.InjectionToken) private readonly rehydrateService: RehydrateService) {
     }
 
     createFragment({selector, options, onErrorRender}: FragmentComponentFactoryProps): FragmentComponent {
@@ -58,7 +64,7 @@ export class FragmentComponentFactory {
             readonly options: FragmentOptions = options;
 
             constructor() {
-                super(factory.fragmentResolver, factory.fragmentContentRender);
+                super(factory.fragmentResolver, factory.fragmentContentRender, factory.rehydrateService);
             }
 
             protected onErrorRender(error: Error): RenderResult {

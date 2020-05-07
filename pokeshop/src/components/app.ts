@@ -1,10 +1,16 @@
-import {Component, html, RenderResult} from "../../../jigjoy/src/components/component";
+import {Component, html, RehydrateService, RenderResult} from "../../../jigjoy/src/components/component";
 import {JigJoyApp} from "../../../jigjoy/src/core/app";
 import {FragmentComponentFactory} from "../../../jigjoy/src/fragments/fragment-component";
 import {JigJoyModule} from "../../../jigjoy/src/core/module";
+import {Inject, Injectable} from "../../../jigjoy/src/core/di";
 
+@Injectable()
 export class Index extends Component {
     selector: string = "index-component";
+
+    constructor(@Inject(RehydrateService.InjectionToken) rehydrateService) {
+        super(rehydrateService);
+    }
 
     render(): RenderResult {
         return html`<cart-count-fragment></cart-count-fragment>`;

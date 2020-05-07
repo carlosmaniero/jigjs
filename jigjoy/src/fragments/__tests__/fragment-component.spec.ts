@@ -3,7 +3,8 @@ import {render} from "../../testing/utils";
 import {FragmentComponent, FragmentComponentFactory} from "../fragment-component";
 import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentResponse} from "../fragments";
 import {DIContainer} from "../../core/di";
-import {html, RenderResult} from "../../components/component";
+import {html, RehydrateService, RenderResult} from "../../components/component";
+import {ServerRehydrateService} from "../../components/server/server-rehydrate-service";
 
 describe('Fragment Component', () => {
     describe('component', () => {
@@ -84,7 +85,7 @@ describe('Fragment Component', () => {
             const fragmentContentRenderMock = {render: jest.fn()};
             const options = {url: 'http://localhost:3000/'};
 
-
+            DIContainer.register(RehydrateService.InjectionToken, {useClass: ServerRehydrateService})
             DIContainer.register(FragmentResolver.InjectionToken, {useValue: fragmentResolverMock});
             DIContainer.register(FragmentContentRender.InjectionToken, {useValue: fragmentContentRenderMock});
 

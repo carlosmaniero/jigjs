@@ -5,3 +5,11 @@ export interface RequestWaitMiddleware {
 export const RequestWaitMiddleware = {
     InjectionToken: 'RequestWaitMiddleware'
 }
+
+export interface BeforeFlushRequest {
+    beforeFlushRequest: () => void
+}
+
+export const BeforeFlushRequest = {
+    InjectionToken: 'BeforeFlushRequest'
+}

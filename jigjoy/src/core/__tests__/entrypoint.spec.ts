@@ -1,28 +1,28 @@
 import '../register';
 import {JigJoyApp} from "../app";
-import {GlobalInjectable} from "../di";
+import {DIContainer, Injectable} from "../di";
 import {html} from "lighterhtml";
 import {JSDOM} from "jsdom";
-import {Component, RenderResult} from "../../components/component";
-import {JigJoyModule} from "../module";
+import {Component, RehydrateService, RenderResult} from "../../components/component";
+import {ServerRehydrateService} from "../../components/server/server-rehydrate-service";
 
 
 describe('JigJoyEntryPoint', () => {
 
     it('renders the given EntryPoint', () => {
-        @GlobalInjectable()
+        @Injectable()
         class TestComponent extends Component {
             selector: string = "my-test-component";
 
             render(): RenderResult {
                 return html`hell yeah!`;
             }
-
         }
+
+        DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
 
         const entryPoint = new JigJoyApp({
             bootstrap: TestComponent,
-            module: new JigJoyModule({})
         });
 
         const jsdom = new JSDOM();

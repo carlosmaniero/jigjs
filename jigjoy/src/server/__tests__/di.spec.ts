@@ -1,8 +1,11 @@
 import {PerRequestContainer, Request, Response} from "../di";
 import {DIContainer, Inject, Injectable, Singleton} from "../../core/di";
 import {RequestWaitMiddleware} from "../middlewares";
+import {JSDOM} from 'jsdom';
+import {DocumentInjectionToken, WindowInjectionToken} from "../../core/dom";
 
 describe('Server Dependency Injection', () => {
+    const dom = new JSDOM();
     describe('RequestScopeInjectable', () => {
         it('decorates the class without changing its instance', () => {
             @Injectable()
@@ -27,7 +30,7 @@ describe('Server Dependency Injection', () => {
         const request = jest.fn();
         const response = jest.fn();
 
-        const requestContainer = new PerRequestContainer().createRequestContainer(request as any, response as any);
+        const requestContainer = new PerRequestContainer().createRequestContainer(request as any, response as any, dom);
 
         expect(requestContainer.resolve(MyClass).request).toEqual(request);
         expect(requestContainer.resolve(MyClass).response).toEqual(response);
@@ -45,7 +48,7 @@ describe('Server Dependency Injection', () => {
         const request = jest.fn();
         const response = jest.fn();
 
-        new PerRequestContainer().createRequestContainer(request as any, response as any);
+        new PerRequestContainer().createRequestContainer(request as any, response as any, dom);
 
         expect(() => DIContainer.resolve(MyClass))
             .toThrow()
@@ -63,8 +66,18 @@ describe('Server Dependency Injection', () => {
         const request = jest.fn();
         const response = jest.fn();
 
-        const container = new PerRequestContainer().createRequestContainer(request as any, response as any);
+        const container = new PerRequestContainer().createRequestContainer(request as any, response as any, dom);
 
         expect(container.resolve(MyClass)).toBe(container.resolve(MyClass));
+    });
+
+    it('registers window and document into context', () => {
+        const request = jest.fn();
+        const response = jest.fn();
+
+        const container = new PerRequestContainer().createRequestContainer(request as any, response as any, dom);
+
+        expect(container.resolve(WindowInjectionToken)).toBe(dom.window);
+        expect(container.resolve(DocumentInjectionToken)).toBe(dom.window.document);
     });
 });
