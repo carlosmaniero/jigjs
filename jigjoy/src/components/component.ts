@@ -29,7 +29,7 @@ export abstract class Component<T={}> {
     }
 
     public abstract readonly selector: string;
-    protected observedAttributes: string[];
+    protected readonly observedAttributes: string[];
     private _updateRender: () => void;
 
     private _props: Readonly<Record<string, string>>;
@@ -66,17 +66,20 @@ export abstract class Component<T={}> {
         this._updateRender();
     }
 
-    public registerCustomElementClass(myWindow: JigJoyWindow) {
-        const component = this;
-        const observableKeys = component.observedAttributes;
+    public registerCustomElementClass(window: JigJoyWindow) {
+        const originalComponent = this;
+        const observableKeys = originalComponent.observedAttributes;
 
-        myWindow.customElements.define(this.selector, class extends myWindow.HTMLElement {
+        window.customElements.define(this.selector, class extends window.HTMLElement {
             private readonly updateRender: () => void;
 
             private readonly REHYDRATE_CONTEXT_ATTRIBUTE_NAME = 'rehydrate-context-name';
+            private readonly componentInstance: Component<unknown>;
 
             constructor() {
                 super();
+
+                this.componentInstance = this.createComponentInstance();
 
                 this.updateRender = render.bind(
                     null,
@@ -84,7 +87,7 @@ export abstract class Component<T={}> {
                     this.render.bind(this)
                 );
 
-                component._updateRender = this.updateRender;
+                this.componentInstance._updateRender = this.updateRender;
             }
 
             static get observedAttributes() {
@@ -92,45 +95,51 @@ export abstract class Component<T={}> {
             }
 
             connectedCallback() {
-                component._props = this.getAttributeNames()
+                this.componentInstance._props = this.getAttributeNames()
                     .reduce((props, propKey) => ({
                         ...props,
                         [propKey]: this.getAttribute(propKey)
                     }), {}) as any;
 
                 if (this.hasAttribute(this.REHYDRATE_CONTEXT_ATTRIBUTE_NAME)) {
-                    component.rehydrate(this.getContext());
+                    this.componentInstance.rehydrate(this.getContext());
                     return;
                 }
 
-                if (component.contextName) {
-                    this.setAttribute(this.REHYDRATE_CONTEXT_ATTRIBUTE_NAME, component.contextName);
+                if (this.componentInstance.contextName) {
+                    this.setAttribute(this.REHYDRATE_CONTEXT_ATTRIBUTE_NAME, this.componentInstance.contextName);
 
                 }
 
-                component.mount();
+                this.componentInstance.mount();
 
                 this.updateRender();
             }
 
             private getContext(): T {
-                return component.rehydrateService.getContext(this.getAttribute(this.REHYDRATE_CONTEXT_ATTRIBUTE_NAME));
+                return this.componentInstance.rehydrateService.getContext(this.getAttribute(this.REHYDRATE_CONTEXT_ATTRIBUTE_NAME));
             }
 
             disconnectedCallback() {
-                component.unmount();
+                this.componentInstance.unmount();
             }
 
             attributeChangedCallback(name, oldValue, newValue) {
-                component._props = {
-                    ...component._props,
+                this.componentInstance._props = {
+                    ...this.componentInstance._props,
                     [name]: newValue
                 }
                 this.updateRender();
             }
 
             render() {
-                return component.render();
+                return this.componentInstance.render();
+            }
+
+            private createComponentInstance() {
+                const instance = new (originalComponent.constructor as { new (): Component<unknown> })();
+                Object.assign(instance, originalComponent);
+                return instance;
             }
         })
     }

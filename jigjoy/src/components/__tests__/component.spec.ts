@@ -21,6 +21,36 @@ describe('Component', () => {
         expect(component.getByText("Hello, World")).not.toBeNull();
     });
 
+    it('state change is scoped', async () => {
+        let setState = null;
+        let updateRender = [];
+        const component = render(new class extends Component<{name: string}> {
+            state = {
+                name: 'World'
+            }
+            selector: string = "component-custom";
+
+            render(): RenderResult {
+                return html`Hello, ${this.state.name}`
+            }
+
+            mount() {
+                if (setState === null) {
+                    setState = this.setState.bind(this)
+                }
+
+                updateRender.push(this.updateRender.bind(this));
+            }
+        }, {template: '<component-custom></component-custom>' +
+                '<component-custom></component-custom>'});
+
+        setState({name: 'Universe'});
+        updateRender.forEach(x => x());
+
+        expect(component.getByText("Hello, World")).not.toBeNull();
+        expect(component.getByText("Hello, Universe")).not.toBeNull();
+    });
+
     it('renders component props', () => {
         const component = render(new class extends Component {
             observedAttributes = ['name'];
@@ -251,7 +281,8 @@ describe('Component', () => {
         });
 
         it('updates the state with the context', () => {
-            expect(componentInstance.state).toEqual({name: 'World'});
+            expect(dom.window.document
+                .querySelector('component-custom').componentInstance.state).toEqual({name: 'World'});
         });
 
         it('calls the rehydrate when rehydrate', () => {
