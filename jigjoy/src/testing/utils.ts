@@ -4,6 +4,7 @@ import {JSDOM} from "jsdom";
 import {Matcher} from "@testing-library/dom/matches";
 import {SelectorMatcherOptions} from "@testing-library/dom/query-helpers";
 import {WaitForElementOptions} from "@testing-library/dom/wait-for-element";
+import {DIContainer} from "../core/di";
 
 type QueryAllMatcher = (id: Matcher, options?: SelectorMatcherOptions) => HTMLElement[]
 type QueryMatcher = (id: Matcher, options?: SelectorMatcherOptions) => HTMLElement | null
@@ -76,7 +77,7 @@ export type RenderResult = Matchers & {
 
 export type RenderOptions = {
     template?: string
-    rehydrateService?: RehydrateService
+    container?: DIContainer
 }
 
 function getDocumentSnapshot(element) {
@@ -110,7 +111,7 @@ function renderTemplate(dom, component: Component, options: RenderOptions) {
 
 export const render = (component: Component<any>, options?: RenderOptions): RenderResult => {
     const dom = new JSDOM();
-    component.registerCustomElementClass(dom.window as any, options?.rehydrateService);
+    component.registerCustomElementClass(dom.window as any, options?.container || DIContainer);
     const element = renderTemplate(dom, component, options);
 
     const matchers = testingLibraryMatchersFor(element, dom);

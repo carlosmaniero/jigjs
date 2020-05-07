@@ -5,8 +5,15 @@ import {Component, html, RehydrateService, RenderResult} from "../component";
 import waitForExpect from "wait-for-expect";
 import {ServerRehydrateService} from "../server/server-rehydrate-service";
 import {JSDOM} from "jsdom";
+import {DIContainer} from "../../core/di";
 
 describe('Component', () => {
+    let rehydrateService;
+    beforeEach(() => {
+        rehydrateService = new ServerRehydrateService();
+        DIContainer.register(RehydrateService.InjectionToken, {useValue: rehydrateService});
+    })
+
     it('renders a hello world component', () => {
         const component = render(new class extends Component {
             selector: string = "component-custom";
@@ -203,8 +210,6 @@ describe('Component', () => {
     });
 
     it('pushes the render result into rehydration service', async () => {
-        const rehydrateService: RehydrateService = new ServerRehydrateService();
-
         const component = render(new class extends Component<{name: string}> {
 
             public readonly selector: string = "component-custom";
@@ -216,7 +221,7 @@ describe('Component', () => {
             render(): RenderResult {
                 return html`Hey!`
             }
-        }, {rehydrateService});
+        });
 
         const contextName = component.element.getAttribute('rehydrate-context-name');
 
@@ -230,7 +235,6 @@ describe('Component', () => {
         let rehydrateMock;
 
         beforeEach(() => {
-            const rehydrateService: RehydrateService = new ServerRehydrateService();
             rehydrateService.updateContext("0", {name: 'World'});
             rehydrateMock = jest.fn();
 
@@ -260,7 +264,7 @@ describe('Component', () => {
 
             componentInstance = new MyComponent();
             componentInstance.setRehydrateService(rehydrateService);
-            componentInstance.registerCustomElementClass(dom.window as any, rehydrateService);
+            componentInstance.registerCustomElementClass(dom.window as any, DIContainer);
         })
 
         it('renders the content of rehydration', async () => {

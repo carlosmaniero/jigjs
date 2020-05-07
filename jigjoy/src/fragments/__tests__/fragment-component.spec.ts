@@ -7,6 +7,9 @@ import {html, RehydrateService, RenderResult} from "../../components/component";
 import {ServerRehydrateService} from "../../components/server/server-rehydrate-service";
 
 describe('Fragment Component', () => {
+    beforeEach(() => {
+        DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
+    });
     describe('component', () => {
         it('resolves using the given options', async () => {
             const responseHtml = '<b>Hey</b>';

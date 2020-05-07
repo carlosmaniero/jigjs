@@ -39,11 +39,10 @@ export class JigJoyApp {
         });
 
         const bootstrap = container.resolve(this.options.bootstrap as InjectionToken<Component>)
-        const rehydrateService: RehydrateService = container.resolve(RehydrateService.InjectionToken);
 
-        bootstrap.registerCustomElementClass(window, rehydrateService);
+        bootstrap.registerCustomElementClass(window, container);
 
         new JigJoyComponent(bootstrap)
-            .registerCustomElementClass(window, rehydrateService);
+            .registerCustomElementClass(window, container);
     }
 }

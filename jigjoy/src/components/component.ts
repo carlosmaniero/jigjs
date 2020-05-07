@@ -1,4 +1,5 @@
 import {html as lighterHtml, render, Renderable} from 'lighterhtml';
+import {DIContainer} from "../core/di";
 
 export type RenderResult = Renderable;
 
@@ -68,9 +69,10 @@ export abstract class Component<T={}> {
         }
     }
 
-    public registerCustomElementClass(window: JigJoyWindow, rehydrateService: RehydrateService) {
+    public registerCustomElementClass(window: JigJoyWindow, container: DIContainer) {
         const originalComponent = this;
         const observableKeys = originalComponent.observedAttributes;
+        const rehydrateService: RehydrateService = container.resolve(RehydrateService.InjectionToken);
 
         window.customElements.define(this.selector, class extends window.HTMLElement {
             private readonly updateRender: () => void;
@@ -123,8 +125,7 @@ export abstract class Component<T={}> {
             }
 
             private getContext(): T {
-                return (rehydrateService || this.componentInstance.rehydrateService)
-                    .getContext(this.getAttribute(this.REHYDRATE_CONTEXT_ATTRIBUTE_NAME));
+                return rehydrateService.getContext(this.getAttribute(this.REHYDRATE_CONTEXT_ATTRIBUTE_NAME));
             }
 
             disconnectedCallback() {

@@ -31,7 +31,7 @@ export class JigJoyModule {
         });
 
         this.props.components?.forEach((component) => {
-            component.registerCustomElementClass(myWindow, rehydrateService);
+            component.registerCustomElementClass(myWindow, container);
         });
 
         this.registrationCallbacks.forEach((callback) => {
