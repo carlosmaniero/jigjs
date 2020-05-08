@@ -1,19 +1,18 @@
 import '../register';
 import {JigJoyApp} from "../app";
-import {DIContainer, Injectable} from "../di";
+import {DIContainer} from "../di";
 import {html} from "lighterhtml";
 import {JSDOM} from "jsdom";
-import {Component, RehydrateService, RenderResult} from "../../components/component";
+import {RehydrateService, RenderResult} from "../../components/component";
 import {ServerRehydrateService} from "../../components/server/server-rehydrate-service";
+import {ComponentAnnotation} from "../../components/annotation";
 
 
 describe('JigJoyEntryPoint', () => {
 
     it('renders the given EntryPoint', () => {
-        @Injectable()
-        class TestComponent extends Component {
-            selector: string = "my-test-component";
-
+        @ComponentAnnotation('my-test-component')
+        class TestComponent {
             render(): RenderResult {
                 return html`hell yeah!`;
             }

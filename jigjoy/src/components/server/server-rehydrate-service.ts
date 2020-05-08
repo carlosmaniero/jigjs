@@ -21,7 +21,7 @@ export class ServerRehydrateService implements RehydrateService {
     }
 
     updateContext<T>(contextName: string, object: T): void {
-        this._contextMap[contextName] = object;
+        this._contextMap[contextName] = JSON.parse(JSON.stringify(object));
     }
 
     get contextMap() {

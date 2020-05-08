@@ -1,11 +1,12 @@
-import {Component, JigJoyWindow, RehydrateService} from "../components/component";
+import {JigJoyWindow, RehydrateService} from "../components/component";
 import {DIContainer, DIInjectionToken, DIRegistration} from "./di";
+import {componentFactoryFor} from "../components/annotation";
 
 
 type ModuleProvider<T> = DIRegistration<T> & { provide: DIInjectionToken<T> };
 
 interface JigJoyModuleProps {
-    components?: Component[],
+    components?: any[],
     providers?: ModuleProvider<any>[],
     modules?: JigJoyModule[]
 }
@@ -19,11 +20,11 @@ export class JigJoyModule {
         this.registrationCallbacks = [];
     }
 
-    register(myWindow: JigJoyWindow, container) {
+    register(window: JigJoyWindow, container) {
         const rehydrateService: RehydrateService = container.resolve(RehydrateService.InjectionToken);
 
         this.props.modules?.forEach((module) => {
-            module.register(myWindow, container);
+            module.register(window, container);
         });
 
         this.props.providers?.forEach((provider) => {
@@ -31,11 +32,11 @@ export class JigJoyModule {
         });
 
         this.props.components?.forEach((component) => {
-            component.registerCustomElementClass(myWindow, container);
+            componentFactoryFor(component).registerComponent(window, container);
         });
 
         this.registrationCallbacks.forEach((callback) => {
-            callback(container).register(myWindow, container);
+            callback(container).register(window, container);
         });
     }
 

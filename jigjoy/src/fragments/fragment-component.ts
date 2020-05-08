@@ -1,28 +1,28 @@
-import {Component, RehydrateService, RenderResult} from "../components/component";
+import {RenderResult} from "../components/component";
 import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentResponse} from "./fragments";
-import {DIContainer, Inject, GlobalInjectable} from "../core/di";
+import {GlobalInjectable, Inject} from "../core/di";
+import {ComponentAnnotation, OnMount, State} from "../components/annotation";
 
-interface State {
+interface FragmentStateComponent {
     response?: FragmentResponse;
     error?: Error;
 }
 
-export abstract class FragmentComponent extends Component<State> {
-    state: State = {}
+export abstract class FragmentComponent implements OnMount {
+    @State()
+    state: FragmentStateComponent = {}
     abstract readonly options: FragmentOptions;
 
     protected constructor(private readonly fragmentResolver: FragmentResolver,
                           private readonly fragmentContentRender: FragmentContentRender) {
-        super()
     }
 
     async mount() {
         try {
-            this.setState({response: await this.fragmentResolver.resolve(this.options)});
+            this.state.response = await this.fragmentResolver.resolve(this.options);
         } catch (e) {
-            this.setState({error: e});
+            this.state.error = e;
         }
-        this.updateRender();
     }
 
     render(): RenderResult {
@@ -54,10 +54,11 @@ export class FragmentComponentFactory {
         @Inject(FragmentContentRender.InjectionToken) private readonly fragmentContentRender: FragmentContentRender) {
     }
 
-    createFragment({selector, options, onErrorRender}: FragmentComponentFactoryProps): FragmentComponent {
+    createFragment({selector, options, onErrorRender}: FragmentComponentFactoryProps) {
         const factory = this;
 
-        return new class extends FragmentComponent {
+        @ComponentAnnotation(selector)
+        class DynamicallyCreatedFragment extends FragmentComponent {
             readonly selector: string = selector;
             readonly options: FragmentOptions = options;
 
@@ -71,6 +72,8 @@ export class FragmentComponentFactory {
                 }
                 return onErrorRender(error);
             }
-        };
+        }
+
+        return DynamicallyCreatedFragment;
     }
 }

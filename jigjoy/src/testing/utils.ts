@@ -1,5 +1,4 @@
 import * as testingLibrary from '@testing-library/dom'
-import {Component, RehydrateService} from "../components/component";
 import {JSDOM} from "jsdom";
 import {Matcher} from "@testing-library/dom/matches";
 import {SelectorMatcherOptions} from "@testing-library/dom/query-helpers";
@@ -96,28 +95,4 @@ const testingLibraryMatchersFor = (element: HTMLElement, dom: JSDOM) => {
         .filter((key) => isMatcherKey(key))
         .map((key) => ({key, fn: getMatcher(key)}))
         .reduce((acc, matcher) => ({...acc, [matcher.key]: matcher.fn}), {}) as Matchers;
-}
-
-function renderTemplate(dom, component: Component, options: RenderOptions) {
-    if (options && options.template) {
-        dom.window.document.body.innerHTML = options.template;
-        return dom.window.document.body;
-    }
-
-    const element = dom.window.document.createElement(component.selector);
-    dom.window.document.body.appendChild(element);
-    return element;
-}
-
-export const render = (component: Component<any>, options?: RenderOptions): RenderResult => {
-    const dom = new JSDOM();
-    component.registerCustomElementClass(dom.window as any, options?.container || DIContainer);
-    const element = renderTemplate(dom, component, options);
-
-    const matchers = testingLibraryMatchersFor(element, dom);
-
-    return {
-        ...matchers,
-        element
-    }
 }

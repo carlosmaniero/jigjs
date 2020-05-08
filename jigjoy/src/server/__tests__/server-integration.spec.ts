@@ -3,17 +3,25 @@ import '../../fragments/server/server-fragment-module';
 import '../../components/server/server-rehydrate-service';
 import {JigJoyServer} from "../server";
 import {JigJoyApp} from "../../core/app";
-import {Component, html, RenderResult} from "../../components/component";
+import {html, RenderResult} from "../../components/component";
 import {JigJoyModule} from "../../core/module";
 import * as path from "path";
 import {BeforeFlushRequest, RequestWaitMiddleware} from "../middlewares";
 import {FragmentFetch} from "../../fragments/fragment-fetch";
 import {FragmentComponentFactory} from "../../fragments/fragment-component";
 import waitForExpect from "wait-for-expect";
+import {ComponentAnnotation} from "../../components/annotation";
 
 const request = require("supertest");
 
 describe('Jig Joy Server', () => {
+    @ComponentAnnotation('my-component')
+    class DefaultBootstrapComponent {
+        render(): RenderResult {
+            return html`Hello, World!`;
+        }
+    }
+
     it('renders the app', async () => {
         const server = new JigJoyServer({
             port: 4200,
@@ -24,13 +32,7 @@ describe('Jig Joy Server', () => {
                     templatePath: path.join(__dirname, 'basic.html'),
                     app: new JigJoyApp({
                         module: new JigJoyModule({}),
-                        bootstrap: class extends Component {
-                            readonly selector: string = 'my-component';
-
-                            render(): RenderResult {
-                                return html`Hello, World!`;
-                            }
-                        }
+                        bootstrap: DefaultBootstrapComponent
                     })
                 }
             ]
@@ -66,13 +68,7 @@ describe('Jig Joy Server', () => {
                                 },
                             ]
                         }),
-                        bootstrap: class extends Component {
-                            readonly selector: string = 'my-component';
-
-                            render(): RenderResult {
-                                return html`Hello, World!`;
-                            }
-                        }
+                        bootstrap: DefaultBootstrapComponent
                     })
                 }
             ]
@@ -115,13 +111,7 @@ describe('Jig Joy Server', () => {
                                 }
                             ]
                         }),
-                        bootstrap: class extends Component {
-                            readonly selector: string = 'my-component';
-
-                            render(): RenderResult {
-                                return html`Hello, World!`;
-                            }
-                        }
+                        bootstrap: DefaultBootstrapComponent
                     })
                 }
             ]
@@ -156,6 +146,13 @@ describe('Jig Joy Server', () => {
         let firstResponseBody = null;
         let secondResponseBody = null;
 
+        @ComponentAnnotation('my-component')
+        class BootstrapComponent {
+            render(): RenderResult {
+                return document.createElement('first-fragment');
+            }
+        }
+
         const server = new JigJoyServer({
             port: 4200,
             assetsPath: '/assets/',
@@ -164,13 +161,7 @@ describe('Jig Joy Server', () => {
                     route: '/my-route',
                     templatePath: path.join(__dirname, 'basic.html'),
                     app: new JigJoyApp({
-                        bootstrap: class extends Component {
-                            readonly selector: string = 'my-component';
-
-                            render(): RenderResult {
-                                return document.createElement('first-fragment');
-                            }
-                        },
+                        bootstrap: BootstrapComponent,
                         module: new JigJoyModule({
                             providers: [
                                 {
