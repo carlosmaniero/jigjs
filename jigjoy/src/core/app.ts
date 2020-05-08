@@ -1,7 +1,6 @@
-import {JigJoyWindow} from "../components/component";
 import {DIContainer, Inject} from "./di";
 import {JigJoyModule} from "./module";
-import {ComponentAnnotation, componentFactoryFor} from "../components/annotation";
+import {ComponentAnnotation, componentFactoryFor, JigJoyWindow} from "../components/component";
 
 export interface EntryPointOptions {
     bootstrap: new(...args: unknown[]) => any,

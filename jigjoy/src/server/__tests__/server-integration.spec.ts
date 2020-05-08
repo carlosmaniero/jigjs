@@ -3,14 +3,13 @@ import '../../fragments/server/server-fragment-module';
 import '../../components/server/server-rehydrate-service';
 import {JigJoyServer} from "../server";
 import {JigJoyApp} from "../../core/app";
-import {html, RenderResult} from "../../components/component";
 import {JigJoyModule} from "../../core/module";
 import * as path from "path";
 import {BeforeFlushRequest, RequestWaitMiddleware} from "../middlewares";
 import {FragmentFetch} from "../../fragments/fragment-fetch";
 import {FragmentComponentFactory} from "../../fragments/fragment-component";
 import waitForExpect from "wait-for-expect";
-import {ComponentAnnotation} from "../../components/annotation";
+import {ComponentAnnotation, html, RenderResult} from "../../components/component";
 
 const request = require("supertest");
 

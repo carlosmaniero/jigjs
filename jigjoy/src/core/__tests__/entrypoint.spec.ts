@@ -3,9 +3,8 @@ import {JigJoyApp} from "../app";
 import {DIContainer} from "../di";
 import {html} from "lighterhtml";
 import {JSDOM} from "jsdom";
-import {RehydrateService, RenderResult} from "../../components/component";
 import {ServerRehydrateService} from "../../components/server/server-rehydrate-service";
-import {ComponentAnnotation} from "../../components/annotation";
+import {ComponentAnnotation, RehydrateService, RenderResult} from "../../components/component";
 
 
 describe('JigJoyEntryPoint', () => {

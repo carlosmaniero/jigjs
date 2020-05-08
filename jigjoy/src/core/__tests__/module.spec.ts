@@ -1,8 +1,7 @@
 import {JigJoyModule} from "../module";
 import {DIContainer} from "../di";
-import {html, RehydrateService, RenderResult} from "../../components/component";
 import {ServerRehydrateService} from "../../components/server/server-rehydrate-service";
-import {ComponentAnnotation} from "../../components/annotation";
+import {ComponentAnnotation, html, RehydrateService, RenderResult} from "../../components/component";
 
 describe('Module', () => {
     beforeEach(() => {

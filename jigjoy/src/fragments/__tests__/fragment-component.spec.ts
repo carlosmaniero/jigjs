@@ -2,9 +2,14 @@ import '../../core/register';
 import {FragmentComponent, FragmentComponentFactory} from "../fragment-component";
 import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentResponse} from "../fragments";
 import {DIContainer} from "../../core/di";
-import {html, RehydrateService, RenderResult} from "../../components/component";
 import {ServerRehydrateService} from "../../components/server/server-rehydrate-service";
-import {ComponentAnnotation, componentFactoryFor} from "../../components/annotation";
+import {
+    ComponentAnnotation,
+    componentFactoryFor,
+    html,
+    RehydrateService,
+    RenderResult
+} from "../../components/component";
 import {JSDOM} from 'jsdom';
 import * as testingLibrary from '@testing-library/dom';
 

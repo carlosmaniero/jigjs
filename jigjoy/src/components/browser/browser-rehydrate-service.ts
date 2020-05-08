@@ -1,6 +1,6 @@
-import {RehydrateService} from "../component";
 import {Inject, Injectable} from "../../core/di";
 import {DocumentInjectionToken} from "../../core/dom";
+import {RehydrateService} from "../component";
 
 
 @Injectable([RehydrateService])

@@ -1,6 +1,5 @@
-import {JigJoyWindow, RehydrateService} from "../components/component";
 import {DIContainer, DIInjectionToken, DIRegistration} from "./di";
-import {componentFactoryFor} from "../components/annotation";
+import {componentFactoryFor, JigJoyWindow, RehydrateService} from "../components/component";
 
 
 type ModuleProvider<T> = DIRegistration<T> & { provide: DIInjectionToken<T> };

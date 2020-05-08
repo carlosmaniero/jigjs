@@ -3,13 +3,12 @@ import {
     componentFactoryFor,
     OnMount,
     OnRehydrate,
-    OnUnmount,
+    OnUnmount, RehydrateService, RenderResult,
     State,
     StateFactoryWithValue
-} from "../annotation";
+} from "../component";
 import {html} from "lighterhtml";
 import {DIContainer} from "../../core/di";
-import {RehydrateService, RenderResult} from "../component";
 import {ServerRehydrateService} from "../server/server-rehydrate-service";
 import {JSDOM} from 'jsdom';
 import waitForExpect from "wait-for-expect";

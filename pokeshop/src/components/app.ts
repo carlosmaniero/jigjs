@@ -1,8 +1,7 @@
-import {html, RenderResult} from "../../../jigjoy/src/components/component";
 import {JigJoyApp} from "../../../jigjoy/src/core/app";
 import {FragmentComponentFactory} from "../../../jigjoy/src/fragments/fragment-component";
 import {JigJoyModule} from "../../../jigjoy/src/core/module";
-import {ComponentAnnotation} from "../../../jigjoy/src/components/annotation";
+import {ComponentAnnotation, html, RenderResult} from "../../../jigjoy/src/components/component";
 
 @ComponentAnnotation('index-component')
 export class Index {

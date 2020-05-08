@@ -1,5 +1,5 @@
-import {RehydrateService} from "../component";
 import {Singleton} from "../../core/di";
+import {RehydrateService} from "../component";
 
 @Singleton([RehydrateService])
 export class ServerRehydrateService implements RehydrateService {
