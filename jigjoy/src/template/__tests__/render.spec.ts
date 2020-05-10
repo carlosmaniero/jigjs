@@ -116,8 +116,8 @@ describe('Render', () => {
         });
     });
 
-    describe('filling properties', () => {
-        it('fills basic properties', () => {
+    describe('filling attributes', () => {
+        it('fills basic attributes', () => {
             const className = 'my-class-name';
 
             render(html`<div class="${className}"></div>`)(document.body);
@@ -127,7 +127,7 @@ describe('Render', () => {
             expect(element.className).toBe('my-class-name');
         });
 
-        it('fills basic properties recursively', () => {
+        it('fills basic attributes recursively', () => {
             const className = 'my-class-name';
             const inputValue = 'my value'
 
@@ -143,17 +143,17 @@ describe('Render', () => {
             expect(element.querySelector('input').value).toBe(inputValue);
         });
 
-        it('fills basic properties with extra value', () => {
+        it('fills basic attributes with extra value', () => {
             const className = 'middle';
 
             render(html`
-                <div class="initial ${className} final">
+                <div class="initial ${className} ${'center'} final-4">
                 </div>
             `)(document.body);
 
             const element = document.body.querySelector('div');
 
-            expect(element.className).toBe('initial middle final');
+            expect(element.className).toBe('initial middle center final-4');
         });
     });
 
@@ -220,12 +220,12 @@ describe('Render', () => {
 
         it('adds props with static content', () => {
             const prop = "Socrates";
+            const greatestTeamInTheWorld = 'Corinthians';
 
-            render(html`<div @prop="Hi ${prop}!"></div>
-            `)(document.body);
+            render(html`<div @prop="Hi ${prop} of ${greatestTeamInTheWorld}!"></div>`)(document.body);
 
             const divElement = document.querySelector('div');
-            expect((divElement as any).props.prop).toBe('Hi Socrates!');
+            expect((divElement as any).props.prop).toBe('Hi Socrates of Corinthians!');
         });
     });
 });
