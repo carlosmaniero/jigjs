@@ -173,6 +173,28 @@ describe('Render', () => {
             expect(buttonElement.hasAttribute('onclick')).toBeFalsy();
             expect(mock).toBeCalled();
         });
+
+        it('logs an error if there are more then the placeholder into an event', () => {
+            const mock = jest.fn();
+
+            expect(() => {
+                render(html`
+                    <div>
+                        <button onclick="${mock}ababa">Hit me!</button>
+                    </div>
+                `)(document.body);
+            }).toThrowError('onclick must be a function it was "[function]ababa"');
+        });
+
+        it('logs an error if value is not a function', () => {
+            expect(() => {
+                render(html`
+                    <div>
+                        <button onclick="${1}">Hit me!</button>
+                    </div>
+                `)(document.body);
+            }).toThrowError('onclick must be a function it was "number"');
+        });
     });
 
     describe('handling props', () => {

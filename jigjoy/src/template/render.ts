@@ -69,15 +69,24 @@ function fillContentPlaceholder(content: DocumentFragment | ChildNode, values: a
 }
 
 function setElementAttribute(attributeName: string, originalAttribute: string, element: HTMLElement, placeHolderIndex, value: any) {
+    const placeholder = createPlaceholderForIndex(placeHolderIndex);
+
     if (attributeName.startsWith('on')) {
+        if (originalAttribute !== placeholder) {
+            throw new Error(`${attributeName} must be a function it was "${originalAttribute.replace(placeholder, '[function]')}"`);
+        }
+
+        if (typeof value != "function") {
+            throw new Error(`${attributeName} must be a function it was "${typeof value}"`);
+        }
+
         element.removeAttribute(attributeName);
         const event = attributeName.replace('on', '');
-        element.addEventListener(event, value)
+        element.addEventListener(event, value);
 
         return;
     }
 
-    const placeholder = createPlaceholderForIndex(placeHolderIndex);
     element.setAttribute(attributeName, originalAttribute.replace(placeholder, value));
 }
 
