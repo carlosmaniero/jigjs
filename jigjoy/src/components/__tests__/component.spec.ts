@@ -3,7 +3,7 @@ import {
     componentFactoryFor,
     OnMount,
     OnRehydrate,
-    OnUnmount, RehydrateService, RenderResult,
+    OnUnmount, Prop, RehydrateService, RenderResult,
     State,
     StateFactoryWithValue
 } from "../component";
@@ -12,7 +12,7 @@ import {ServerRehydrateService} from "../server/server-rehydrate-service";
 import {JSDOM} from 'jsdom';
 import waitForExpect from "wait-for-expect";
 import * as testingLibrary from "@testing-library/dom";
-import {html} from "../../template/render";
+import {html, render} from "../../template/render";
 
 describe('Component Annotation', () => {
     describe('render lifecycle', () => {
@@ -219,8 +219,40 @@ describe('Component Annotation', () => {
         });
     });
 
-    describe('Rehydrating', () => {
+    describe('Props', () => {
+        it('has props that can be passed as is without serialization', () => {
 
+            @ComponentAnnotation('user-component')
+            class UserComponent {
+                @Prop()
+                private readonly id: number;
+
+                @Prop()
+                private readonly profile: {name: string}
+
+                render() {
+                    return html`<div><strong>#${this.id}</strong> <h1>${this.profile.name}</h1></div>`
+                }
+            }
+
+            const dom = new JSDOM();
+
+            DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
+            componentFactoryFor(UserComponent).registerComponent(dom.window as any, DIContainer);
+
+            const body = dom.window.document.body;
+            render(html`
+                <user-component
+                    @id="${1}"
+                    @profile="${{name: 'Formiga'}}">
+                </user-component>`)(body);
+
+            expect(testingLibrary.getByText(body, '#1')).not.toBeNull();
+            expect(testingLibrary.getByText(body, 'Formiga')).not.toBeNull();
+        });
+    });
+
+    describe('Rehydrating', () => {
         describe('when populating rehydration servicer', () => {
             it('pushes the render result into rehydration service', async () => {
                 const rehydrateService = new ServerRehydrateService();

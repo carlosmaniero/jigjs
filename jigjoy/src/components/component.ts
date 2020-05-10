@@ -77,6 +77,11 @@ export const State = () => (target: any, propertyKey: string) => {
     Reflect.defineMetadata("design:type", propertyKey, target, "stateProperty");
 }
 
+export const Prop = () => (target: any, propertyKey: string) => {
+    const props = Reflect.getMetadata("design:type", target, "componentProperties") || [];
+    Reflect.defineMetadata("design:type", [...props, propertyKey], target, "componentProperties");
+}
+
 export const ComponentAnnotation = <T extends RequiredComponentMethods>(selector: string, observableAttributes: string[] = []) =>
     (component: Constructor<T>) => {
         Injectable()(component);
@@ -94,12 +99,14 @@ export const ComponentAnnotation = <T extends RequiredComponentMethods>(selector
                 window.customElements.define(selector, class extends window.HTMLElement {
                     private readonly updateRender: () => void;
                     private readonly componentInstance: T;
-                    private stateKey?: string;
+                    private readonly stateKey?: string;
+                    private readonly props?: Record<string, any>;
 
                     constructor() {
                         super();
 
                         this.componentInstance = this.createComponentInstance();
+                        this.registerProps();
                         this.updateRender = () => render(this.render())(this);
 
                         this.stateKey = Reflect.getMetadata("design:type", this.componentInstance, "stateProperty");
@@ -190,6 +197,15 @@ export const ComponentAnnotation = <T extends RequiredComponentMethods>(selector
 
                     private getComponentState() {
                         return this.componentInstance[this.stateKey];
+                    }
+
+                    private registerProps() {
+                        const props = this.props || {};
+                        const expectedProps = Reflect.getMetadata("design:type", this.componentInstance, "componentProperties") || [];
+
+                        expectedProps.forEach((propName) => {
+                            this.componentInstance[propName] = props[propName];
+                        });
                     }
                 })
             }
