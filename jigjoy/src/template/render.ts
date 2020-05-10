@@ -12,8 +12,14 @@ interface Renderable {
 const isElement = (element: Node): element is HTMLElement => element.nodeType === NODES.ELEMENT_NODE;
 const isTextNode = (element: Node) => element.nodeType === NODES.TEXT_NODE;
 
-function isPlaceHolder(attributeName: string) {
-    return attributeName.startsWith('__render_placeholder_');
+const customPropertySyntaxSugerAttributeRegex = /([/@](\w+)[ ]*[=])/g;
+const customPropertySyntaxSugarAttributeGroup = '$2';
+const customPropertyAttributePrefix = 'jigjoy-custom-property-';
+
+const isCustomProperty = (attributeName: string) => attributeName.startsWith(customPropertyAttributePrefix);
+
+function hasPlaceHolder(text: string) {
+    return text.indexOf('__render_placeholder_') >= 0 && text.indexOf('_render_placeholder__') >= 0;
 }
 
 function getPlaceHolderIndex(placeholder: string): number {
@@ -62,25 +68,49 @@ function fillContentPlaceholder(content: DocumentFragment | ChildNode, values: a
     });
 }
 
+function setElementAttribute(attributeName: string, originalAttribute: string, element: HTMLElement, placeHolderIndex, value: any) {
+    if (attributeName.startsWith('on')) {
+        element.removeAttribute(attributeName);
+        const event = attributeName.replace('on', '');
+        element.addEventListener(event, value)
+
+        return;
+    }
+
+    const placeholder = createPlaceholderForIndex(placeHolderIndex);
+    element.setAttribute(attributeName, originalAttribute.replace(placeholder, value));
+}
+
+function setElementCustomProperties(attributeName: string, element: HTMLElement, value, attribute: string, placeHolderIndex: number) {
+    const placeholder = createPlaceholderForIndex(placeHolderIndex);
+    (element as any).props = (element as any).props || {};
+
+    if (attribute === placeholder) {
+        (element as any).props[attributeName.replace(customPropertyAttributePrefix, '')] = value;
+    } else {
+        (element as any).props[attributeName.replace(customPropertyAttributePrefix, '')] =
+            attribute.replace(placeholder, value);
+    }
+
+    element.removeAttribute(attributeName);
+}
+
 function fillAttributes(element: DocumentFragment | ChildNode, values: any[]) {
     if (isElement(element)) {
         const attributes = element.getAttributeNames();
 
         attributes.forEach((attributeName) => {
             const attribute = element.getAttribute(attributeName);
+            const placeHolderIndex = getPlaceHolderIndex(attribute);
+            const value = values[placeHolderIndex];
 
-            if (isPlaceHolder(attribute)) {
-                const placeholderIndex = getPlaceHolderIndex(attribute);
-                const value = values[placeholderIndex];
+            if (isCustomProperty(attributeName)) {
+                setElementCustomProperties(attributeName, element, value, attribute, placeHolderIndex);
+                return;
+            }
 
-                if (attributeName.startsWith('on')) {
-                    element.removeAttribute(attributeName);
-                    const event = attributeName.replace('on', '');
-                    element.addEventListener(event, value)
-
-                    return;
-                }
-                element.setAttribute(attributeName, value);
+            if (hasPlaceHolder(attribute)) {
+                setElementAttribute(attributeName, attribute, element, placeHolderIndex, value);
             }
         });
     }
@@ -93,11 +123,15 @@ function fillPlaceholders(content: DocumentFragment, values: any[]) {
     fillAttributes(content, values);
 }
 
+function replaceCustomPropsSyntaxSugar(partialTemplate: string) {
+    return partialTemplate.replace(customPropertySyntaxSugerAttributeRegex, `${customPropertyAttributePrefix + customPropertySyntaxSugarAttributeGroup}=`);
+}
+
 function createTemplateWithPlaceholders(template: TemplateStringsArray, values: any[]) {
     return template.map(
         (partialTemplate, index) => {
             const valuePlaceholder = index >= values.length ? '' : createPlaceholderForIndex(index);
-            return `${partialTemplate}${valuePlaceholder}`;
+            return `${(replaceCustomPropsSyntaxSugar(partialTemplate))}${valuePlaceholder}`;
         }).join('');
 }
 

@@ -142,6 +142,19 @@ describe('Render', () => {
             expect(element.className).toBe('my-class-name');
             expect(element.querySelector('input').value).toBe(inputValue);
         });
+
+        it('fills basic properties with extra value', () => {
+            const className = 'middle';
+
+            render(html`
+                <div class="initial ${className} final">
+                </div>
+            `)(document.body);
+
+            const element = document.body.querySelector('div');
+
+            expect(element.className).toBe('initial middle final');
+        });
     });
 
     describe('handling events', () => {
@@ -159,6 +172,38 @@ describe('Render', () => {
 
             expect(buttonElement.hasAttribute('onclick')).toBeFalsy();
             expect(mock).toBeCalled();
+        });
+    });
+
+    describe('handling props', () => {
+        it('adds props', () => {
+
+            const props1 = "Hi";
+            const props2 = 10;
+            const props3 = {x: 1};
+
+            render(html`
+                <div 
+                    @props1="${props1}" 
+                    @props2="${props2}"
+                    @props3="${props3}"></div>
+            `)(document.body);
+
+            const divElement = document.querySelector('div');
+            expect((divElement as any).props.props1).toBe(props1);
+            expect((divElement as any).props.props2).toBe(props2);
+            expect((divElement as any).props.props3).toBe(props3);
+            expect(divElement.getAttributeNames()).toEqual([]);
+        });
+
+        it('adds props with static content', () => {
+            const prop = "Socrates";
+
+            render(html`<div @prop="Hi ${prop}!"></div>
+            `)(document.body);
+
+            const divElement = document.querySelector('div');
+            expect((divElement as any).props.prop).toBe('Hi Socrates!');
         });
     });
 });
