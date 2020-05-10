@@ -1,8 +1,8 @@
-import {html as lighterHtml, render, Renderable} from 'lighterhtml';
 import {DIContainer, Injectable} from "../core/di";
+import {html as templateHtml, render, Renderable} from "../template/render";
 
+export const html = templateHtml;
 export type RenderResult = Renderable;
-export const html = lighterHtml;
 export type JigJoyWindow = Window & {
     HTMLElement: typeof HTMLElement
 }
@@ -20,8 +20,8 @@ export interface OnRehydrate {
 }
 
 type RequiredComponentMethods = {
-    render: () => RenderResult,
-} & (OnMount | {});
+    render: () => Renderable,
+} & (OnMount | OnUnmount | OnRehydrate | {});
 
 type Constructor<T> = {
     new (...args: any[]): T;
@@ -100,11 +100,7 @@ export const ComponentAnnotation = <T extends RequiredComponentMethods>(selector
                         super();
 
                         this.componentInstance = this.createComponentInstance();
-                        this.updateRender = render.bind(
-                            null,
-                            this,
-                            this.render.bind(this)
-                        );
+                        this.updateRender = () => render(this.render())(this);
 
                         this.stateKey = Reflect.getMetadata("design:type", this.componentInstance, "stateProperty");
                         this.registerStateChangeListener();

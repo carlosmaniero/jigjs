@@ -5,9 +5,11 @@ const NODES = {
     TEXT_NODE: 3,
 }
 
-interface Renderable {
+export interface HtmlTemplate {
     renderAt: (element: HTMLElement) => DocumentFragment
 }
+
+export type Renderable = HtmlTemplate | HTMLElement;
 
 const isElement = (element: Node): element is HTMLElement => element.nodeType === NODES.ELEMENT_NODE;
 const isTextNode = (element: Node) => element.nodeType === NODES.TEXT_NODE;
@@ -240,9 +242,16 @@ export const render = (renderable: Renderable) =>
     if (clearPreviousContent) {
         bindElement.innerHTML = '';
     }
-    const content = renderable.renderAt(bindElement);
 
-    while (content.childNodes.length !== 0) {
-        bindElement.appendChild(content.childNodes[0]);
+    if ('renderAt' in renderable) {
+        const content = renderable.renderAt(bindElement);
+
+        while (content.childNodes.length !== 0) {
+            bindElement.appendChild(content.childNodes[0]);
+        }
+
+        return;
     }
+
+    bindElement.appendChild(renderable);
 }

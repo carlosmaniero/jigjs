@@ -7,12 +7,12 @@ import {
     State,
     StateFactoryWithValue
 } from "../component";
-import {html} from "lighterhtml";
 import {DIContainer} from "../../core/di";
 import {ServerRehydrateService} from "../server/server-rehydrate-service";
 import {JSDOM} from 'jsdom';
 import waitForExpect from "wait-for-expect";
 import * as testingLibrary from "@testing-library/dom";
+import {html} from "../../template/render";
 
 describe('Component Annotation', () => {
     describe('render lifecycle', () => {
