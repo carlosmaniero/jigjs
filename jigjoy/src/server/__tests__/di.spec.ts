@@ -3,6 +3,7 @@ import {DIContainer, Inject, Injectable, Singleton} from "../../core/di";
 import {RequestWaitMiddleware} from "../middlewares";
 import {JSDOM} from 'jsdom';
 import {DocumentInjectionToken, WindowInjectionToken} from "../../core/dom";
+import {Platform} from "../../core/platform";
 
 describe('Server Dependency Injection', () => {
     const dom = new JSDOM();
@@ -79,5 +80,15 @@ describe('Server Dependency Injection', () => {
 
         expect(container.resolve(WindowInjectionToken)).toBe(dom.window);
         expect(container.resolve(DocumentInjectionToken)).toBe(dom.window.document);
+    });
+
+    it('creates platform with browser false', () => {
+        const request = jest.fn();
+        const response = jest.fn();
+
+        const container = new PerRequestContainer()
+            .createRequestContainer(request as any, response as any, dom);
+
+        expect(container.resolve(Platform).isBrowser).toBeFalsy();
     });
 });

@@ -5,6 +5,7 @@ import {JSDOM} from "jsdom";
 import {ServerRehydrateService} from "../../components/server/server-rehydrate-service";
 import {ComponentAnnotation, RehydrateService, RenderResult} from "../../components/component";
 import {html} from "../../template/render";
+import {Platform} from "../platform";
 
 
 describe('JigJoyEntryPoint', () => {
@@ -17,6 +18,7 @@ describe('JigJoyEntryPoint', () => {
             }
         }
 
+        DIContainer.register(Platform, {useValue: new Platform(false)});
         DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
 
         const entryPoint = new JigJoyApp({

@@ -10,12 +10,14 @@ import {
     RehydrateService,
     RenderResult
 } from "../../components/component";
-import {JSDOM} from 'jsdom';
 import * as testingLibrary from '@testing-library/dom';
+import {Platform} from "../../core/platform";
+import {configureJSDOM} from "../../core/dom";
 
 describe('Fragment Component', () => {
     beforeEach(() => {
         DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
+        DIContainer.register(Platform, {useValue: new Platform(false)});
     });
     describe('component', () => {
         it('resolves using the given options', async () => {
@@ -49,7 +51,7 @@ describe('Fragment Component', () => {
                 }
             }
 
-            const dom = new JSDOM();
+            const dom = configureJSDOM();
 
             const factory = componentFactoryFor(MyFragment);
             factory.registerComponent(dom.window as any, DIContainer);
@@ -90,7 +92,7 @@ describe('Fragment Component', () => {
                 }
             }
 
-            const dom = new JSDOM();
+            const dom = configureJSDOM()
 
             const factory = componentFactoryFor(MyFragment);
             factory.registerComponent(dom.window as any, DIContainer);
@@ -137,7 +139,7 @@ describe('Fragment Component', () => {
                 options
             });
 
-            const dom = new JSDOM();
+            const dom = configureJSDOM()
 
             const factory = componentFactoryFor(fragment);
             factory.registerComponent(dom.window as any, DIContainer);
@@ -173,7 +175,7 @@ describe('Fragment Component', () => {
                 }
             }
 
-            const dom = new JSDOM();
+            const dom = configureJSDOM()
 
             const factory = componentFactoryFor(MyFragment);
             factory.registerComponent(dom.window as any, DIContainer);
@@ -219,7 +221,7 @@ describe('Fragment Component', () => {
                 }
             }
 
-            const dom = new JSDOM();
+            const dom = configureJSDOM()
 
             const factory = componentFactoryFor(MyFragment);
             factory.registerComponent(dom.window as any, DIContainer);

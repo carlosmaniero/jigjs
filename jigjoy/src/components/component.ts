@@ -1,5 +1,7 @@
 import {DIContainer, Injectable} from "../core/di";
 import {html as templateHtml, render, Renderable} from "../template/render";
+import {htmlParsedElementFactory} from "../third-party/html-parsed-element";
+import {Platform} from "../core/platform";
 
 export const html = templateHtml;
 export type RenderResult = Renderable;
@@ -93,10 +95,13 @@ export const ComponentAnnotation = <T extends RequiredComponentMethods>(selector
 
             public registerComponent(window: JigJoyWindow, container: DIContainer) {
                 const rehydrateService: RehydrateService = container.resolve(RehydrateService.InjectionToken);
+                const platform: Platform = container.resolve(Platform);
                 const REHYDRATE_CONTEXT_ATTRIBUTE_NAME = 'rehydrate-context-name';
-                const stateCopyKey = '__jigjoy__state__'
+                const stateCopyKey = '__jigjoy__state__';
 
-                window.customElements.define(selector, class extends window.HTMLElement {
+                const HTMLParsedElement = htmlParsedElementFactory(window);
+
+                window.customElements.define(selector, HTMLParsedElement.withParsedCallback(class extends window.HTMLElement {
                     private readonly updateRender: () => void;
                     private readonly componentInstance: T;
                     private readonly stateKey?: string;
@@ -140,7 +145,19 @@ export const ComponentAnnotation = <T extends RequiredComponentMethods>(selector
                         return true;
                     }
 
+                    parsedCallback() {
+                        if (platform.isBrowser) {
+                            this.triggerLifeCycle();
+                        }
+                    }
+
                     connectedCallback() {
+                        if (!platform.isBrowser) {
+                            this.triggerLifeCycle();
+                        }
+                    }
+
+                    private triggerLifeCycle() {
                         if (this.hasAttribute(REHYDRATE_CONTEXT_ATTRIBUTE_NAME)) {
                             const context = rehydrateService.getContext(this.getContextName());
 
@@ -219,7 +236,7 @@ export const ComponentAnnotation = <T extends RequiredComponentMethods>(selector
                             this.componentInstance[propName] = props[propName];
                         });
                     }
-                })
+                }));
             }
         }
 

@@ -3,20 +3,28 @@ import {
     componentFactoryFor,
     OnMount,
     OnRehydrate,
-    OnUnmount, Prop, RehydrateService, RenderResult,
+    OnUnmount,
+    Prop,
+    RehydrateService,
+    RenderResult,
     State,
     StateFactoryWithValue
 } from "../component";
 import {DIContainer} from "../../core/di";
 import {ServerRehydrateService} from "../server/server-rehydrate-service";
-import {JSDOM} from 'jsdom';
 import waitForExpect from "wait-for-expect";
 import * as testingLibrary from "@testing-library/dom";
 import {html, render} from "../../template/render";
+import {configureJSDOM} from "../../core/dom";
+import {Platform} from "../../core/platform";
 
 describe('Component Annotation', () => {
+    beforeEach(() => {
+        DIContainer.register(Platform, {useValue: new Platform(false)});
+    });
+
     describe('render lifecycle', () => {
-        it('renders a component', () => {
+        it('renders a component', async () => {
             @ComponentAnnotation('my-component')
             class MyComponent {
                 render() {
@@ -26,14 +34,16 @@ describe('Component Annotation', () => {
 
             const factory = componentFactoryFor(MyComponent);
 
-            const dom = new JSDOM();
+            const dom = configureJSDOM();
 
             DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
             factory.registerComponent(dom.window as any, DIContainer);
 
             dom.window.document.body.innerHTML = '<my-component></my-component>';
 
-            expect(dom.serialize()).toContain('Hello, World!');
+            await waitForExpect(() => {
+                expect(dom.serialize()).toContain('Hello, World!');
+            });
         });
 
         it('updates the state partially', () => {
@@ -51,7 +61,7 @@ describe('Component Annotation', () => {
 
             const factory = componentFactoryFor(MyComponent);
 
-            const dom = new JSDOM();
+            const dom = configureJSDOM();
 
             DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
             factory.registerComponent(dom.window as any, DIContainer);
@@ -78,7 +88,7 @@ describe('Component Annotation', () => {
 
             const factory = componentFactoryFor(MyComponent);
 
-            const dom = new JSDOM();
+            const dom = configureJSDOM();
 
             DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
             factory.registerComponent(dom.window as any, DIContainer);
@@ -111,7 +121,7 @@ describe('Component Annotation', () => {
 
             const factory = componentFactoryFor(MyComponent);
 
-            const dom = new JSDOM();
+            const dom = configureJSDOM();
 
             DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
             factory.registerComponent(dom.window as any, DIContainer);
@@ -143,7 +153,7 @@ describe('Component Annotation', () => {
 
             const factory = componentFactoryFor(MyComponent);
 
-            const dom = new JSDOM();
+            const dom = configureJSDOM();
 
             DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
             factory.registerComponent(dom.window as any, DIContainer);
@@ -171,7 +181,7 @@ describe('Component Annotation', () => {
                 }
             }
 
-            const dom = new JSDOM();
+            const dom = configureJSDOM();
 
             DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
 
@@ -235,7 +245,7 @@ describe('Component Annotation', () => {
                 }
             }
 
-            const dom = new JSDOM();
+            const dom = configureJSDOM();
 
             DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
             componentFactoryFor(UserComponent).registerComponent(dom.window as any, DIContainer);
@@ -268,7 +278,7 @@ describe('Component Annotation', () => {
                     }
                 }
 
-                const dom = new JSDOM();
+                const dom = configureJSDOM();
                 const factory = componentFactoryFor(MyComponent);
                 factory.registerComponent(dom.window as any, DIContainer);
 
@@ -299,7 +309,7 @@ describe('Component Annotation', () => {
                     }
                 }
 
-                const dom = new JSDOM();
+                const dom = configureJSDOM();
                 const factory = componentFactoryFor(MyComponent);
                 factory.registerComponent(dom.window as any, DIContainer);
 
@@ -347,7 +357,7 @@ describe('Component Annotation', () => {
                         }
                     }
 
-                    dom = new JSDOM();
+                    dom = configureJSDOM();
                     const factory = componentFactoryFor(MyComponent);
                     factory.registerComponent(dom.window as any, DIContainer);
 
@@ -395,7 +405,7 @@ describe('Component Annotation', () => {
                     }
 
                     DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
-                    const dom = new JSDOM();
+                    const dom = configureJSDOM();
                     const factory = componentFactoryFor(MyComponent);
                     factory.registerComponent(dom.window as any, DIContainer);
 
@@ -423,7 +433,7 @@ describe('Component Annotation', () => {
                     }
 
                     DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
-                    const dom = new JSDOM();
+                    const dom = configureJSDOM();
                     const factory = componentFactoryFor(MyComponent);
                     factory.registerComponent(dom.window as any, DIContainer);
 

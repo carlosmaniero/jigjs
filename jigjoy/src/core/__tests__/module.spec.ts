@@ -2,10 +2,12 @@ import {JigJoyModule} from "../module";
 import {DIContainer} from "../di";
 import {ServerRehydrateService} from "../../components/server/server-rehydrate-service";
 import {ComponentAnnotation, html, RehydrateService, RenderResult} from "../../components/component";
+import {Platform} from "../platform";
 
 describe('Module', () => {
     beforeEach(() => {
         DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
+        DIContainer.register(Platform, {useValue: new Platform(false)});
     })
 
     it('registers providers', function () {

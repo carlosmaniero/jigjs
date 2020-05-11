@@ -42,7 +42,9 @@ module.exports = {
         net: 'empty',
         fs: 'empty',
         tls: 'empty',
+        process: false,
         child_process: 'empty',
-        jsdom: 'empty'
+        jsdom: 'empty',
+        'mutationobserver-shim': false,
     }
 };

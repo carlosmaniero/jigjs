@@ -1,10 +1,10 @@
 import {DIContainer, GlobalInjectable} from "../core/di";
 import {Request, Response} from 'express';
 import fs from "fs";
-import {JSDOM} from "jsdom";
 import {JigJoyApp} from "../core/app";
 import {BeforeFlushRequest, RequestWaitMiddleware} from "./middlewares";
 import {PerRequestContainer} from "./di";
+import {configureJSDOM} from "../core/dom";
 
 export interface ServerTemplateControllerResolver {
     app: JigJoyApp,
@@ -21,7 +21,7 @@ export class ServerTemplateController {
 
     resolve({app, templatePath, encode, req, res}: ServerTemplateControllerResolver) {
         fs.readFile(templatePath, encode || 'utf-8', async (err, data) => {
-            const dom = new JSDOM(data);
+            const dom = configureJSDOM(data);
             const dependencyContainer = this.perRequestContainer.createRequestContainer(req, res, dom);
 
             app.registerCustomElementClass(dom.window as any, dependencyContainer);

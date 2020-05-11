@@ -21,9 +21,7 @@ export class Index implements OnRehydrate {
     }
 
     rehydrate(): void {
-        setTimeout(() => {
-            this.clicks.number = 0;
-        }, 100);
+        this.clicks.number = 0;
     }
 }
 
