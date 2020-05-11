@@ -313,71 +313,123 @@ describe('Component Annotation', () => {
         });
 
         describe('when rehydrate', () => {
-            let dom;
-            let originalDiv: HTMLDivElement;
-            let rehydrateMock;
-            let mountMock;
+            describe('recovering state from server', () => {
+                let dom;
+                let originalDiv: HTMLDivElement;
+                let rehydrateMock;
+                let mountMock;
 
-            beforeEach(() => {
-                const rehydrateService = new ServerRehydrateService();
-                DIContainer.register(RehydrateService.InjectionToken, {useValue: rehydrateService});
+                beforeEach(() => {
+                    const rehydrateService = new ServerRehydrateService();
+                    DIContainer.register(RehydrateService.InjectionToken, {useValue: rehydrateService});
 
-                rehydrateService.updateContext("0", {name: 'World'});
-                rehydrateMock = jest.fn();
-                mountMock = jest.fn();
+                    rehydrateService.updateContext("0", {name: 'World'});
+                    rehydrateMock = jest.fn();
+                    mountMock = jest.fn();
 
-                @ComponentAnnotation('component-custom')
-                class MyComponent implements OnRehydrate, OnMount {
-                    @State()
-                    state = {
-                        name: 'no-name'
-                    };
+                    @ComponentAnnotation('component-custom')
+                    class MyComponent implements OnRehydrate, OnMount {
+                        @State()
+                        state = {
+                            name: 'no-name'
+                        };
 
-                    render(): RenderResult {
-                        return html`<div>Hello, ${this.state.name}</div>`
+                        render(): RenderResult {
+                            return html`<div>Hello, ${this.state.name}</div>`
+                        }
+
+                        rehydrate(): void {
+                            rehydrateMock();
+                        }
+
+                        mount(): void {
+                            mountMock();
+                        }
                     }
 
-                    rehydrate(): void {
-                        rehydrateMock();
-                    }
+                    dom = new JSDOM();
+                    const factory = componentFactoryFor(MyComponent);
+                    factory.registerComponent(dom.window as any, DIContainer);
 
-                    mount(): void {
-                        mountMock();
-                    }
-                }
+                    dom.window.document.body.innerHTML =
+                        '<component-custom rehydrate-context-name="0"><div>Hello, World</div></component-custom>'
 
-                dom = new JSDOM();
-                const factory = componentFactoryFor(MyComponent);
-                factory.registerComponent(dom.window as any, DIContainer);
+                    originalDiv = dom.window.document.querySelector('div');
 
-                dom.window.document.body.innerHTML =
-                    '<component-custom rehydrate-context-name="0"><div>Hello, World</div></component-custom>'
+                });
 
-                originalDiv = dom.window.document.querySelector('div');
+                it('renders the content of rehydration', async () => {
+                    await waitForExpect(() => {
+                        expect(testingLibrary.getAllByText(dom.window.document.body, "Hello, World")).toHaveLength(1);
+                    });
+                });
 
-            });
+                it('keep the innerHtml', () => {
+                    expect(dom.window.document.querySelector('div') === originalDiv).toBeTruthy();
+                });
 
-            it('renders the content of rehydration', async () => {
-                await waitForExpect(() => {
-                    expect(testingLibrary.getAllByText(dom.window.document.body, "Hello, World")).toHaveLength(1);
+                it('updates the state with the context', () => {
+                    expect(dom.window.document
+                        .querySelector('component-custom').componentInstance.state).toEqual({name: 'World'});
+                });
+
+                it('calls the rehydrate method when rehydrate', () => {
+                    expect(rehydrateMock).toBeCalled();
+                });
+
+                it('does not calls the mount method when rehydrate', () => {
+                    expect(mountMock).not.toBeCalled();
                 });
             });
+            describe('controlling rendering', () => {
+                it('does not update the content when should update is false', () => {
+                    @ComponentAnnotation("component-custom")
+                    class MyComponent {
+                        render(): RenderResult {
+                            return html`Anything else!`
+                        }
 
-            it('keep the innerHtml', () => {
-                expect(dom.window.document.querySelector('div') === originalDiv).toBeTruthy();
-            });
+                        shouldUpdate() {
+                            return false;
+                        }
+                    }
 
-            it('updates the state with the context', () => {
-                expect(dom.window.document
-                    .querySelector('component-custom').componentInstance.state).toEqual({name: 'World'});
-            });
+                    DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
+                    const dom = new JSDOM();
+                    const factory = componentFactoryFor(MyComponent);
+                    factory.registerComponent(dom.window as any, DIContainer);
 
-            it('calls the rehydrate method when rehydrate', () => {
-                expect(rehydrateMock).toBeCalled();
-            });
+                    dom.window.document.body.innerHTML =
+                        '<component-custom>Corinthians</component-custom>'
 
-            it('does not calls the mount method when rehydrate', () => {
-                expect(mountMock).not.toBeCalled();
+                    const element = dom.window.document.querySelector('component-custom');
+                    expect(element.textContent).toBe('Corinthians');
+                });
+
+                it('passes the current element and the next', () => {
+                    expect.assertions(2);
+
+                    @ComponentAnnotation("component-custom")
+                    class MyComponent {
+                        render(): RenderResult {
+                            return html`Anything else!`
+                        }
+
+                        shouldUpdate(context) {
+                            expect(context.from.textContent).toBe('Corinthians')
+                            expect(context.to.textContent).toBe('Anything else!')
+                            return false;
+                        }
+                    }
+
+                    DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
+                    const dom = new JSDOM();
+                    const factory = componentFactoryFor(MyComponent);
+                    factory.registerComponent(dom.window as any, DIContainer);
+
+                    dom.window.document.body.innerHTML =
+                        '<component-custom>Corinthians</component-custom>'
+                });
             });
         });
     });

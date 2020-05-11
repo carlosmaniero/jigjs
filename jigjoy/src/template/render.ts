@@ -1,3 +1,5 @@
+import morphdom from "morphdom";
+
 const createPlaceholderForIndex = (valueIndex: number) => `__render_placeholder_${valueIndex}_render_placeholder__`
 
 const NODES = {
@@ -6,7 +8,7 @@ const NODES = {
 }
 
 export interface HtmlTemplate {
-    renderAt: (element: HTMLElement) => DocumentFragment
+    renderAt: (element: Node & ParentNode) => DocumentFragment
 }
 
 export type Renderable = HtmlTemplate | HTMLElement;
@@ -41,8 +43,16 @@ function fillArrayElementContent(element: ChildNode, placeholder: string, value)
 
         if (index == 0) {
             value.forEach((child) => {
+
                 if (child.renderAt) {
-                    render(child)(element.parentElement, false);
+                    const fragment = document.createDocumentFragment();
+
+                    render(child)(fragment);
+
+                    while(fragment.childNodes.length !== 0) {
+                        element.parentElement.appendChild(fragment.childNodes[0]);
+                    }
+
                     return;
                 }
 
@@ -136,6 +146,9 @@ const eventAttributeHandler = {
         this.validate(originalAttribute, placeholder, attributeName, value);
 
         const event = attributeName.replace('on', '');
+
+        (element as any).events = (element as any).events || {};
+        (element as any).events[event] = value;
 
         element.addEventListener(event, value);
         element.removeAttribute(attributeName);
@@ -237,21 +250,52 @@ export const html = (template: TemplateStringsArray, ...values: any[]): Renderab
     }
 }
 
-export const render = (renderable: Renderable) =>
-    (bindElement: HTMLElement, clearPreviousContent: boolean = true) => {
-    if (clearPreviousContent) {
-        bindElement.innerHTML = '';
+function cloneActualElementFromFragment(bindElement: Node & ParentNode, documentFragment: DocumentFragment) {
+    const clone: HTMLElement = bindElement.cloneNode() as HTMLElement;
+    clone.innerHTML = '';
+
+    const content = documentFragment;
+
+    while (content.childNodes.length !== 0) {
+        clone.appendChild(content.childNodes[0]);
     }
+    return clone;
+}
 
-    if ('renderAt' in renderable) {
-        const content = renderable.renderAt(bindElement);
+function applyToDom(bindElement: Node & ParentNode, clone: HTMLElement) {
+    morphdom(bindElement, clone, {
+        onBeforeElUpdated: (from: HTMLElement, to: HTMLElement) => {
+            if ((from as any).shouldUpdate) {
+                return (from as any).shouldUpdate(to);
+            }
 
-        while (content.childNodes.length !== 0) {
-            bindElement.appendChild(content.childNodes[0]);
+            const events = (to as any).events;
+            if (events) {
+                const fromEvents = (from as any).events || {};
+
+                Object.keys(events)
+                    .filter((event) => !fromEvents[event])
+                    .forEach((event) => {
+                        from.addEventListener(event, events[event])
+                        fromEvents[event] = events[event];
+                    });
+
+                (from as any).events = fromEvents;
+            }
+            return true;
+        }
+    });
+}
+
+export const render = (renderable: Renderable) =>
+    (bindElement: Node & ParentNode) => {
+        if ('renderAt' in renderable) {
+            const clone = cloneActualElementFromFragment(bindElement, renderable.renderAt(bindElement));
+            applyToDom(bindElement, clone);
+            return;
         }
 
-        return;
-    }
-
-    bindElement.appendChild(renderable);
+        const clone = cloneActualElementFromFragment(bindElement, bindElement.ownerDocument.createDocumentFragment());
+        clone.appendChild(renderable);
+        applyToDom(bindElement, clone);
 }

@@ -148,5 +148,87 @@ describe('Fragment Component', () => {
 
             expect(testingLibrary.getByText(dom.window.document.body, 'How')).not.toBeNull();
         });
-    })
+    });
+
+    describe('controlling the render', () => {
+        it('returns a placeholder until the render is not completed', async () => {
+            const responseHtml = '<b>Hey</b>';
+
+            const fragmentResolverMock = {
+                resolve: () => new Promise(() => {})
+            };
+
+            const fragmentContentRenderMock = {
+                render:  () => new Promise(() => {})
+            };
+
+            const options = {url: 'http://localhost:3000/'};
+
+            @ComponentAnnotation('my-fragment')
+            class MyFragment extends FragmentComponent {
+                readonly options: FragmentOptions = options;
+
+                constructor() {
+                    super(fragmentResolverMock as any, fragmentContentRenderMock as any);
+                }
+            }
+
+            const dom = new JSDOM();
+
+            const factory = componentFactoryFor(MyFragment);
+            factory.registerComponent(dom.window as any, DIContainer);
+
+            dom.window.document.body.innerHTML = '<my-fragment></my-fragment>';
+
+            await new Promise(resolve => setImmediate(() => resolve()));
+
+            const fragmentComponent: HTMLElement = dom.window.document.querySelector('my-fragment');
+
+            expect((fragmentComponent.childNodes[0] as any).className)
+                .toBe(FragmentComponent.FragmentPlaceholderClass);
+        });
+
+        it('resolves using the given options', async () => {
+            const responseHtml = '<b>Hey</b>';
+
+            const fragmentResolverMock = {
+                resolve: jest.fn(() => Promise.resolve({
+                    html: responseHtml,
+                    dependencies: []
+                }))
+            };
+
+            const fragmentContentRenderMock = {
+                render: jest.fn(() => {
+                    const div = document.createElement('div');
+                    div.innerHTML = '<i>How</i>';
+                    return div;
+                })
+            };
+
+            const options = {url: 'http://localhost:3000/'};
+
+            @ComponentAnnotation('my-fragment')
+            class MyFragment extends FragmentComponent {
+                readonly options: FragmentOptions = options;
+
+                protected response: FragmentResponse;
+
+                constructor() {
+                    super(fragmentResolverMock, fragmentContentRenderMock);
+                }
+            }
+
+            const dom = new JSDOM();
+
+            const factory = componentFactoryFor(MyFragment);
+            factory.registerComponent(dom.window as any, DIContainer);
+
+            dom.window.document.body.innerHTML = '<my-fragment>Already Fetched!</my-fragment>';
+
+            await new Promise(resolve => setImmediate(() => resolve()));
+
+            expect(dom.window.document.querySelector('my-fragment').textContent).toBe('Already Fetched!');
+        });
+    });
 });

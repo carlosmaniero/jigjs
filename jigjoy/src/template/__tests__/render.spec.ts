@@ -197,6 +197,69 @@ describe('Render', () => {
         });
     });
 
+    describe('diffing dom', () => {
+       it('keeps not changed elements', () => {
+           const greeting = 'Hello';
+           let name = 'World';
+
+           render(html`<strong>${greeting} <i>${name}</i></strong>`)(document.body);
+           const strong = document.body.querySelector('strong');
+           const italic = document.body.querySelector('i');
+           name = 'Universe';
+           render(html`<strong>${greeting} <i>${name}</i></strong>`)(document.body);
+
+           expect(strong).toBe(document.body.querySelector('strong'));
+           expect(italic).toBe(document.body.querySelector('i'));
+           expect(italic.textContent).toBe('Universe');
+       });
+
+       it('binds events if they does not exists', () => {
+           const mock = jest.fn();
+
+           render(html`
+                <div>
+                    <button>Hit me!</button>
+                </div>
+            `)(document.body);
+
+           render(html`
+                <div>
+                    <button onclick="${mock}">Hit me!</button>
+                </div>
+            `)(document.body);
+
+           const buttonElement = document.querySelector('button');
+           buttonElement.click();
+
+           expect(buttonElement.hasAttribute('onclick')).toBeFalsy();
+           expect(mock).toBeCalled();
+       });
+
+        it('prevents to rerender given a should render function', () => {
+            render(html`
+                <div>
+                    <button>Hit me!</button>
+                </div>
+            `)(document.body);
+
+            const div = document.querySelector('div');
+
+            const shouldUpdateMock = jest.fn().mockImplementation(() => false);
+
+            (div as any).shouldUpdate = shouldUpdateMock;
+
+            render(html`
+                <div>
+                    <i>I changed</i>
+                </div>
+            `)(document.body);
+
+            const buttonElement = document.querySelector('button');
+            expect(buttonElement).toBeTruthy();
+            expect(shouldUpdateMock.mock.calls[0][0].textContent).toContain('I changed');
+        });
+    });
+
     describe('handling props', () => {
         it('adds props', () => {
 

@@ -1,12 +1,29 @@
 import {JigJoyApp} from "../../../jigjoy/src/core/app";
 import {FragmentComponentFactory} from "../../../jigjoy/src/fragments/fragment-component";
 import {JigJoyModule} from "../../../jigjoy/src/core/module";
-import {ComponentAnnotation, html, RenderResult} from "../../../jigjoy/src/components/component";
+import {ComponentAnnotation, html, OnRehydrate, RenderResult, State} from "../../../jigjoy/src/components/component";
 
 @ComponentAnnotation('index-component')
-export class Index {
+export class Index implements OnRehydrate {
+    @State()
+    private clicks = {
+        number: 0
+    };
+
     render(): RenderResult {
-        return html`<cart-count-fragment></cart-count-fragment>`;
+        return html`
+            <cart-count-fragment></cart-count-fragment>
+            
+            <button onclick="${() => { this.clicks.number++ }}">+</button>
+            ${this.clicks.number}
+            <button onclick="${() => { this.clicks.number-- }}">-</button>
+        `;
+    }
+
+    rehydrate(): void {
+        setTimeout(() => {
+            this.clicks.number = 0;
+        }, 100);
     }
 }
 

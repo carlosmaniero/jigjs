@@ -31,7 +31,22 @@ export abstract class FragmentComponent implements OnMount {
         if (this.state.response) {
             return this.fragmentContentRender.render(this.state.response.html);
         }
-        return document.createElement('div');
+        return FragmentComponent.pendingFragment();
+    }
+
+    static readonly FragmentPlaceholderClass = 'jig-joy-fragment-placeholder';
+
+    private static pendingFragment() {
+        const htmlDivElement = document.createElement('div');
+        htmlDivElement.className = this.FragmentPlaceholderClass
+        return htmlDivElement;
+    }
+
+    shouldUpdate({from}) {
+        if (from.childNodes.length > 0) {
+            return from.childNodes[0].className === 'jig-joy-fragment-placeholder';
+        }
+        return true;
     }
 
     protected onErrorRender(error: Error): RenderResult {

@@ -10,6 +10,7 @@ export const register = () => {
 
         const globalDom = new jsdom.JSDOM();
 
+        global.HTMLElement = globalDom.window.HTMLElement;
         global.window = globalDom.window;
         global.document = globalDom.window.document;
     }

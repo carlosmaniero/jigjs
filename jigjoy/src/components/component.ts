@@ -131,6 +131,15 @@ export const ComponentAnnotation = <T extends RequiredComponentMethods>(selector
                         }
                     }
 
+                    shouldUpdate(to) {
+                        if ((this.componentInstance as any).shouldUpdate) {
+                            return (this.componentInstance as any).shouldUpdate({
+                                to, from: this
+                            });
+                        }
+                        return true;
+                    }
+
                     connectedCallback() {
                         if (this.hasAttribute(REHYDRATE_CONTEXT_ATTRIBUTE_NAME)) {
                             const context = rehydrateService.getContext(this.getContextName());
@@ -160,6 +169,9 @@ export const ComponentAnnotation = <T extends RequiredComponentMethods>(selector
                     }
 
                     private setComponentInstanceState(context) {
+                        if (!context) {
+                            return
+                        }
                         this.componentInstance[stateCopyKey] =
                             StateFactoryWithValue(() => this.stateChanged())(context);
                     }
