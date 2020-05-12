@@ -2,7 +2,9 @@ export const DocumentInjectionToken = "Document";
 export const WindowInjectionToken = "Window";
 
 export const configureJSDOM = (data?: string) => {
-    const jsdom = require('jsdom');
+    const toRequire = (global as any).__non_webpack_require__ || require;
+
+    const jsdom = toRequire('jsdom');
     const dom = new jsdom.JSDOM(data);
 
     const requestAnimationFrame = (callback) => setImmediate(callback);
