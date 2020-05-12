@@ -1,23 +1,17 @@
 import '../../core/register';
 import {FragmentComponent, FragmentComponentFactory} from "../fragment-component";
 import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentResponse} from "../fragments";
-import {DIContainer} from "../../core/di";
+import {globalContainer} from "../../core/di";
 import {ServerRehydrateService} from "../../components/server/server-rehydrate-service";
-import {
-    Component,
-    componentFactoryFor,
-    html,
-    RehydrateService,
-    RenderResult
-} from "../../components/component";
+import {Component, componentFactoryFor, html, RehydrateService, RenderResult} from "../../components/component";
 import * as testingLibrary from '@testing-library/dom';
 import {Platform} from "../../core/platform";
 import {configureJSDOM} from "../../core/dom";
 
 describe('Fragment Component', () => {
     beforeEach(() => {
-        DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
-        DIContainer.register(Platform, {useValue: new Platform(false)});
+        globalContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
+        globalContainer.register(Platform, {useValue: new Platform(false)});
     });
     describe('component', () => {
         it('resolves using the given options', async () => {
@@ -51,10 +45,12 @@ describe('Fragment Component', () => {
                 }
             }
 
+            globalContainer.register(MyFragment, MyFragment);
+
             const dom = configureJSDOM();
 
             const factory = componentFactoryFor(MyFragment);
-            factory.registerComponent(dom.window as any, DIContainer);
+            factory.registerComponent(dom.window as any, globalContainer);
 
             dom.window.document.body.innerHTML = '<my-fragment></my-fragment>';
 
@@ -92,10 +88,12 @@ describe('Fragment Component', () => {
                 }
             }
 
+            globalContainer.register(MyFragment, MyFragment);
+
             const dom = configureJSDOM()
 
             const factory = componentFactoryFor(MyFragment);
-            factory.registerComponent(dom.window as any, DIContainer);
+            factory.registerComponent(dom.window as any, globalContainer);
 
             dom.window.document.body.innerHTML = '<my-fragment></my-fragment>';
 
@@ -128,21 +126,23 @@ describe('Fragment Component', () => {
             const options = {url: 'http://localhost:3000/'};
 
 
-            DIContainer.register(RehydrateService.InjectionToken, {useClass: ServerRehydrateService})
-            DIContainer.register(FragmentResolver.InjectionToken, {useValue: fragmentResolverMock});
-            DIContainer.register(FragmentContentRender.InjectionToken, {useValue: fragmentContentRenderMock});
-
-            const fragmentComponentFactory = DIContainer.resolve(FragmentComponentFactory);
+            globalContainer.register(RehydrateService.InjectionToken, {useClass: ServerRehydrateService})
+            globalContainer.register(FragmentResolver.InjectionToken, {useValue: fragmentResolverMock});
+            globalContainer.register(FragmentContentRender.InjectionToken, {useValue: fragmentContentRenderMock});
+            globalContainer.register(FragmentComponentFactory, FragmentComponentFactory);
+            const fragmentComponentFactory = globalContainer.resolve(FragmentComponentFactory);
 
             const fragment = fragmentComponentFactory.createFragment({
                 selector: "my-fragment",
                 options
             });
 
+            globalContainer.register(fragment, fragment);
+
             const dom = configureJSDOM()
 
             const factory = componentFactoryFor(fragment);
-            factory.registerComponent(dom.window as any, DIContainer);
+            factory.registerComponent(dom.window as any, globalContainer);
 
             dom.window.document.body.innerHTML = '<my-fragment></my-fragment>';
 
@@ -175,10 +175,12 @@ describe('Fragment Component', () => {
                 }
             }
 
+            globalContainer.register(MyFragment, MyFragment);
+
             const dom = configureJSDOM()
 
             const factory = componentFactoryFor(MyFragment);
-            factory.registerComponent(dom.window as any, DIContainer);
+            factory.registerComponent(dom.window as any, globalContainer);
 
             dom.window.document.body.innerHTML = '<my-fragment></my-fragment>';
 
@@ -223,8 +225,9 @@ describe('Fragment Component', () => {
 
             const dom = configureJSDOM()
 
+            globalContainer.register(MyFragment, MyFragment);
             const factory = componentFactoryFor(MyFragment);
-            factory.registerComponent(dom.window as any, DIContainer);
+            factory.registerComponent(dom.window as any, globalContainer);
 
             dom.window.document.body.innerHTML = '<my-fragment>Already Fetched!</my-fragment>';
 

@@ -1,22 +1,22 @@
 import {JigJoyModule} from "../module";
-import {DIContainer} from "../di";
+import {globalContainer} from "../di";
 import {ServerRehydrateService} from "../../components/server/server-rehydrate-service";
 import {Component, html, RehydrateService, RenderResult} from "../../components/component";
 import {Platform} from "../platform";
 
 describe('Module', () => {
     beforeEach(() => {
-        DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
-        DIContainer.register(Platform, {useValue: new Platform(false)});
+        globalContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
+        globalContainer.register(Platform, {useValue: new Platform(false)});
     })
 
     it('registers providers', function () {
-        const container = DIContainer.createChildContainer();
+        const container = globalContainer.createChildContainer();
 
         new JigJoyModule({
             providers: [
                 {provide: "abc", useValue: "cba"},
-                {provide: "def", useValue: "fed"}
+                {provide: "def", useValue: "fed"},
             ]
         }).register(window, container);
 
@@ -25,7 +25,7 @@ describe('Module', () => {
     });
 
     it('registers modules', function () {
-        const container = DIContainer.createChildContainer();
+        const container = globalContainer.createChildContainer();
 
         new JigJoyModule({
             modules: [
@@ -43,7 +43,7 @@ describe('Module', () => {
     });
 
     it('registers components', function () {
-        const container = DIContainer.createChildContainer();
+        const container = globalContainer.createChildContainer();
 
         @Component('my-component')
         class MyComponent {
@@ -65,7 +65,7 @@ describe('Module', () => {
     });
 
     it('registers sub modules', function () {
-        const container = DIContainer.createChildContainer();
+        const container = globalContainer.createChildContainer();
 
         new JigJoyModule({
             providers: [

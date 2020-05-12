@@ -3,7 +3,7 @@ import {JSDOM} from "jsdom";
 import {Matcher} from "@testing-library/dom/matches";
 import {SelectorMatcherOptions} from "@testing-library/dom/query-helpers";
 import {WaitForElementOptions} from "@testing-library/dom/wait-for-element";
-import {DIContainer} from "../core/di";
+import {globalContainer} from "../core/di";
 
 type QueryAllMatcher = (id: Matcher, options?: SelectorMatcherOptions) => HTMLElement[]
 type QueryMatcher = (id: Matcher, options?: SelectorMatcherOptions) => HTMLElement | null
@@ -76,7 +76,7 @@ export type RenderResult = Matchers & {
 
 export type RenderOptions = {
     template?: string
-    container?: DIContainer
+    container?: globalContainer
 }
 
 function getDocumentSnapshot(element) {

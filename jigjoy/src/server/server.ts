@@ -1,6 +1,6 @@
 import express, {Express} from 'express';
 import {JigJoyApp} from "../core/app";
-import {DIContainer} from "../core/di";
+import {globalContainer} from "../core/di";
 import {ServerTemplateController} from "./controller";
 
 export interface TemplateRoute {
@@ -24,6 +24,7 @@ export class JigJoyServer {
         this.app = express();
         this.use = this.app.use;
 
+        globalContainer.register(ServerTemplateController, ServerTemplateController);
         this.setupStaticDirectory();
         this.setupStaticRoutes();
     }
@@ -41,7 +42,7 @@ export class JigJoyServer {
     }
 
     private setupStaticRoutes() {
-        const serverTemplateController = DIContainer.resolve(ServerTemplateController);
+        const serverTemplateController = globalContainer.resolve(ServerTemplateController);
 
         this.options.routes.forEach((route) => {
             this.app.get(route.route, async (req, res) => serverTemplateController.resolve({

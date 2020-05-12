@@ -1,4 +1,4 @@
-import {DIContainer, GlobalInjectable} from "../core/di";
+import {Container, GlobalInjectable} from "../core/di";
 import {Request, Response} from 'express';
 import fs from "fs";
 import {JigJoyApp} from "../core/app";
@@ -36,7 +36,7 @@ export class ServerTemplateController {
         });
     }
 
-    private static async waitForMiddlewareList(dependencyContainer: DIContainer) {
+    private static async waitForMiddlewareList(dependencyContainer: Container) {
         const requestWaitMiddlewareList = ServerTemplateController.getWaitMiddlewareList(dependencyContainer);
 
         await Promise.all(
@@ -44,7 +44,7 @@ export class ServerTemplateController {
                 .map((requestWaitMiddleware) => requestWaitMiddleware.wait()));
     }
 
-    private static getWaitMiddlewareList(dependencyContainer: DIContainer): RequestWaitMiddleware[] {
+    private static getWaitMiddlewareList(dependencyContainer: Container): RequestWaitMiddleware[] {
         if (!dependencyContainer.isRegistered(RequestWaitMiddleware.InjectionToken)) {
             return [];
         }
@@ -52,7 +52,7 @@ export class ServerTemplateController {
         return dependencyContainer.resolveAll(RequestWaitMiddleware.InjectionToken);
     }
 
-    private static getBeforeFlushList(dependencyContainer: DIContainer): BeforeFlushRequest[] {
+    private static getBeforeFlushList(dependencyContainer: Container): BeforeFlushRequest[] {
         if (!dependencyContainer.isRegistered(BeforeFlushRequest.InjectionToken)) {
             return [];
         }

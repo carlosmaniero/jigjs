@@ -1,11 +1,11 @@
 import '../register';
 import {JigJoyApp} from "../app";
-import {DIContainer} from "../di";
-import {JSDOM} from "jsdom";
+import {globalContainer} from "../di";
 import {ServerRehydrateService} from "../../components/server/server-rehydrate-service";
 import {Component, RehydrateService, RenderResult} from "../../components/component";
 import {html} from "../../template/render";
 import {Platform} from "../platform";
+import {configureJSDOM} from "../dom";
 
 
 describe('JigJoyEntryPoint', () => {
@@ -18,14 +18,15 @@ describe('JigJoyEntryPoint', () => {
             }
         }
 
-        DIContainer.register(Platform, {useValue: new Platform(false)});
-        DIContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
+        globalContainer.register(TestComponent, TestComponent);
+        globalContainer.register(Platform, {useValue: new Platform(false)});
+        globalContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
 
         const entryPoint = new JigJoyApp({
             bootstrap: TestComponent,
         });
 
-        const jsdom = new JSDOM();
+        const jsdom = configureJSDOM();
 
         entryPoint.registerCustomElementClass(jsdom.window as any);
 

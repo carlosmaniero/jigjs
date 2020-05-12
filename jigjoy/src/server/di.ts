@@ -1,4 +1,4 @@
-import {DIContainer, GlobalInjectable, registerContextualDependencies} from "../core/di";
+import {globalContainer, GlobalInjectable, registerContextualDependencies} from "../core/di";
 import {Request as ExpressRequest, Response as ExpressResponse} from "express";
 import {DocumentInjectionToken, WindowInjectionToken} from "../core/dom";
 import {Platform} from "../core/platform";
@@ -12,7 +12,7 @@ export const Response = {InjectionToken: 'Response'}
 @GlobalInjectable()
 export class PerRequestContainer {
     createRequestContainer(request: Request, response: Response, dom: any) {
-        const requestContainer = DIContainer.createChildContainer();
+        const requestContainer = globalContainer.createChildContainer();
 
         requestContainer.register(Request.InjectionToken, {useValue: request});
         requestContainer.register(Response.InjectionToken, {useValue: response});

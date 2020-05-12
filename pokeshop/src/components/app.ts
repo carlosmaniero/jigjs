@@ -2,6 +2,7 @@ import {JigJoyApp} from "../../../jigjoy/src/core/app";
 import {FragmentComponentFactory} from "../../../jigjoy/src/fragments/fragment-component";
 import {JigJoyModule} from "../../../jigjoy/src/core/module";
 import {Component, html, OnRehydrate, RenderResult, State} from "../../../jigjoy/src/components/component";
+import {Platform} from "../../../jigjoy/src/core/platform";
 
 @Component('index-component')
 export class Index implements OnRehydrate {
@@ -25,7 +26,15 @@ export class Index implements OnRehydrate {
     }
 }
 
-export const app = new JigJoyApp({bootstrap: Index})
+export const app = new JigJoyApp({
+    bootstrap: Index,
+    module: new JigJoyModule({
+        providers: [
+            {provide: Platform, useValue: Platform.browser()},
+            {provide: FragmentComponentFactory, useClass: FragmentComponentFactory}
+        ]
+    })
+})
     .registerModuleUsingContainer((container) => {
         const fragmentFactory: FragmentComponentFactory = container.resolve(FragmentComponentFactory);
 

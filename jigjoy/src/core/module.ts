@@ -1,4 +1,4 @@
-import {DIContainer, DIInjectionToken, DIRegistration} from "./di";
+import {Container, DIInjectionToken, DIRegistration} from "./di";
 import {componentFactoryFor, JigJoyWindow, RehydrateService} from "../components/component";
 
 
@@ -10,7 +10,7 @@ interface JigJoyModuleProps {
     modules?: JigJoyModule[]
 }
 
-type RegistrationCallback = (container: DIContainer) => JigJoyModule;
+type RegistrationCallback = (container: Container) => JigJoyModule;
 
 export class JigJoyModule {
     private readonly registrationCallbacks: RegistrationCallback[];
@@ -31,6 +31,7 @@ export class JigJoyModule {
         });
 
         this.props.components?.forEach((component) => {
+            container.register(component, component);
             componentFactoryFor(component).registerComponent(window, container);
         });
 

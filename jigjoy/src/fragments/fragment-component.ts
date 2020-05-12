@@ -65,7 +65,7 @@ interface FragmentComponentFactoryProps {
 export class FragmentComponentFactory {
     constructor(
         @Inject(FragmentResolver.InjectionToken) private readonly fragmentResolver: FragmentResolver,
-        @Inject(FragmentContentRender.InjectionToken) private readonly fragmentContentRender: FragmentContentRender) {
+        @Inject(FragmentContentRender.InjectionToken) private readonly fragmentContentRender: FragmentContentRender,) {
     }
 
     createFragment({selector, options, onErrorRender}: FragmentComponentFactoryProps) {

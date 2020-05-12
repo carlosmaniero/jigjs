@@ -1,5 +1,5 @@
 import {ServerRehydrateService} from "../../server/server-rehydrate-service";
-import {DIContainer, registerContextualDependencies} from "../../../core/di";
+import {globalContainer, registerContextualDependencies} from "../../../core/di";
 import {RehydrateService} from "../../component";
 
 describe('Rehydrate Service', () => {
@@ -27,7 +27,7 @@ describe('Rehydrate Service', () => {
     });
 
     it('is a singleton of RehydrateService', () => {
-        const container = DIContainer.createChildContainer();
+        const container = globalContainer.createChildContainer();
         registerContextualDependencies(container);
         const rehydrateService: RehydrateService = container.resolve(RehydrateService.InjectionToken);
 

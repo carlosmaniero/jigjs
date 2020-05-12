@@ -1,5 +1,5 @@
 import {PerRequestContainer, Request, Response} from "../di";
-import {DIContainer, Inject, Injectable, Singleton} from "../../core/di";
+import {globalContainer, Inject, Injectable, Singleton} from "../../core/di";
 import {RequestWaitMiddleware} from "../middlewares";
 import {JSDOM} from 'jsdom';
 import {DocumentInjectionToken, WindowInjectionToken} from "../../core/dom";
@@ -51,7 +51,7 @@ describe('Server Dependency Injection', () => {
 
         new PerRequestContainer().createRequestContainer(request as any, response as any, dom);
 
-        expect(() => DIContainer.resolve(MyClass))
+        expect(() => globalContainer.resolve(MyClass))
             .toThrow()
     });
 

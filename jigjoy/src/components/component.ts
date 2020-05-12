@@ -1,4 +1,4 @@
-import {DIContainer, Injectable} from "../core/di";
+import {Container, Injectable} from "../core/di";
 import {html as templateHtml, render, Renderable} from "../template/render";
 import {htmlParsedElementFactory} from "../third-party/html-parsed-element";
 import {Platform} from "../core/platform";
@@ -41,7 +41,7 @@ export const RehydrateService = {
     InjectionToken: 'RehydrateService'
 }
 type Factory = {
-    registerComponent: (window: JigJoyWindow, container: DIContainer) => void,
+    registerComponent: (window: JigJoyWindow, container: Container) => void,
     componentSelector: string
 };
 
@@ -93,7 +93,7 @@ export const Component = <T extends RequiredComponentMethods>(selector: string, 
                 return selector;
             }
 
-            public registerComponent(window: JigJoyWindow, container: DIContainer) {
+            public registerComponent(window: JigJoyWindow, container: Container) {
                 const rehydrateService: RehydrateService = container.resolve(RehydrateService.InjectionToken);
                 const platform: Platform = container.resolve(Platform);
                 const REHYDRATE_CONTEXT_ATTRIBUTE_NAME = 'rehydrate-context-name';

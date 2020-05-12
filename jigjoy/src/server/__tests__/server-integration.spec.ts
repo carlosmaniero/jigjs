@@ -164,10 +164,14 @@ describe('Jig Joy Server', () => {
                         module: new JigJoyModule({
                             providers: [
                                 {
+                                    provide: FragmentComponentFactory,
+                                    useClass: FragmentComponentFactory,
+                                },
+                                {
                                     provide: FragmentFetch,
                                     useValue: {
                                         fetch: () => new Promise(resolve => {
-                                            if (!firstResolver)  {
+                                            if (!firstResolver) {
                                                 firstResolver = resolve
                                                 return;
                                             }
