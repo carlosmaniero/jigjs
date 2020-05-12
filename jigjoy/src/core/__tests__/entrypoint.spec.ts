@@ -3,7 +3,7 @@ import {JigJoyApp} from "../app";
 import {DIContainer} from "../di";
 import {JSDOM} from "jsdom";
 import {ServerRehydrateService} from "../../components/server/server-rehydrate-service";
-import {ComponentAnnotation, RehydrateService, RenderResult} from "../../components/component";
+import {Component, RehydrateService, RenderResult} from "../../components/component";
 import {html} from "../../template/render";
 import {Platform} from "../platform";
 
@@ -11,7 +11,7 @@ import {Platform} from "../platform";
 describe('JigJoyEntryPoint', () => {
 
     it('renders the given EntryPoint', () => {
-        @ComponentAnnotation('my-test-component')
+        @Component('my-test-component')
         class TestComponent {
             render(): RenderResult {
                 return html`hell yeah!`;

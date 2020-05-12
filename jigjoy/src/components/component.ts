@@ -84,7 +84,7 @@ export const Prop = () => (target: any, propertyKey: string) => {
     Reflect.defineMetadata("design:type", [...props, propertyKey], target, "componentProperties");
 }
 
-export const ComponentAnnotation = <T extends RequiredComponentMethods>(selector: string, observableAttributes: string[] = []) =>
+export const Component = <T extends RequiredComponentMethods>(selector: string, observableAttributes: string[] = []) =>
     (component: Constructor<T>) => {
         Injectable()(component);
 

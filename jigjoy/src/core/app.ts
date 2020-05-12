@@ -1,6 +1,6 @@
 import {DIContainer, Inject} from "./di";
 import {JigJoyModule} from "./module";
-import {ComponentAnnotation, componentFactoryFor, JigJoyWindow} from "../components/component";
+import {Component, componentFactoryFor, JigJoyWindow} from "../components/component";
 
 export interface EntryPointOptions {
     bootstrap: new(...args: unknown[]) => any,
@@ -9,7 +9,7 @@ export interface EntryPointOptions {
 
 const BootstrapInjectionToken = 'JigJoyBootstrap';
 
-@ComponentAnnotation('jig-joy')
+@Component('jig-joy')
 export class JigJoyComponent {
     constructor(@Inject(BootstrapInjectionToken) private readonly bootstrap: any) {}
 

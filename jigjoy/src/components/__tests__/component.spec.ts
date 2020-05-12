@@ -1,5 +1,5 @@
 import {
-    ComponentAnnotation,
+    Component,
     componentFactoryFor,
     OnMount,
     OnRehydrate,
@@ -25,7 +25,7 @@ describe('Component Annotation', () => {
 
     describe('render lifecycle', () => {
         it('renders a component', async () => {
-            @ComponentAnnotation('my-component')
+            @Component('my-component')
             class MyComponent {
                 render() {
                     return html`Hello, World!`
@@ -47,7 +47,7 @@ describe('Component Annotation', () => {
         });
 
         it('updates the state partially', () => {
-            @ComponentAnnotation('my-component')
+            @Component('my-component')
             class MyComponent {
                 @State()
                 private state = {
@@ -74,7 +74,7 @@ describe('Component Annotation', () => {
         });
 
         it('updates the entire state', () => {
-            @ComponentAnnotation('my-component')
+            @Component('my-component')
             class MyComponent {
                 @State()
                 private state = {
@@ -103,7 +103,7 @@ describe('Component Annotation', () => {
         });
 
         it('has a mount method', () => {
-            @ComponentAnnotation('my-component')
+            @Component('my-component')
             class MyComponent implements OnMount {
                 @State()
                 private state = {
@@ -147,7 +147,7 @@ describe('Component Annotation', () => {
                 }
             }
 
-            @ComponentAnnotation('my-component')
+            @Component('my-component')
             class MyComponent extends MyComponentBase {
             }
 
@@ -165,7 +165,7 @@ describe('Component Annotation', () => {
 
         it('has a unmount method', () => {
             const mock = jest.fn();
-            @ComponentAnnotation('my-component')
+            @Component('my-component')
             class MyComponent implements OnUnmount {
                 @State()
                 private state = {
@@ -232,7 +232,7 @@ describe('Component Annotation', () => {
     describe('Props', () => {
         it('has props that can be passed as is without serialization', () => {
 
-            @ComponentAnnotation('user-component')
+            @Component('user-component')
             class UserComponent {
                 @Prop()
                 private readonly id: number;
@@ -268,7 +268,7 @@ describe('Component Annotation', () => {
                 const rehydrateService = new ServerRehydrateService();
                 DIContainer.register(RehydrateService.InjectionToken, {useValue: rehydrateService});
 
-                @ComponentAnnotation("component-custom")
+                @Component("component-custom")
                 class MyComponent {
                     @State()
                     private state = {name: 'World'};
@@ -295,7 +295,7 @@ describe('Component Annotation', () => {
                 const rehydrateService = new ServerRehydrateService();
                 DIContainer.register(RehydrateService.InjectionToken, {useValue: rehydrateService});
 
-                @ComponentAnnotation("component-custom")
+                @Component("component-custom")
                 class MyComponent implements OnMount {
                     @State()
                     private state = {name: 'World'};
@@ -337,7 +337,7 @@ describe('Component Annotation', () => {
                     rehydrateMock = jest.fn();
                     mountMock = jest.fn();
 
-                    @ComponentAnnotation('component-custom')
+                    @Component('component-custom')
                     class MyComponent implements OnRehydrate, OnMount {
                         @State()
                         state = {
@@ -393,7 +393,7 @@ describe('Component Annotation', () => {
             });
             describe('controlling rendering', () => {
                 it('does not update the content when should update is false', () => {
-                    @ComponentAnnotation("component-custom")
+                    @Component("component-custom")
                     class MyComponent {
                         render(): RenderResult {
                             return html`Anything else!`
@@ -419,7 +419,7 @@ describe('Component Annotation', () => {
                 it('passes the current element and the next', () => {
                     expect.assertions(2);
 
-                    @ComponentAnnotation("component-custom")
+                    @Component("component-custom")
                     class MyComponent {
                         render(): RenderResult {
                             return html`Anything else!`

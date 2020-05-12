@@ -1,6 +1,6 @@
 import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentResponse} from "./fragments";
 import {GlobalInjectable, Inject} from "../core/di";
-import {ComponentAnnotation, OnMount, RenderResult, State} from "../components/component";
+import {Component, OnMount, RenderResult, State} from "../components/component";
 
 interface FragmentStateComponent {
     response?: FragmentResponse;
@@ -71,7 +71,7 @@ export class FragmentComponentFactory {
     createFragment({selector, options, onErrorRender}: FragmentComponentFactoryProps) {
         const factory = this;
 
-        @ComponentAnnotation(selector)
+        @Component(selector)
         class DynamicallyCreatedFragment extends FragmentComponent {
             readonly selector: string = selector;
             readonly options: FragmentOptions = options;

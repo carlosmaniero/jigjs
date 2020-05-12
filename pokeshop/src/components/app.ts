@@ -1,9 +1,9 @@
 import {JigJoyApp} from "../../../jigjoy/src/core/app";
 import {FragmentComponentFactory} from "../../../jigjoy/src/fragments/fragment-component";
 import {JigJoyModule} from "../../../jigjoy/src/core/module";
-import {ComponentAnnotation, html, OnRehydrate, RenderResult, State} from "../../../jigjoy/src/components/component";
+import {Component, html, OnRehydrate, RenderResult, State} from "../../../jigjoy/src/components/component";
 
-@ComponentAnnotation('index-component')
+@Component('index-component')
 export class Index implements OnRehydrate {
     @State()
     private clicks = {

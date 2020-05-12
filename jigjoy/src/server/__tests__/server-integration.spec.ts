@@ -9,12 +9,12 @@ import {BeforeFlushRequest, RequestWaitMiddleware} from "../middlewares";
 import {FragmentFetch} from "../../fragments/fragment-fetch";
 import {FragmentComponentFactory} from "../../fragments/fragment-component";
 import waitForExpect from "wait-for-expect";
-import {ComponentAnnotation, html, RenderResult} from "../../components/component";
+import {Component, html, RenderResult} from "../../components/component";
 
 const request = require("supertest");
 
 describe('Jig Joy Server', () => {
-    @ComponentAnnotation('my-component')
+    @Component('my-component')
     class DefaultBootstrapComponent {
         render(): RenderResult {
             return html`Hello, World!`;
@@ -145,7 +145,7 @@ describe('Jig Joy Server', () => {
         let firstResponseBody = null;
         let secondResponseBody = null;
 
-        @ComponentAnnotation('my-component')
+        @Component('my-component')
         class BootstrapComponent {
             render(): RenderResult {
                 return document.createElement('first-fragment');

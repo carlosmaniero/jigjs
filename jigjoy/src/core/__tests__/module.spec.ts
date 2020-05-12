@@ -1,7 +1,7 @@
 import {JigJoyModule} from "../module";
 import {DIContainer} from "../di";
 import {ServerRehydrateService} from "../../components/server/server-rehydrate-service";
-import {ComponentAnnotation, html, RehydrateService, RenderResult} from "../../components/component";
+import {Component, html, RehydrateService, RenderResult} from "../../components/component";
 import {Platform} from "../platform";
 
 describe('Module', () => {
@@ -45,7 +45,7 @@ describe('Module', () => {
     it('registers components', function () {
         const container = DIContainer.createChildContainer();
 
-        @ComponentAnnotation('my-component')
+        @Component('my-component')
         class MyComponent {
             render(): RenderResult {
                 return html`Hello, World!`;

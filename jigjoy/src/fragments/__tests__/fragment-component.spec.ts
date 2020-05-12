@@ -4,7 +4,7 @@ import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentRespon
 import {DIContainer} from "../../core/di";
 import {ServerRehydrateService} from "../../components/server/server-rehydrate-service";
 import {
-    ComponentAnnotation,
+    Component,
     componentFactoryFor,
     html,
     RehydrateService,
@@ -40,7 +40,7 @@ describe('Fragment Component', () => {
 
             const options = {url: 'http://localhost:3000/'};
 
-            @ComponentAnnotation('my-fragment')
+            @Component('my-fragment')
             class MyFragment extends FragmentComponent {
                 readonly options: FragmentOptions = options;
 
@@ -76,7 +76,7 @@ describe('Fragment Component', () => {
                 render: jest.fn()
             };
 
-            @ComponentAnnotation('my-fragment')
+            @Component('my-fragment')
             class MyFragment extends FragmentComponent {
                 readonly options: FragmentOptions = {url: 'http://localhost:3000/'};
 
@@ -166,7 +166,7 @@ describe('Fragment Component', () => {
 
             const options = {url: 'http://localhost:3000/'};
 
-            @ComponentAnnotation('my-fragment')
+            @Component('my-fragment')
             class MyFragment extends FragmentComponent {
                 readonly options: FragmentOptions = options;
 
@@ -210,7 +210,7 @@ describe('Fragment Component', () => {
 
             const options = {url: 'http://localhost:3000/'};
 
-            @ComponentAnnotation('my-fragment')
+            @Component('my-fragment')
             class MyFragment extends FragmentComponent {
                 readonly options: FragmentOptions = options;
 
