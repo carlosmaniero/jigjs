@@ -24,9 +24,9 @@ jobs:
       with:
         node-version: '12.x'
     - run: npm install yarn
-    - run: yarn --cwd jigjoy
+    - run: yarn --cwd jig
       env:
         CI: true
-    - run: yarn --cwd jigjoy test
+    - run: yarn --cwd jig test
       env:
         CI: true

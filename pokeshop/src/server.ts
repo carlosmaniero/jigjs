@@ -1,13 +1,13 @@
-import '../../jigjoy/src/core/register';
-import {JigJoyServer} from "../../jigjoy/src/server/server";
+import '../../jig/src/core/register';
+import {JigServer} from "../../jig/src/server/server";
 import path from "path";
-import "../../jigjoy/src/fragments/server/server-fragment-module";
-import "../../jigjoy/src/components/server/server-flush-rehydrate-state";
-import {serverComponentModule} from "../../jigjoy/src/components/server/module";
+import "../../jig/src/fragments/server/server-fragment-module";
+import "../../jig/src/components/server/server-flush-rehydrate-state";
+import {serverComponentModule} from "../../jig/src/components/server/module";
 import {app} from "./components/app";
-import {serverFragmentModule} from "../../jigjoy/src/fragments/server/module";
+import {serverFragmentModule} from "../../jig/src/fragments/server/module";
 
-new JigJoyServer({
+new JigServer({
     routes: [{
         route: '/',
         templatePath: path.join(__dirname, 'templates', 'index.html'),

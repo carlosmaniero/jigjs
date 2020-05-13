@@ -1,8 +1,11 @@
-import {JigApp} from "../../../jig/src/core/app";
-import {FragmentComponentFactory} from "../../../jig/src/fragments/fragment-component";
-import {JigModule} from "../../../jig/src/core/module";
-import {Component, html, OnRehydrate, RenderResult, State} from "../../../jig/src/components/component";
+![Jig Logo](./ghassets/logo.png)
 
+# Jig.js - A Micro-frontend framework
+![Jig Build Status](https://github.com/carlosmaniero/micro-pokeshop/workflows/JigJoy/badge.svg)
+
+## Basic Example
+
+```typescript
 @Component('index-component')
 export class Index implements OnRehydrate {
     @State()
@@ -25,14 +28,7 @@ export class Index implements OnRehydrate {
     }
 }
 
-export const app = new JigApp({
-    bootstrap: Index,
-    modules: [new JigModule({
-        providers: [
-            {provide: FragmentComponentFactory, useClass: FragmentComponentFactory}
-        ]
-    })]
-})
+export const app = new JigApp({bootstrap: Index})
     .registerModuleUsingContainer((container) => {
         const fragmentFactory: FragmentComponentFactory = container.resolve(FragmentComponentFactory);
 
@@ -48,3 +44,4 @@ export const app = new JigApp({
             ]
         })
     });
+```
