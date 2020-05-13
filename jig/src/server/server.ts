@@ -5,17 +5,17 @@ import {ServerTemplateController} from "./controller";
 import {ModuleProvider} from "../core/module";
 
 export interface TemplateRoute {
-    route: string,
-    templatePath: string,
-    app: JigApp,
-    encode?: string
+    route: string;
+    templatePath: string;
+    app: JigApp;
+    encode?: string;
 }
 
 export interface JigServerOptions {
-    assetsPath: string,
-    port: number,
-    customProviders?: ModuleProvider<any>[],
-    routes: TemplateRoute[]
+    assetsPath: string;
+    port: number;
+    customProviders?: ModuleProvider<any>[];
+    routes: TemplateRoute[];
 }
 
 export class JigServer {

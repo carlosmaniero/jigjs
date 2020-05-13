@@ -12,57 +12,57 @@ type FindAllMatcher = (id: Matcher, options?: SelectorMatcherOptions, waitForEle
 type FindMatcher = (id: Matcher, options?: SelectorMatcherOptions, waitForElementOptions?: WaitForElementOptions) => Promise<HTMLElement>
 
 interface Matchers {
-    findAllByAltText: QueryAllMatcher,
-    findAllByDisplayValue: QueryAllMatcher,
-    findAllByLabelText: FindAllMatcher,
-    findAllByPlaceholderText: FindAllMatcher,
-    findAllByRole: QueryAllMatcher,
-    findAllByTestId: QueryAllMatcher,
-    findAllByText: QueryAllMatcher,
-    findAllByTitle: QueryAllMatcher,
-    findByAltText: QueryMatcher,
-    findByDisplayValue: QueryMatcher,
-    findByLabelText: FindMatcher,
-    findByPlaceholderText: FindMatcher,
-    findByRole: QueryMatcher,
-    findByTestId: QueryMatcher,
-    findByText: QueryMatcher,
-    findByTitle: QueryMatcher,
-    getAllByAltText: QueryAllMatcher,
-    getAllByDisplayValue: QueryAllMatcher,
-    getAllByLabelText: QueryAllMatcher,
-    getAllByPlaceholderText: QueryAllMatcher,
-    getAllByRole: QueryAllMatcher,
-    getAllByTestId: QueryAllMatcher,
-    getAllByText: QueryAllMatcher,
-    getAllByTitle: QueryAllMatcher,
-    getByAltText: GetMatcher,
-    getByDisplayValue: GetMatcher,
-    getByLabelText: GetMatcher,
-    getByPlaceholderText: GetMatcher,
-    getByRole: GetMatcher,
-    getByTestId: GetMatcher,
-    getByText: GetMatcher,
-    getByTitle: GetMatcher,
-    getNodeText: GetMatcher
-    queryAllByAltText: QueryAllMatcher,
-    queryAllByAttribute: QueryAllMatcher,
-    queryAllByDisplayValue: QueryAllMatcher,
-    queryAllByLabelText: QueryAllMatcher,
-    queryAllByPlaceholderText: QueryAllMatcher,
-    queryAllByRole: QueryAllMatcher,
-    queryAllByTestId: QueryAllMatcher,
-    queryAllByText: QueryAllMatcher,
-    queryAllByTitle: QueryAllMatcher,
-    queryByAltText: QueryMatcher,
-    queryByAttribute: QueryMatcher,
-    queryByDisplayValue: QueryMatcher,
-    queryByLabelText: QueryMatcher,
-    queryByPlaceholderText: QueryMatcher,
-    queryByRole: QueryMatcher,
-    queryByTestId: QueryMatcher,
-    queryByText: QueryMatcher,
-    queryByTitle: QueryMatcher,
+    findAllByAltText: QueryAllMatcher;
+    findAllByDisplayValue: QueryAllMatcher;
+    findAllByLabelText: FindAllMatcher;
+    findAllByPlaceholderText: FindAllMatcher;
+    findAllByRole: QueryAllMatcher;
+    findAllByTestId: QueryAllMatcher;
+    findAllByText: QueryAllMatcher;
+    findAllByTitle: QueryAllMatcher;
+    findByAltText: QueryMatcher;
+    findByDisplayValue: QueryMatcher;
+    findByLabelText: FindMatcher;
+    findByPlaceholderText: FindMatcher;
+    findByRole: QueryMatcher;
+    findByTestId: QueryMatcher;
+    findByText: QueryMatcher;
+    findByTitle: QueryMatcher;
+    getAllByAltText: QueryAllMatcher;
+    getAllByDisplayValue: QueryAllMatcher;
+    getAllByLabelText: QueryAllMatcher;
+    getAllByPlaceholderText: QueryAllMatcher;
+    getAllByRole: QueryAllMatcher;
+    getAllByTestId: QueryAllMatcher;
+    getAllByText: QueryAllMatcher;
+    getAllByTitle: QueryAllMatcher;
+    getByAltText: GetMatcher;
+    getByDisplayValue: GetMatcher;
+    getByLabelText: GetMatcher;
+    getByPlaceholderText: GetMatcher;
+    getByRole: GetMatcher;
+    getByTestId: GetMatcher;
+    getByText: GetMatcher;
+    getByTitle: GetMatcher;
+    getNodeText: GetMatcher;
+    queryAllByAltText: QueryAllMatcher;
+    queryAllByAttribute: QueryAllMatcher;
+    queryAllByDisplayValue: QueryAllMatcher;
+    queryAllByLabelText: QueryAllMatcher;
+    queryAllByPlaceholderText: QueryAllMatcher;
+    queryAllByRole: QueryAllMatcher;
+    queryAllByTestId: QueryAllMatcher;
+    queryAllByText: QueryAllMatcher;
+    queryAllByTitle: QueryAllMatcher;
+    queryByAltText: QueryMatcher;
+    queryByAttribute: QueryMatcher;
+    queryByDisplayValue: QueryMatcher;
+    queryByLabelText: QueryMatcher;
+    queryByPlaceholderText: QueryMatcher;
+    queryByRole: QueryMatcher;
+    queryByTestId: QueryMatcher;
+    queryByText: QueryMatcher;
+    queryByTitle: QueryMatcher;
 }
 
 const isMatcherKey = (key: string) => {
@@ -71,12 +71,12 @@ const isMatcherKey = (key: string) => {
 }
 
 export type RenderResult = Matchers & {
-    element: HTMLElement
+    element: HTMLElement;
 }
 
 export type RenderOptions = {
-    template?: string
-    container?: globalContainer
+    template?: string;
+    container?: globalContainer;
 }
 
 function getDocumentSnapshot(element) {

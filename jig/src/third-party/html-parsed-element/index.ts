@@ -1,6 +1,7 @@
 /*! (c) Andrea Giammarchi - ISC */
 // https://github.com/WebReflection/html-parsed-element/blob/master/cjs/index.js
 // With a small change to receive the window to perform document.addEventListener and custom elements registration
+/* eslint-disable */
 export const htmlParsedElementFactory = ((window) => {
     const DCL = 'DOMContentLoaded';
     const init = new WeakMap;

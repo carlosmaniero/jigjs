@@ -13,7 +13,7 @@ export class BrowserContentRender implements FragmentContentRender {
 
                 recreatedScript.setAttribute('jig-joy-checked', "true");
 
-                for (let attribute of script.getAttributeNames()) {
+                for (const attribute of script.getAttributeNames()) {
                     recreatedScript.setAttribute(attribute, script.getAttribute(attribute));
                 }
 

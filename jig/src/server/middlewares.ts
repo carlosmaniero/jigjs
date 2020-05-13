@@ -1,5 +1,5 @@
 export interface RequestWaitMiddleware {
-    wait: () => Promise<void>
+    wait: () => Promise<void>;
 }
 
 export const RequestWaitMiddleware = {
@@ -7,7 +7,7 @@ export const RequestWaitMiddleware = {
 }
 
 export interface BeforeFlushRequest {
-    beforeFlushRequest: () => void
+    beforeFlushRequest: () => void;
 }
 
 export const BeforeFlushRequest = {

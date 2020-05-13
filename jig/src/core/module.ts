@@ -4,9 +4,9 @@ import {componentFactoryFor, JigWindow, RehydrateService} from "../components/co
 export type ModuleProvider<T> = DIRegistration<T> & { provide: DIInjectionToken<T> };
 
 interface JigModuleProps {
-    components?: any[],
-    providers?: ModuleProvider<any>[],
-    modules?: JigModule[]
+    components?: any[];
+    providers?: ModuleProvider<any>[];
+    modules?: JigModule[];
 }
 
 type RegistrationCallback = (container: Container) => JigModule;

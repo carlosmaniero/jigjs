@@ -13,13 +13,13 @@ export class BrowserRehydrateService implements RehydrateService {
     }
 
     getContext<T>(contextName: string): T {
-        return this.contextMap()[contextName];
+        return this.contextMap<T>()[contextName];
     }
 
-    updateContext<T>(contextName: string, object: T): void {
-    }
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    updateContext<T>(): void {}
 
-    private contextMap() {
+    private contextMap<T>(): Record<string, T> {
         const script: HTMLScriptElement =
             this.document.getElementById('jig-rehydrate-context');
 

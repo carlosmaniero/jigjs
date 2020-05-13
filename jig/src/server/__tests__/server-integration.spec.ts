@@ -13,8 +13,7 @@ import {Component, html, RenderResult} from "../../components/component";
 import {ServerTemplateController, ServerTemplateControllerResolver} from "../controller";
 import {serverComponentModule} from "../../components/server/module";
 import {serverFragmentModule} from "../../fragments/server/module";
-
-const request = require("supertest");
+import request from "supertest";
 
 describe('Jig Joy Server', () => {
     @Component('my-component')

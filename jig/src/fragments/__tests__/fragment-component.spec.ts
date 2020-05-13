@@ -154,14 +154,14 @@ describe('Fragment Component', () => {
 
     describe('controlling the render', () => {
         it('returns a placeholder until the render is not completed', async () => {
-            const responseHtml = '<b>Hey</b>';
-
             const fragmentResolverMock = {
-                resolve: () => new Promise(() => {})
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
+                resolve: <T>(): Promise<T> => new Promise(() => {})
             };
 
             const fragmentContentRenderMock = {
-                render:  () => new Promise(() => {})
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
+                render:  <T>(): Promise<T> => new Promise(() => {})
             };
 
             const options = {url: 'http://localhost:3000/'};

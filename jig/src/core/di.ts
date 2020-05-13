@@ -88,9 +88,9 @@ type Constructor<T> = {
 type InjectionToken = string | { InjectionToken: string };
 
 type ClassToBeInjectable<T> = {
-    injectableClass: Constructor<T>,
-    injectionTokens: InjectionToken[],
-    singleton: boolean
+    injectableClass: Constructor<T>;
+    injectionTokens: InjectionToken[];
+    singleton: boolean;
 }
 const toBeInjectable: ClassToBeInjectable<unknown>[] = [];
 

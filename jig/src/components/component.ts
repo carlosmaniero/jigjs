@@ -6,23 +6,23 @@ import {Platform} from "../core/platform";
 export const html = templateHtml;
 export type RenderResult = Renderable;
 export type JigWindow = Window & {
-    HTMLElement: typeof HTMLElement
+    HTMLElement: typeof HTMLElement;
 }
 
 export interface OnMount {
-    mount: () => void
+    mount: () => void;
 }
 
 export interface OnUnmount {
-    unmount: () => void
+    unmount: () => void;
 }
 
 export interface OnRehydrate {
-    rehydrate: () => void
+    rehydrate: () => void;
 }
 
 type RequiredComponentMethods = {
-    render: () => Renderable,
+    render: () => Renderable;
 } & (OnMount | OnUnmount | OnRehydrate | {});
 
 type Constructor<T> = {
@@ -41,8 +41,8 @@ export const RehydrateService = {
     InjectionToken: 'RehydrateService'
 }
 type Factory = {
-    registerComponent: (window: JigWindow, container: Container) => void,
-    componentSelector: string
+    registerComponent: (window: JigWindow, container: Container) => void;
+    componentSelector: string;
 };
 
 export const componentFactoryFor = <T extends RequiredComponentMethods>(component: Constructor<T>) => {
@@ -51,8 +51,9 @@ export const componentFactoryFor = <T extends RequiredComponentMethods>(componen
     return factory;
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export const StateFactoryWithValue = <T extends Object>(changeCallback: () => void) => (value: T) => {
-    for (let key in value) {
+    for (const key in value) {
         if (value.hasOwnProperty(key) && typeof value[key] == 'object') {
             (value as any)[key] = StateFactoryWithValue(changeCallback)(value[key])
         }
@@ -79,7 +80,8 @@ export const State = () => (target: any, propertyKey: string) => {
     Reflect.defineMetadata("design:type", propertyKey, target, "stateProperty");
 }
 
-export const Prop = () => (target: any, propertyKey: string) => {
+// eslint-disable-next-line @typescript-eslint/ban-types
+export const Prop = () => (target: Object, propertyKey: string) => {
     const props = Reflect.getMetadata("design:type", target, "componentProperties") || [];
     Reflect.defineMetadata("design:type", [...props, propertyKey], target, "componentProperties");
 }

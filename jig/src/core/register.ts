@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import {configureJSDOM} from "./dom";
 
-declare var global: any
+declare let global: any
 
 export const register = () => {
     if (typeof window === 'undefined') {

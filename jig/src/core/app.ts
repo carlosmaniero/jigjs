@@ -3,8 +3,8 @@ import {JigModule} from "./module";
 import {Component, componentFactoryFor, JigWindow} from "../components/component";
 
 export interface EntryPointOptions {
-    bootstrap: new(...args: unknown[]) => any,
-    modules?: JigModule[]
+    bootstrap: new(...args: unknown[]) => any;
+    modules?: JigModule[];
 }
 
 const BootstrapInjectionToken = 'JigBootstrap';

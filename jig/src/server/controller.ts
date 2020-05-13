@@ -7,11 +7,11 @@ import {PerRequestContainer} from "./di";
 import {configureJSDOM} from "../core/dom";
 
 export interface ServerTemplateControllerResolver {
-    app: JigApp,
-    templatePath: string,
-    encode?: string,
-    res: Response,
-    req: Request,
+    app: JigApp;
+    templatePath: string;
+    encode?: string;
+    res: Response;
+    req: Request;
 }
 
 @GlobalInjectable()

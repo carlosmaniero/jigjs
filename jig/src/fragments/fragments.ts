@@ -1,12 +1,12 @@
 export interface FragmentOptions {
     url: string;
     async?: boolean;
-    headers?: Record<string, string>
+    headers?: Record<string, string>;
 }
 
 export interface FragmentResponse {
     html: string;
-    dependencies: string[]
+    dependencies: string[];
 }
 
 export interface FragmentResolver {
@@ -18,7 +18,7 @@ export const FragmentResolver = {
 }
 
 export interface FragmentContentRender {
-    render: (html: string) => HTMLElement
+    render: (html: string) => HTMLElement;
 }
 
 export const FragmentContentRender = {

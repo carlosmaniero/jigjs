@@ -1,6 +1,7 @@
 import morphdom from "morphdom";
 
-const createPlaceholderForIndex = (valueIndex: number) => `__render_placeholder_${valueIndex}_render_placeholder__`
+const createPlaceholderForIndex = (valueIndex: number): string =>
+    `__render_placeholder_${valueIndex}_render_placeholder__`
 
 const NODES = {
     ELEMENT_NODE: 1,
@@ -8,7 +9,7 @@ const NODES = {
 }
 
 export interface HtmlTemplate {
-    renderAt: (element: Node & ParentNode) => DocumentFragment
+    renderAt: (element: Node & ParentNode) => DocumentFragment;
 }
 
 export type Renderable = HtmlTemplate | HTMLElement;
@@ -22,17 +23,73 @@ const customPropertyAttributePrefix = 'jig-custom-property-';
 
 const isCustomProperty = (attributeName: string) => attributeName.startsWith(customPropertyAttributePrefix);
 
-function hasPlaceHolder(text: string) {
+
+function cloneActualElementFromFragment(bindElement: Node & ParentNode, documentFragment: DocumentFragment) {
+    const clone: HTMLElement = bindElement.cloneNode() as HTMLElement;
+    clone.innerHTML = '';
+
+    const content = documentFragment;
+
+    while (content.childNodes.length !== 0) {
+        clone.appendChild(content.childNodes[0]);
+    }
+    return clone;
+}
+
+type HTMLElementWithJigProperties = HTMLElement & {
+    shouldUpdate?: (to: HTMLElement) => boolean;
+    events: Record<string, (event: Event) => void>;
+}
+
+const applyToDom = (bindElement: Node & ParentNode, clone: HTMLElement): void => {
+    morphdom(bindElement, clone, {
+        onBeforeElUpdated: (from: HTMLElementWithJigProperties, to: HTMLElementWithJigProperties) => {
+            if (from.shouldUpdate) {
+                return from.shouldUpdate(to);
+            }
+
+            const events = to.events;
+            if (events) {
+                const fromEvents = from.events || {};
+
+                Object.keys(events)
+                    .filter((event) => !fromEvents[event])
+                    .forEach((event) => {
+                        from.addEventListener(event, events[event])
+                        fromEvents[event] = events[event];
+                    });
+
+                from.events = fromEvents;
+            }
+            return true;
+        }
+    });
+}
+
+export const render = (renderable: Renderable) =>
+    (bindElement: Node & ParentNode): void => {
+        if ('renderAt' in renderable) {
+            const clone = cloneActualElementFromFragment(bindElement, renderable.renderAt(bindElement));
+            applyToDom(bindElement, clone);
+            return;
+        }
+
+        const clone = cloneActualElementFromFragment(bindElement, bindElement.ownerDocument.createDocumentFragment());
+        clone.appendChild(renderable);
+        applyToDom(bindElement, clone);
+    }
+
+const hasPlaceHolder = (text: string): boolean => {
     return text.indexOf('__render_placeholder_') >= 0 && text.indexOf('_render_placeholder__') >= 0;
 }
 
-function getPlaceHolderIndex(placeholder: string): number[] {
+const getPlaceHolderIndex = (placeholder: string): number[] => {
     return placeholder.match(/(__render_placeholder_)(\d+)(_render_placeholder__)/g)
         .map((mathPlaceholder) =>
             parseInt(mathPlaceholder.match(/(__render_placeholder_)(\d+)(_render_placeholder__)/)[2]));
 }
 
-function fillArrayElementContent(element: ChildNode, placeholder: string, value) {
+const fillArrayElementContent = (element: ChildNode, placeholder: string, value): void => {
     const document = element.ownerDocument;
     const texts = element.textContent.split(placeholder);
     element.textContent = '';
@@ -62,7 +119,7 @@ function fillArrayElementContent(element: ChildNode, placeholder: string, value)
     });
 }
 
-function fillContentPlaceholder(content: DocumentFragment | ChildNode, values: any[]) {
+const fillContentPlaceholder = (content: DocumentFragment | ChildNode, values: unknown[]): void => {
     content.childNodes.forEach((element) => {
         if (isTextNode(element)) {
             values.forEach((value, i) => {
@@ -74,7 +131,7 @@ function fillContentPlaceholder(content: DocumentFragment | ChildNode, values: a
                     return
                 }
 
-                element.textContent = element.textContent.replace(placeholder, value);
+                element.textContent = element.textContent.replace(placeholder, value as string);
             });
             return;
         }
@@ -85,7 +142,7 @@ function fillContentPlaceholder(content: DocumentFragment | ChildNode, values: a
 interface AttributeHandlerProps {
     attributeName: string;
     element: HTMLElement;
-    values: any[]
+    values: unknown[];
 }
 
 interface AttributeHandler {
@@ -95,7 +152,7 @@ interface AttributeHandler {
 
 const customPropertyHandler: AttributeHandler = {
     handle(props: AttributeHandlerProps): void {
-        let {attributeName, element, values}: AttributeHandlerProps = props;
+        const {attributeName, element, values}: AttributeHandlerProps = props;
         const originalAttribute = element.getAttribute(attributeName);
         const placeHolderIndexes = getPlaceHolderIndex(originalAttribute);
         const propsKey = attributeName.replace(customPropertyAttributePrefix, '');
@@ -112,7 +169,7 @@ const customPropertyHandler: AttributeHandler = {
                 (element as any).props[propsKey] = value;
             } else {
                 (element as any).props[propsKey] =
-                    originalAttribute.replace(placeholder, value);
+                    originalAttribute.replace(placeholder, value as string);
             }
 
             element.removeAttribute(attributeName);
@@ -125,7 +182,7 @@ const customPropertyHandler: AttributeHandler = {
         placeHolderIndexes.forEach((placeholderIndex) => {
             const value = values[placeholderIndex];
             const placeholder = createPlaceholderForIndex(placeholderIndex);
-            attributeToAdd = attributeToAdd.replace(placeholder, value)
+            attributeToAdd = attributeToAdd.replace(placeholder, value as string)
         });
 
         (element as any).props[propsKey] = attributeToAdd;
@@ -137,7 +194,7 @@ const customPropertyHandler: AttributeHandler = {
 
 const eventAttributeHandler = {
     handle(props: AttributeHandlerProps): void {
-        let {attributeName, element, values}: AttributeHandlerProps = props;
+        const {attributeName, element, values}: AttributeHandlerProps = props;
         const originalAttribute = element.getAttribute(attributeName);
         const placeHolderIndex = getPlaceHolderIndex(originalAttribute)[0];
         const placeholder = createPlaceholderForIndex(placeHolderIndex);
@@ -145,18 +202,18 @@ const eventAttributeHandler = {
 
         this.validate(originalAttribute, placeholder, attributeName, value);
 
-        const event = attributeName.replace('on', '');
+        const event = attributeName.replace('on', '') as keyof HTMLElementEventMap;
 
         (element as any).events = (element as any).events || {};
         (element as any).events[event] = value;
 
-        element.addEventListener(event, value);
+        element.addEventListener(event, value as () => void);
         element.removeAttribute(attributeName);
     },
     isHandlerOf(element: HTMLElement, attributeName: string): boolean {
         return attributeName.startsWith('on');
     },
-    validate(originalAttribute: string, placeholder: string, attributeName, value: any) {
+    validate(originalAttribute: string, placeholder: string, attributeName, value: unknown): void {
         if (originalAttribute !== placeholder) {
             throw new Error(`${attributeName} must be a function it was "${originalAttribute.replace(placeholder, '[function]')}"`);
         }
@@ -178,7 +235,7 @@ const commonAttributeHandler = {
         placeHolderIndexes.forEach((placeholderIndex) => {
             const value = values[placeholderIndex];
             const placeholder = createPlaceholderForIndex(placeholderIndex);
-            attributeToAdd = attributeToAdd.replace(placeholder, value)
+            attributeToAdd = attributeToAdd.replace(placeholder, value as string)
         })
 
         element.setAttribute(attributeName, attributeToAdd);
@@ -195,7 +252,7 @@ const attributeHandlers: AttributeHandler[] = [
     commonAttributeHandler
 ]
 
-function fillAttributes(element: DocumentFragment | ChildNode, values: any[]) {
+const fillAttributes = (element: DocumentFragment | ChildNode, values: unknown[]) => {
     if (isElement(element)) {
         const attributes = element.getAttributeNames();
 
@@ -216,16 +273,16 @@ function fillAttributes(element: DocumentFragment | ChildNode, values: any[]) {
     element.childNodes.forEach((child) => fillAttributes(child, values));
 }
 
-function fillPlaceholders(content: DocumentFragment, values: any[]) {
+const fillPlaceholders = (content: DocumentFragment, values: unknown[]): void => {
     fillContentPlaceholder(content, values);
     fillAttributes(content, values);
 }
 
-function replaceCustomPropsSyntaxSugar(partialTemplate: string) {
+const replaceCustomPropsSyntaxSugar = (partialTemplate: string): string => {
     return partialTemplate.replace(customPropertySyntaxSugerAttributeRegex, `${customPropertyAttributePrefix + customPropertySyntaxSugarAttributeGroup}=`);
 }
 
-function createTemplateWithPlaceholders(template: TemplateStringsArray, values: any[]) {
+const createTemplateWithPlaceholders = (template: TemplateStringsArray, values: unknown[]) => {
     return template.map(
         (partialTemplate, index) => {
             const valuePlaceholder = index >= values.length ? '' : createPlaceholderForIndex(index);
@@ -233,13 +290,13 @@ function createTemplateWithPlaceholders(template: TemplateStringsArray, values: 
         }).join('');
 }
 
-function createTemplateElement(document: Document) {
+const createTemplateElement = (document: Document): HTMLTemplateElement => {
     return document.createElementNS('http://www.w3.org/1999/xhtml', 'template') as HTMLTemplateElement;
 }
 
-export const html = (template: TemplateStringsArray, ...values: any[]): Renderable => {
+export const html = (template: TemplateStringsArray, ...values: unknown[]): Renderable => {
     return {
-        renderAt: (element) => {
+        renderAt: (element): DocumentFragment => {
             const document = element.ownerDocument;
             const templateElement: HTMLTemplateElement = createTemplateElement(document);
             templateElement.innerHTML = createTemplateWithPlaceholders(template, values);
@@ -248,54 +305,4 @@ export const html = (template: TemplateStringsArray, ...values: any[]): Renderab
             return content;
         }
     }
-}
-
-function cloneActualElementFromFragment(bindElement: Node & ParentNode, documentFragment: DocumentFragment) {
-    const clone: HTMLElement = bindElement.cloneNode() as HTMLElement;
-    clone.innerHTML = '';
-
-    const content = documentFragment;
-
-    while (content.childNodes.length !== 0) {
-        clone.appendChild(content.childNodes[0]);
-    }
-    return clone;
-}
-
-function applyToDom(bindElement: Node & ParentNode, clone: HTMLElement) {
-    morphdom(bindElement, clone, {
-        onBeforeElUpdated: (from: HTMLElement, to: HTMLElement) => {
-            if ((from as any).shouldUpdate) {
-                return (from as any).shouldUpdate(to);
-            }
-
-            const events = (to as any).events;
-            if (events) {
-                const fromEvents = (from as any).events || {};
-
-                Object.keys(events)
-                    .filter((event) => !fromEvents[event])
-                    .forEach((event) => {
-                        from.addEventListener(event, events[event])
-                        fromEvents[event] = events[event];
-                    });
-
-                (from as any).events = fromEvents;
-            }
-            return true;
-        }
-    });
-}
-
-export const render = (renderable: Renderable) =>
-    (bindElement: Node & ParentNode) => {
-        if ('renderAt' in renderable) {
-            const clone = cloneActualElementFromFragment(bindElement, renderable.renderAt(bindElement));
-            applyToDom(bindElement, clone);
-            return;
-        }
-
-        const clone = cloneActualElementFromFragment(bindElement, bindElement.ownerDocument.createDocumentFragment());
-        clone.appendChild(renderable);
-        applyToDom(bindElement, clone);
 }

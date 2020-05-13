@@ -16,7 +16,7 @@ export abstract class FragmentComponent implements OnMount {
                           private readonly fragmentContentRender: FragmentContentRender) {
     }
 
-    async mount() {
+    async mount(): Promise<void> {
         try {
             this.state.response = await this.fragmentResolver.resolve(this.options);
         } catch (e) {
@@ -56,9 +56,9 @@ export abstract class FragmentComponent implements OnMount {
 
 
 interface FragmentComponentFactoryProps {
-    selector: string,
-    options: FragmentOptions,
-    onErrorRender?: (error: Error) => RenderResult
+    selector: string;
+    options: FragmentOptions;
+    onErrorRender?: (error: Error) => RenderResult;
 }
 
 @GlobalInjectable()
@@ -69,7 +69,8 @@ export class FragmentComponentFactory {
     }
 
     createFragment({selector, options, onErrorRender}: FragmentComponentFactoryProps) {
-        const factory = this;
+        const fragmentResolver = this.fragmentResolver;
+        const fragmentContentRender = this.fragmentContentRender;
 
         @Component(selector)
         class DynamicallyCreatedFragment extends FragmentComponent {
@@ -77,7 +78,7 @@ export class FragmentComponentFactory {
             readonly options: FragmentOptions = options;
 
             constructor() {
-                super(factory.fragmentResolver, factory.fragmentContentRender);
+                super(fragmentResolver, fragmentContentRender);
             }
 
             protected onErrorRender(error: Error): RenderResult {

@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "lint": "eslint './**/*.ts' --quiet",
     "build": "webpack --config webpack.library.config.js",
     "test": "jest"
   },
@@ -24,6 +25,9 @@
     "@types/express": "^4.17.6",
     "@types/jest": "^25.2.1",
     "@types/jsdom": "^16.2.1",
+    "@typescript-eslint/eslint-plugin": "^2.33.0",
+    "@typescript-eslint/parser": "^2.33.0",
+    "eslint": "^7.0.0",
     "jest-fetch-mock": "^3.0.3",
     "wait-for-expect": "^3.0.2",
     "webpack": "^4.43.0",
