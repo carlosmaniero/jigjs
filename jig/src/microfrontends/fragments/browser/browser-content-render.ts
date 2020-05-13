@@ -1,4 +1,4 @@
-import {Injectable} from "../../core/di";
+import {Injectable} from "../../../core/di";
 import {FragmentContentRender} from "../fragments";
 
 @Injectable([FragmentContentRender])

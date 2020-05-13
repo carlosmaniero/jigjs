@@ -1,4 +1,4 @@
-import {JigModule} from "../../core/module";
+import {JigModule} from "../../../core/module";
 import {FragmentComponentFactory} from "../fragment-component";
 import {FragmentContentRender, FragmentResolver} from "../fragments";
 import {BrowserContentRender} from "./browser-content-render";

@@ -1,5 +1,5 @@
 import {JigApp} from "../../../jig/src/core/app";
-import {FragmentComponentFactory} from "../../../jig/src/fragments/fragment-component";
+import {FragmentComponentFactory} from "../../../jig/src/microfrontends/fragments/fragment-component";
 import {JigModule} from "../../../jig/src/core/module";
 import {Component, html, OnRehydrate, RenderResult, State} from "../../../jig/src/components/component";
 

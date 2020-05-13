@@ -1,5 +1,5 @@
 import {FragmentContentRender} from "../fragments";
-import {Injectable} from "../../core/di";
+import {Injectable} from "../../../core/di";
 
 @Injectable([FragmentContentRender.InjectionToken])
 export class ServerContentRender implements FragmentContentRender {

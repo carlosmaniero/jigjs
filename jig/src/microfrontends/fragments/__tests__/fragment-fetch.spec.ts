@@ -1,4 +1,4 @@
-import '../../core/register';
+import '../../../core/register';
 import fetchMock from 'jest-fetch-mock';
 import {FragmentFetch} from "../fragment-fetch";
 import {FragmentResolverError} from "../fragments";

@@ -1,6 +1,6 @@
 import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentResponse} from "./fragments";
-import {GlobalInjectable, Inject} from "../core/di";
-import {Component, OnMount, RenderResult, State} from "../components/component";
+import {GlobalInjectable, Inject} from "../../core/di";
+import {Component, OnMount, RenderResult, State} from "../../components/component";
 
 interface FragmentStateComponent {
     response?: FragmentResponse;

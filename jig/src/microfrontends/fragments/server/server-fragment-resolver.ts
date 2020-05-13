@@ -1,7 +1,7 @@
 import {FragmentOptions, FragmentResolver, FragmentResponse} from "../fragments";
 import {FragmentFetch} from "../fragment-fetch";
-import {RequestWaitMiddleware} from "../../server/middlewares";
-import {Injectable, Singleton} from "../../core/di";
+import {RequestWaitMiddleware} from "../../../server/middlewares";
+import {Injectable, Singleton} from "../../../core/di";
 
 @Singleton([RequestWaitMiddleware.InjectionToken])
 export class ServerFragmentResolverWaitMiddleware implements RequestWaitMiddleware {

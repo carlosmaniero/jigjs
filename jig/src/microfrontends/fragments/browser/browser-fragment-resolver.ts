@@ -1,4 +1,4 @@
-import {Injectable} from "../../core/di";
+import {Injectable} from "../../../core/di";
 import {FragmentOptions, FragmentResolver, FragmentResponse} from "../fragments";
 import {FragmentFetch} from "../fragment-fetch";
 

@@ -1,12 +1,11 @@
-import '../../core/register';
 import {FragmentComponent, FragmentComponentFactory} from "../fragment-component";
 import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentResponse} from "../fragments";
-import {globalContainer} from "../../core/di";
-import {ServerRehydrateService} from "../../components/server/server-rehydrate-service";
-import {Component, componentFactoryFor, html, RehydrateService, RenderResult} from "../../components/component";
+import {globalContainer} from "../../../core/di";
+import {ServerRehydrateService} from "../../../components/server/server-rehydrate-service";
+import {Component, componentFactoryFor, html, RehydrateService, RenderResult} from "../../../components/component";
 import * as testingLibrary from '@testing-library/dom';
-import {Platform} from "../../core/platform";
-import {configureJSDOM} from "../../core/dom";
+import {Platform} from "../../../core/platform";
+import {configureJSDOM} from "../../../core/dom";
 
 describe('Fragment Component', () => {
     beforeEach(() => {

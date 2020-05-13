@@ -1,4 +1,4 @@
-import '../../core/register';
+import '../../../core/register';
 import {BrowserContentRender} from "../browser/browser-content-render";
 
 describe('Browser Content Render', () => {

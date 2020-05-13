@@ -1,6 +1,6 @@
 import 'isomorphic-fetch'
 import {FragmentOptions, FragmentResolverError, FragmentResponse} from "./fragments";
-import {GlobalInjectable} from "../core/di";
+import {GlobalInjectable} from "../../core/di";
 
 @GlobalInjectable()
 export class FragmentFetch {

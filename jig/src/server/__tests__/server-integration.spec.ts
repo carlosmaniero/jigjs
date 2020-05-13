@@ -1,18 +1,15 @@
-import '../../core/register'
-import '../../fragments/server/server-fragment-module';
-import '../../components/server/server-rehydrate-service';
 import {JigServer} from "../server";
 import {JigApp} from "../../core/app";
 import {JigModule} from "../../core/module";
 import * as path from "path";
 import {BeforeFlushRequest, RequestWaitMiddleware} from "../middlewares";
-import {FragmentFetch} from "../../fragments/fragment-fetch";
-import {FragmentComponentFactory} from "../../fragments/fragment-component";
+import {FragmentFetch} from "../../microfrontends/fragments/fragment-fetch";
+import {FragmentComponentFactory} from "../../microfrontends/fragments/fragment-component";
 import waitForExpect from "wait-for-expect";
 import {Component, html, RenderResult} from "../../components/component";
 import {ServerTemplateController, ServerTemplateControllerResolver} from "../controller";
 import {serverComponentModule} from "../../components/server/module";
-import {serverFragmentModule} from "../../fragments/server/module";
+import {serverFragmentModule} from "../../microfrontends/fragments/server/module";
 import request from "supertest";
 
 describe('Jig Joy Server', () => {
