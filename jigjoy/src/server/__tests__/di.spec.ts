@@ -32,6 +32,7 @@ describe('Server Dependency Injection', () => {
         const response = jest.fn();
 
         const requestContainer = new PerRequestContainer().createRequestContainer(request as any, response as any, dom);
+        requestContainer.register(MyClass, MyClass);
 
         expect(requestContainer.resolve(MyClass).request).toEqual(request);
         expect(requestContainer.resolve(MyClass).response).toEqual(response);

@@ -1,7 +1,3 @@
-import {globalContainer, registerContextualDependencies} from "../core/di";
+import {globalContainer} from "../core/di";
 
-export const createContainer = () => {
-    const requestContainer = globalContainer.createChildContainer();
-    registerContextualDependencies(requestContainer);
-    return requestContainer;
-}
+export const createContainer = () => globalContainer.createChildContainer();

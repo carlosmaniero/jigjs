@@ -1,17 +1,12 @@
 import '../../../jigjoy/src/core/register';
-import '../../../jigjoy/src/fragments/browser/browser-fragment-module'
-import "../../../jigjoy/src/components/browser/browser-rehydrate-service"
-
 import {app} from "./app";
-import {createContainer} from "../../../jigjoy/src/browser/di";
-import {DocumentInjectionToken, WindowInjectionToken} from "../../../jigjoy/src/core/dom";
-import {registerContextualDependencies} from "../../../jigjoy/src/core/di";
+import {JigBrowser} from "../../../jigjoy/src/browser/browser";
+import {browserComponentModule} from "../../../jigjoy/src/components/browser/module";
+import {browserFragmentModule} from "../../../jigjoy/src/fragments/browser/module";
 
-const requestContainer = createContainer();
 
-requestContainer.register(DocumentInjectionToken, {useValue: document});
-requestContainer.register(WindowInjectionToken, {useValue: window});
-
-registerContextualDependencies(requestContainer);
-
-app.registerCustomElementClass(window as any, requestContainer);
+new JigBrowser(
+    app
+        .withModule(browserComponentModule())
+        .withModule(browserFragmentModule())
+).init();

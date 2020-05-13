@@ -2,6 +2,7 @@ import express, {Express} from 'express';
 import {JigJoyApp} from "../core/app";
 import {globalContainer} from "../core/di";
 import {ServerTemplateController} from "./controller";
+import {ModuleProvider} from "../core/module";
 
 export interface TemplateRoute {
     route: string,
@@ -13,6 +14,7 @@ export interface TemplateRoute {
 export interface JigJoyServerOptions {
     assetsPath: string,
     port: number,
+    customProviders?: ModuleProvider<any>[],
     routes: TemplateRoute[]
 }
 
@@ -24,7 +26,12 @@ export class JigJoyServer {
         this.app = express();
         this.use = this.app.use;
 
-        globalContainer.register(ServerTemplateController, ServerTemplateController);
+        options.customProviders?.forEach((provider) => {
+            globalContainer.register(provider.provide, provider as any);
+        });
+
+        globalContainer.registerAbsent(ServerTemplateController, ServerTemplateController);
+
         this.setupStaticDirectory();
         this.setupStaticRoutes();
     }

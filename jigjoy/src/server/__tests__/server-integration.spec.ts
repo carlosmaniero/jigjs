@@ -10,6 +10,9 @@ import {FragmentFetch} from "../../fragments/fragment-fetch";
 import {FragmentComponentFactory} from "../../fragments/fragment-component";
 import waitForExpect from "wait-for-expect";
 import {Component, html, RenderResult} from "../../components/component";
+import {ServerTemplateController, ServerTemplateControllerResolver} from "../controller";
+import {serverComponentModule} from "../../components/server/module";
+import {serverFragmentModule} from "../../fragments/server/module";
 
 const request = require("supertest");
 
@@ -30,9 +33,8 @@ describe('Jig Joy Server', () => {
                     route: '/my-route',
                     templatePath: path.join(__dirname, 'basic.html'),
                     app: new JigJoyApp({
-                        module: new JigJoyModule({}),
                         bootstrap: DefaultBootstrapComponent
-                    })
+                    }).withModule(serverComponentModule())
                 }
             ]
         });
@@ -42,6 +44,37 @@ describe('Jig Joy Server', () => {
             .expect(200);
 
         expect(response.text).toContain('Hello, World!');
+    });
+
+    it('has a module to override configuration', async () => {
+        class MyController extends ServerTemplateController {
+            resolve({res}: ServerTemplateControllerResolver) {
+                res.send("Hello, Universe!");
+            }
+        }
+
+        const server = new JigJoyServer({
+            port: 4200,
+            assetsPath: '/assets/',
+            routes: [
+                {
+                    route: '/my-route',
+                    templatePath: path.join(__dirname, 'basic.html'),
+                    app: new JigJoyApp({
+                        bootstrap: DefaultBootstrapComponent
+                    })
+                }
+            ],
+            customProviders: [{
+                provide: ServerTemplateController, useClass: MyController
+            }]
+        });
+
+        const response = await request(server.app)
+            .get('/my-route')
+            .expect(200);
+
+        expect(response.text).toBe('Hello, Universe!');
     });
 
     it('calls all BeforeFlushRequest', async () => {
@@ -55,20 +88,22 @@ describe('Jig Joy Server', () => {
                     route: '/my-route',
                     templatePath: path.join(__dirname, 'basic.html'),
                     app: new JigJoyApp({
-                        module: new JigJoyModule({
-                            providers: [
-                                {
-                                    provide: BeforeFlushRequest.InjectionToken,
-                                    useValue: {beforeFlushRequest: firstMock}
-                                 },
-                                {
-                                    provide: BeforeFlushRequest.InjectionToken,
-                                    useValue: {beforeFlushRequest: secondMock}
-                                },
-                            ]
-                        }),
+                        modules: [
+                            new JigJoyModule({
+                                providers: [
+                                    {
+                                        provide: BeforeFlushRequest.InjectionToken,
+                                        useValue: {beforeFlushRequest: firstMock}
+                                     },
+                                    {
+                                        provide: BeforeFlushRequest.InjectionToken,
+                                        useValue: {beforeFlushRequest: secondMock}
+                                    },
+                                ]
+                            })
+                        ],
                         bootstrap: DefaultBootstrapComponent
-                    })
+                    }).withModule(serverComponentModule())
                 }
             ]
         });
@@ -94,24 +129,26 @@ describe('Jig Joy Server', () => {
                     route: '/my-route',
                     templatePath: path.join(__dirname, 'basic.html'),
                     app: new JigJoyApp({
-                        module: new JigJoyModule({
-                            providers: [
-                                {
-                                    provide: RequestWaitMiddleware.InjectionToken,
-                                    useValue: {
-                                        wait: () => new Promise(resolve => firstResolver = resolve)
+                        modules: [
+                            new JigJoyModule({
+                                providers: [
+                                    {
+                                        provide: RequestWaitMiddleware.InjectionToken,
+                                        useValue: {
+                                            wait: () => new Promise(resolve => firstResolver = resolve)
+                                        }
+                                    },
+                                    {
+                                        provide: RequestWaitMiddleware.InjectionToken,
+                                        useValue: {
+                                            wait: () => new Promise(resolve => secondResolver = resolve)
+                                        }
                                     }
-                                },
-                                {
-                                    provide: RequestWaitMiddleware.InjectionToken,
-                                    useValue: {
-                                        wait: () => new Promise(resolve => secondResolver = resolve)
-                                    }
-                                }
-                            ]
-                        }),
+                                ]
+                            })
+                        ],
                         bootstrap: DefaultBootstrapComponent
-                    })
+                    }).withModule(serverComponentModule())
                 }
             ]
         });
@@ -161,12 +198,11 @@ describe('Jig Joy Server', () => {
                     templatePath: path.join(__dirname, 'basic.html'),
                     app: new JigJoyApp({
                         bootstrap: BootstrapComponent,
-                        module: new JigJoyModule({
+                    })
+                        .withModule(serverComponentModule())
+                        .withModule(serverFragmentModule())
+                        .withModule(new JigJoyModule({
                             providers: [
-                                {
-                                    provide: FragmentComponentFactory,
-                                    useClass: FragmentComponentFactory,
-                                },
                                 {
                                     provide: FragmentFetch,
                                     useValue: {
@@ -180,21 +216,21 @@ describe('Jig Joy Server', () => {
                                     }
                                 },
                             ]
-                        })
-                    }).registerModuleUsingContainer((container) => {
-                        const fragmentComponentFactory = container.resolve(FragmentComponentFactory);
+                        }))
+                        .registerModuleUsingContainer((container) => {
+                            const fragmentComponentFactory = container.resolve(FragmentComponentFactory);
 
-                        return new JigJoyModule({
-                            components: [
-                                fragmentComponentFactory.createFragment({
-                                    selector: 'first-fragment',
-                                    options: {
-                                        url: 'http://localhost:8000',
-                                    }
-                                })
-                            ]
+                            return new JigJoyModule({
+                                components: [
+                                    fragmentComponentFactory.createFragment({
+                                        selector: 'first-fragment',
+                                        options: {
+                                            url: 'http://localhost:8000',
+                                        }
+                                    })
+                                ]
+                            })
                         })
-                    })
                 }
             ]
         });

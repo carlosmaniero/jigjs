@@ -1,8 +1,7 @@
 import {Container, DIInjectionToken, DIRegistration} from "./di";
 import {componentFactoryFor, JigJoyWindow, RehydrateService} from "../components/component";
 
-
-type ModuleProvider<T> = DIRegistration<T> & { provide: DIInjectionToken<T> };
+export type ModuleProvider<T> = DIRegistration<T> & { provide: DIInjectionToken<T> };
 
 interface JigJoyModuleProps {
     components?: any[],
@@ -20,8 +19,6 @@ export class JigJoyModule {
     }
 
     register(window: JigJoyWindow, container) {
-        const rehydrateService: RehydrateService = container.resolve(RehydrateService.InjectionToken);
-
         this.props.modules?.forEach((module) => {
             module.register(window, container);
         });

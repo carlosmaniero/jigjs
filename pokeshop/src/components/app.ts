@@ -28,12 +28,11 @@ export class Index implements OnRehydrate {
 
 export const app = new JigJoyApp({
     bootstrap: Index,
-    module: new JigJoyModule({
+    modules: [new JigJoyModule({
         providers: [
-            {provide: Platform, useValue: Platform.browser()},
             {provide: FragmentComponentFactory, useClass: FragmentComponentFactory}
         ]
-    })
+    })]
 })
     .registerModuleUsingContainer((container) => {
         const fragmentFactory: FragmentComponentFactory = container.resolve(FragmentComponentFactory);

@@ -28,6 +28,14 @@ export class Container {
     register<T>(token: TInjectionToken<T>, provider: ClassProvider<T>, options?: RegistrationOptions): DependencyContainer;
     register<T>(token: TInjectionToken<T>, provider: constructor<T>, options?: RegistrationOptions): DependencyContainer;
     register(token, provider, options?: RegistrationOptions): DependencyContainer {
+        const providerClass = provider.useClass || provider;
+        const isSingleton = (providerClass as any).isSingleton;
+
+        if (isSingleton) {
+            this.registerSingleton(providerClass, providerClass)
+            return this.registerInstance(token, this.resolve(providerClass));
+        }
+
         return this.container.register(token as any, provider as any, options as any);
     }
 
@@ -39,6 +47,18 @@ export class Container {
     registerSingleton<T>(token: constructor<T>): DependencyContainer;
     registerSingleton(from, to?): DependencyContainer {
         return this.container.registerSingleton(from, to);
+    }
+
+    registerAbsent<T>(token: TInjectionToken<T>, provider: ValueProvider<T>): DependencyContainer;
+    registerAbsent<T>(token: TInjectionToken<T>, provider: FactoryProvider<T>): DependencyContainer;
+    registerAbsent<T>(token: TInjectionToken<T>, provider: TokenProvider<T>, options?: RegistrationOptions): DependencyContainer;
+    registerAbsent<T>(token: TInjectionToken<T>, provider: ClassProvider<T>, options?: RegistrationOptions): DependencyContainer;
+    registerAbsent<T>(token: TInjectionToken<T>, provider: constructor<T>, options?: RegistrationOptions): DependencyContainer;
+    registerAbsent(token, provider, options?: RegistrationOptions) {
+        if (this.isRegistered(token, true)) {
+            return;
+        }
+        return this.register(token, provider, options);
     }
 
     reset(): void {
@@ -57,7 +77,7 @@ export class Container {
     }
 }
 
-export const globalContainer: any = new Container(container);
+export const globalContainer = new Container(container);
 
 export type DIRegistration<T> = ValueProvider<T> | FactoryProvider<T> | ClassProvider<T> | constructor<T>
 export type DIInjectionToken<T> = TInjectionToken<T>;
@@ -88,31 +108,6 @@ export const Singleton = (injectionTokens: InjectionToken[] = []) => (injectable
         injectionTokens,
         singleton: true
     });
+    injectableClass.isSingleton = true;
     return singleton()(injectableClass);
-}
-
-function getInjectionToken(token: InjectionToken) : string {
-    if (typeof token === 'string') {
-        return token;
-    }
-    return token.InjectionToken;
-}
-
-export const registerContextualDependencies = (requestContainer: Container) => {
-    toBeInjectable.forEach((requestInjectable) => {
-        if (requestInjectable.singleton) {
-            requestContainer.registerSingleton(requestInjectable.injectableClass)
-            requestInjectable.injectionTokens.forEach((token) => {
-                // Issue: https://github.com/microsoft/tsyringe/issues/27
-                requestContainer
-                    .registerInstance(getInjectionToken(token), requestContainer.resolve(requestInjectable.injectableClass));
-            });
-            return;
-        }
-        requestContainer.register(requestInjectable.injectableClass, {useClass: requestInjectable.injectableClass});
-
-        requestInjectable.injectionTokens.forEach((token) => {
-            requestContainer.register(getInjectionToken(token), requestInjectable.injectableClass);
-        });
-    });
 }

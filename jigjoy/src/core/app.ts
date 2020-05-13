@@ -1,10 +1,10 @@
 import {Container, globalContainer, Inject} from "./di";
-import {JigJoyModule} from "./module";
+import {JigJoyModule, ModuleProvider} from "./module";
 import {Component, componentFactoryFor, JigJoyWindow} from "../components/component";
 
 export interface EntryPointOptions {
     bootstrap: new(...args: unknown[]) => any,
-    module?: JigJoyModule
+    modules?: JigJoyModule[]
 }
 
 const BootstrapInjectionToken = 'JigJoyBootstrap';
@@ -20,8 +20,10 @@ export class JigJoyComponent {
 
 export class JigJoyApp {
     private readonly moduleRegisters: ((container: Container) => JigJoyModule)[] = [];
+    private modules: JigJoyModule[];
 
     constructor(private readonly options: Readonly<EntryPointOptions>) {
+        this.modules = options.modules || [];
     }
 
     registerModuleUsingContainer(moduleRegister: (container: Container) => JigJoyModule) {
@@ -29,17 +31,26 @@ export class JigJoyApp {
         return this;
     }
 
+    withModule(module: JigJoyModule) {
+        this.modules = [...this.modules, module];
+        return this;
+    }
+
     registerCustomElementClass(window: JigJoyWindow, container = globalContainer) {
-        container.register(JigJoyComponent, JigJoyComponent);
-        this.options.module?.register(window, container);
+        this.modules.forEach((module) => {
+            module.register(window, container);
+        });
+
         this.moduleRegisters.forEach((moduleRegister) => {
             moduleRegister(container).register(window, container);
         });
 
+        container.register(this.options.bootstrap, this.options.bootstrap);
         const bootstrapFactory = componentFactoryFor(this.options.bootstrap);
         bootstrapFactory.registerComponent(window, container);
         container.register(BootstrapInjectionToken, {useValue: bootstrapFactory.componentSelector});
 
+        container.register(JigJoyComponent, JigJoyComponent);
         componentFactoryFor(JigJoyComponent).registerComponent(window, container);
     }
 }
