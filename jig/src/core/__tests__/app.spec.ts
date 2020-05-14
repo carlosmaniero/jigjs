@@ -6,11 +6,12 @@ import {Component, RehydrateService, RenderResult} from "../../components/compon
 import {html} from "../../template/render";
 import {Platform} from "../platform";
 import {configureJSDOM} from "../dom";
+import {waitForPromises} from "../../testing/wait-for-promises";
 
 
 describe('JigEntryPoint', () => {
 
-    it('renders the given EntryPoint', () => {
+    it('renders the given EntryPoint', async () => {
         @Component('my-test-component')
         class TestComponent {
             render(): RenderResult {
@@ -28,10 +29,10 @@ describe('JigEntryPoint', () => {
 
         const jsdom = configureJSDOM();
 
-        entryPoint.registerCustomElementClass(jsdom.window as any);
+        await entryPoint.registerCustomElementClass(jsdom.window as any);
 
         jsdom.window.document.body.innerHTML = `<jig-app></jig-app>`
 
         expect(jsdom.serialize()).toContain('hell yeah!');
-    })
-})
+    });
+});

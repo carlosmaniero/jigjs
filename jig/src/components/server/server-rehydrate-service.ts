@@ -10,7 +10,7 @@ export class ServerRehydrateService implements RehydrateService {
         this.contextCount = 0;
     }
 
-    createContext(): string {
+    incrementalContextName(): string {
         const contextName = this.contextCount.toString();
         this.contextCount++
         return contextName;

@@ -8,7 +8,7 @@ export class BrowserRehydrateService implements RehydrateService {
     constructor(@Inject(DocumentInjectionToken) private readonly document) {
     }
 
-    createContext(): string {
+    incrementalContextName(): string {
         return "";
     }
 

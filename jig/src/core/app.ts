@@ -7,6 +7,14 @@ export interface EntryPointOptions {
     modules?: JigModule[];
 }
 
+export interface AppInitializer {
+    init(): Promise<void> | void;
+}
+
+export const AppInitializer = {
+    InjectionToken: "AppInitializer"
+}
+
 const BootstrapInjectionToken = 'JigBootstrap';
 
 @Component('jig-app')
@@ -36,7 +44,7 @@ export class JigApp {
         return this;
     }
 
-    registerCustomElementClass(window: JigWindow, container = globalContainer) {
+    async registerCustomElementClass(window: JigWindow, container = globalContainer): Promise<void> {
         this.modules.forEach((module) => {
             module.register(window, container);
         });

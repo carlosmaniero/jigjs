@@ -30,7 +30,7 @@ type Constructor<T> = {
 }
 
 export interface RehydrateService {
-    createContext(): string;
+    incrementalContextName(): string;
 
     updateContext<T>(contextName: string, object: T): void;
 
@@ -171,7 +171,7 @@ export const Component = <T extends RequiredComponentMethods>(selector: string, 
                             return;
                         }
 
-                        this.setAttribute(REHYDRATE_CONTEXT_ATTRIBUTE_NAME, rehydrateService.createContext());
+                        this.setAttribute(REHYDRATE_CONTEXT_ATTRIBUTE_NAME, rehydrateService.incrementalContextName());
 
                         if (this.stateKey) {
                             rehydrateService.updateContext(this.getContextName(), this.getComponentState());

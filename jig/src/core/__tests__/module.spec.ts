@@ -71,7 +71,7 @@ describe('Module', () => {
             providers: [
                 {provide: "abc", useValue: "cba"},
             ]
-        }).andThen((container) => {
+        }).withContainer((container) => {
             const value = container.resolve("abc");
 
             return new JigModule({

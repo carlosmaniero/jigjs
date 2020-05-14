@@ -4,8 +4,8 @@ describe('Rehydrate Service', () => {
     it('creates an incremental number as string as context', () => {
         const rehydrateService = new ServerRehydrateService();
 
-        expect(rehydrateService.createContext()).toBe('0');
-        expect(rehydrateService.createContext()).toBe('1');
+        expect(rehydrateService.incrementalContextName()).toBe('0');
+        expect(rehydrateService.incrementalContextName()).toBe('1');
     });
 
     it('returns undefined as context if it was not created', () => {
@@ -17,7 +17,7 @@ describe('Rehydrate Service', () => {
     it('returns the defined context as context if it was created', () => {
         const rehydrateService = new ServerRehydrateService();
 
-        const contextName = rehydrateService.createContext();
+        const contextName = rehydrateService.incrementalContextName();
 
         rehydrateService.updateContext(contextName, {a: 1});
 

@@ -1,5 +1,5 @@
 import {Container, DIInjectionToken, DIRegistration} from "./di";
-import {componentFactoryFor, JigWindow, RehydrateService} from "../components/component";
+import {componentFactoryFor, JigWindow} from "../components/component";
 
 export type ModuleProvider<T> = DIRegistration<T> & { provide: DIInjectionToken<T> };
 
@@ -9,7 +9,7 @@ interface JigModuleProps {
     modules?: JigModule[];
 }
 
-type RegistrationCallback = (container: Container) => JigModule;
+type RegistrationCallback = (container: Container) => JigModule | void;
 
 export class JigModule {
     private readonly registrationCallbacks: RegistrationCallback[];
@@ -33,11 +33,14 @@ export class JigModule {
         });
 
         this.registrationCallbacks.forEach((callback) => {
-            callback(container).register(window, container);
+            const module = callback(container);
+            if (module) {
+                module.register(window, container);
+            }
         });
     }
 
-    andThen(afterRegistration: (container) => JigModule) {
+    withContainer(afterRegistration: RegistrationCallback): JigModule {
         this.registrationCallbacks.push(afterRegistration);
         return this;
     }

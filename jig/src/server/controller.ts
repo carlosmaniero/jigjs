@@ -24,7 +24,7 @@ export class ServerTemplateController {
             const dom = configureJSDOM(data);
             const dependencyContainer = this.perRequestContainer.createRequestContainer(req, res, dom);
 
-            app.registerCustomElementClass(dom.window as any, dependencyContainer);
+            await app.registerCustomElementClass(dom.window as any, dependencyContainer);
 
             await ServerTemplateController.waitForMiddlewareList(dependencyContainer);
 
