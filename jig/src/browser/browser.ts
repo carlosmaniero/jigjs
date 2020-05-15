@@ -2,10 +2,11 @@ import {JigApp} from "../core/app";
 import {createContainer} from "./di";
 import {Platform} from "../core/platform";
 import {DocumentInjectionToken, WindowInjectionToken} from "../core/dom";
+import {JigModule} from "../core/module";
 
 export class JigBrowser {
     constructor(
-        private readonly app: JigApp,
+        readonly modules: JigModule[] = [],
         readonly container = createContainer()
     ) {
         container.register(Platform, {useValue: Platform.browser()});
@@ -13,7 +14,11 @@ export class JigBrowser {
         container.register(WindowInjectionToken, {useValue: window});
     }
 
-    init() {
-        this.app.registerCustomElementClass(window as any, this.container);
+    init(app: JigApp) {
+        this.modules.forEach((module) => {
+            app.withModule(module);
+        });
+
+        app.registerCustomElementClass(window as any, this.container);
     }
 }

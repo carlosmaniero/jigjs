@@ -3,20 +3,16 @@ const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
-
 module.exports = {
     plugins: [
         new BundleAnalyzerPlugin(),
         new webpack.IgnorePlugin(/jsdom/),
         new webpack.IgnorePlugin(/mutationobserver-shim/),
     ],
-    entry: {
-        "init": './src/components/init.ts',
-    },
     module: {
         rules: [
             {
-                test: /\.*$/,
+                test: /\.*.ts$/,
                 use: 'ts-loader',
                 exclude: [
                     /node_modules/
@@ -28,8 +24,9 @@ module.exports = {
         extensions: ['.ts', '.js', '.json']
     },
     output: {
-        filename: '[name].js',
-        path: path.resolve(__dirname, 'dist'),
+        filename: '[name].app.js',
+        chunkFilename: '[name].bundle.js',
+        path: path.resolve('./dist'),
     },
     optimization: {
         usedExports: true,
@@ -49,6 +46,7 @@ module.exports = {
         process: false,
         child_process: 'empty',
         jsdom: 'empty',
+        setImmediate: 'empty',
         'mutationobserver-shim': 'empty',
     }
 };

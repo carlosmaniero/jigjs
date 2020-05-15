@@ -1,3 +1,4 @@
+import '../../../jig/src/core/register';
 import {JigApp} from "../../../jig/src/core/app";
 import {FragmentComponent} from "../../../jig/src/microfrontends/fragments/fragment-component";
 import {Component, html, OnRehydrate, RenderResult, State} from "../../../jig/src/components/component";
@@ -32,7 +33,7 @@ class CartCountFragment extends FragmentComponent {
     }
 }
 
-export const app = new JigApp({
+export default new JigApp({
     bootstrap: Index,
     components: [CartCountFragment],
 });
