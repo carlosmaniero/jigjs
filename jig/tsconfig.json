@@ -11,6 +11,7 @@
       "es6",
       "es2019"
     ],
+    "types": ["reflect-metadata"],
     "target": "es2015"
   },
   "include": [

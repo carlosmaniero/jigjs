@@ -4,6 +4,7 @@ import {Component, componentFactoryFor, JigWindow} from "../components/component
 
 export interface EntryPointOptions {
     bootstrap: new(...args: unknown[]) => any;
+    components?: any[];
     modules?: JigModule[];
 }
 
@@ -51,6 +52,11 @@ export class JigApp {
 
         this.moduleRegisters.forEach((moduleRegister) => {
             moduleRegister(container).register(window, container);
+        });
+
+        this.options.components?.forEach((component) => {
+            container.register(component, component);
+            componentFactoryFor(component).registerComponent(window, container);
         });
 
         container.register(this.options.bootstrap, this.options.bootstrap);

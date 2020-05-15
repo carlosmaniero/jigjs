@@ -11,6 +11,7 @@ import {ServerTemplateController, ServerTemplateControllerResolver} from "../con
 import {serverComponentModule} from "../../components/server/module";
 import {serverFragmentModule} from "../../microfrontends/fragments/server/module";
 import request from "supertest";
+import {globalContainer, Injectable} from "../../core/di";
 
 describe('Jig Joy Server', () => {
     @Component('my-component')
@@ -43,7 +44,8 @@ describe('Jig Joy Server', () => {
     });
 
     it('has a module to override configuration', async () => {
-        class MyController extends ServerTemplateController {
+        @Injectable()
+        class MyController {
             resolve({res}: ServerTemplateControllerResolver) {
                 res.send("Hello, Universe!");
             }
@@ -197,22 +199,25 @@ describe('Jig Joy Server', () => {
                     })
                         .withModule(serverComponentModule())
                         .withModule(serverFragmentModule())
-                        .withModule(new JigModule({
-                            providers: [
-                                {
-                                    provide: FragmentFetch,
-                                    useValue: {
-                                        fetch: () => new Promise(resolve => {
-                                            if (!firstResolver) {
-                                                firstResolver = resolve
-                                                return;
-                                            }
-                                            secondResolver = resolve;
-                                        })
-                                    }
-                                },
-                            ]
-                        }))
+                            .registerModuleUsingContainer((container) => {
+                                container.unregister(FragmentFetch);
+                                return new JigModule({
+                                    providers: [
+                                        {
+                                            provide: FragmentFetch,
+                                            useValue: {
+                                                fetch: () => new Promise(resolve => {
+                                                    if (!firstResolver) {
+                                                        firstResolver = resolve
+                                                        return;
+                                                    }
+                                                    secondResolver = resolve;
+                                                })
+                                            } as any
+                                        }
+                                    ]
+                                });
+                            })
                         .registerModuleUsingContainer((container) => {
                             const fragmentComponentFactory = container.resolve(FragmentComponentFactory);
 

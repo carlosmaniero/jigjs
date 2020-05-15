@@ -57,7 +57,7 @@ describe('Server Dependency Injection', () => {
     });
 
     it('Request Scope Singleton returns always the same instance', () => {
-        @Singleton([RequestWaitMiddleware.InjectionToken])
+        @Singleton()
         class MyClass {
             constructor(
                 @Inject(Request.InjectionToken) public readonly request: Request,
@@ -68,7 +68,10 @@ describe('Server Dependency Injection', () => {
         const request = jest.fn();
         const response = jest.fn();
 
-        const container = new PerRequestContainer().createRequestContainer(request as any, response as any, dom);
+        const container = new PerRequestContainer()
+            .createRequestContainer(request as any, response as any, dom);
+
+        container.register(MyClass, MyClass);
 
         expect(container.resolve(MyClass)).toBe(container.resolve(MyClass));
     });

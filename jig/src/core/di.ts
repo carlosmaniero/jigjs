@@ -1,86 +1,123 @@
-import {container, inject, injectable, InjectionToken as TInjectionToken, singleton, TokenProvider} from "tsyringe";
-import ValueProvider from "tsyringe/dist/typings/providers/value-provider";
-import FactoryProvider from "tsyringe/dist/typings/providers/factory-provider";
-import ClassProvider from "tsyringe/dist/typings/providers/class-provider";
-import constructor from "tsyringe/dist/typings/types/constructor";
-import DependencyContainer from "tsyringe/dist/typings/types/dependency-container";
+import {Container as InversifyContainer, inject, injectable, interfaces} from "inversify";
+import ServiceIdentifier = interfaces.ServiceIdentifier;
+
+export interface ClassProvider<T> {
+    useClass: constructor<T>;
+}
+
+export interface ValueProvider<T> {
+    useValue: T;
+}
+
+export type constructor<T> = {
+    new (...args: any[]): T;
+};
+
+export type TInjectionToken<T = any> = constructor<T> | string | symbol;
 
 export const GlobalInjectable = injectable;
 
 export const Inject = inject;
 
 export class Container {
-    constructor(private readonly container: DependencyContainer) {
-        container.register<Container>(Container, {useValue: this});
+    private container: InversifyContainer;
+
+    constructor(private readonly parentContainer?: Container) {
+        this.setContainer();
     }
 
     createChildContainer() {
-        return new Container(this.container.createChildContainer());
+        return new Container(this);
     }
 
-    isRegistered<T>(token: TInjectionToken<T>, recursive?: boolean): boolean {
-        return this.container.isRegistered(token, recursive);
+    isRegistered<T>(token: ServiceIdentifier<T>): boolean {
+        return this.container.isBound(token);
     }
 
-    register<T>(token: TInjectionToken<T>, provider: ValueProvider<T>): DependencyContainer;
-    register<T>(token: TInjectionToken<T>, provider: FactoryProvider<T>): DependencyContainer;
-    register<T>(token: TInjectionToken<T>, provider: TokenProvider<T>, options?: RegistrationOptions): DependencyContainer;
-    register<T>(token: TInjectionToken<T>, provider: ClassProvider<T>, options?: RegistrationOptions): DependencyContainer;
-    register<T>(token: TInjectionToken<T>, provider: constructor<T>, options?: RegistrationOptions): DependencyContainer;
-    register(token, provider, options?: RegistrationOptions): DependencyContainer {
+    private setContainer(): void {
+        this.container = new InversifyContainer();
+
+        if (this.parentContainer) {
+            this.container.parent = this.parentContainer.container;
+        }
+    }
+
+    register<T>(token: DIInjectionToken<T> | string, provider: constructor<T>): void;
+    register<T>(token: DIInjectionToken<T> | string, provider: {useClass: constructor<T>}): void;
+    register<T>(token: DIInjectionToken<T> | string, provider: {useValue: T}): void;
+    register(token, provider): void {
         const providerClass = provider.useClass || provider;
         const isSingleton = (providerClass as any).isSingleton;
 
         if (isSingleton) {
-            this.registerSingleton(providerClass, providerClass)
-            return this.registerInstance(token, this.resolve(providerClass));
-        }
-
-        return this.container.register(token as any, provider as any, options as any);
-    }
-
-    registerInstance<T>(token: TInjectionToken<T>, instance: T): DependencyContainer {
-        return this.container.registerInstance(token, instance);
-    }
-
-    registerSingleton<T>(from: TInjectionToken<T>, to: TInjectionToken<T>): DependencyContainer;
-    registerSingleton<T>(token: constructor<T>): DependencyContainer;
-    registerSingleton(from, to?): DependencyContainer {
-        return this.container.registerSingleton(from, to);
-    }
-
-    registerAbsent<T>(token: TInjectionToken<T>, provider: ValueProvider<T>): DependencyContainer;
-    registerAbsent<T>(token: TInjectionToken<T>, provider: FactoryProvider<T>): DependencyContainer;
-    registerAbsent<T>(token: TInjectionToken<T>, provider: TokenProvider<T>, options?: RegistrationOptions): DependencyContainer;
-    registerAbsent<T>(token: TInjectionToken<T>, provider: ClassProvider<T>, options?: RegistrationOptions): DependencyContainer;
-    registerAbsent<T>(token: TInjectionToken<T>, provider: constructor<T>, options?: RegistrationOptions): DependencyContainer;
-    registerAbsent(token, provider, options?: RegistrationOptions) {
-        if (this.isRegistered(token, true)) {
+            this.registerSingleton(token, providerClass);
             return;
         }
-        return this.register(token, provider, options);
+
+        if (provider.useValue) {
+            this.registerInstance(token, provider.useValue);
+            return;
+        }
+
+        if (provider.useClass) {
+            this.container.bind(token).to(provider.useClass);
+            return;
+        }
+
+        this.container.bind(token).to(provider);
+    }
+
+    registerInstance<T>(token: TInjectionToken<T>, instance: T): void {
+        this.container.bind(token).toConstantValue(instance);
+    }
+
+    registerSingleton<T>(token: constructor<T>): void;
+    registerSingleton<T>(token: DIInjectionToken<T>, to: constructor<T>): void;
+    registerSingleton(toBind, to?): void {
+        if (to) {
+            this.container.bind(to).toSelf().inSingletonScope();
+            if (toBind !== to) {
+                this.registerInstance(toBind, this.resolve(to));
+            }
+            return;
+        }
+
+        this.container.bind(toBind).toSelf().inSingletonScope();
+    }
+
+    registerAbsent<T>(token: TInjectionToken<T>, provider: {useValue: T});
+    registerAbsent<T>(token: TInjectionToken<T>, provider: {useClass: constructor<T>});
+    registerAbsent<T>(token: TInjectionToken<T>, provider: constructor<T>);
+    registerAbsent(token, provider): void {
+        if (this.isRegistered(token)) {
+            return;
+        }
+        this.register(token, provider);
     }
 
     reset(): void {
-        this.container.reset();
+        this.setContainer();
     }
 
     resolve<T>(token: TInjectionToken<T>): T {
-        if (this.isRegistered(token, true)) {
-            return this.container.resolve(token);
-        }
-        throw new Error(`Could not resolve ${token.toString()}. Is it registered?`);
+        return this.container.get(token);
     }
 
     resolveAll<T>(token: TInjectionToken<T>): T[] {
-        return this.container.resolveAll<T>(token);
+        return this.container.getAll(token);
+    }
+
+    unregister<T>(token: TInjectionToken<T>): void {
+        if (this.isRegistered(token)) {
+            this.container.unbind(token);
+        }
     }
 }
 
-export const globalContainer = new Container(container);
+export const globalContainer = new Container();
 
-export type DIRegistration<T> = ValueProvider<T> | FactoryProvider<T> | ClassProvider<T> | constructor<T>
-export type DIInjectionToken<T> = TInjectionToken<T>;
+export type DIRegistration<T> = ValueProvider<T> | ClassProvider<T> | constructor<T>
+export type DIInjectionToken<T> = TInjectionToken<T> | constructor<T>;
 
 type Constructor<T> = {
     new(...args: any[]): T;
@@ -109,5 +146,5 @@ export const Singleton = (injectionTokens: InjectionToken[] = []) => (injectable
         singleton: true
     });
     injectableClass.isSingleton = true;
-    return singleton()(injectableClass);
+    return Injectable()(injectableClass);
 }

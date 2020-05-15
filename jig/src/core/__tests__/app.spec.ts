@@ -19,7 +19,6 @@ describe('JigEntryPoint', () => {
             }
         }
 
-        globalContainer.register(TestComponent, TestComponent);
         globalContainer.register(Platform, {useValue: new Platform(false)});
         globalContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
 

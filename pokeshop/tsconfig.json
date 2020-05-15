@@ -5,13 +5,15 @@
     "baseUrl": "./src",
     "outDir": "dist",
     "esModuleInterop": true,
+    "importHelpers": true,
+    "noEmitHelpers": true,
     "sourceMap": true,
     "lib": [
       "dom",
       "es6",
       "es2019"
     ],
-    "target": "es2015",
+    "target": "ES2019",
     "moduleResolution": "node"
   },
   "exclude": [

@@ -10,7 +10,7 @@ import {
     State,
     StateFactoryWithValue
 } from "../component";
-import {globalContainer} from "../../core/di";
+import {globalContainer, Injectable} from "../../core/di";
 import {ServerRehydrateService} from "../server/server-rehydrate-service";
 import waitForExpect from "wait-for-expect";
 import * as testingLibrary from "@testing-library/dom";
@@ -138,6 +138,7 @@ describe('Component Annotation', () => {
         });
 
         it('updates render for state change of abstract class', () => {
+            @Injectable()
             abstract class MyComponentBase implements OnMount {
                 @State()
                 private state = {

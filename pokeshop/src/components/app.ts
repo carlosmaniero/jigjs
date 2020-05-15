@@ -1,7 +1,7 @@
 import {JigApp} from "../../../jig/src/core/app";
-import {FragmentComponentFactory} from "../../../jig/src/microfrontends/fragments/fragment-component";
-import {JigModule} from "../../../jig/src/core/module";
+import {FragmentComponent} from "../../../jig/src/microfrontends/fragments/fragment-component";
 import {Component, html, OnRehydrate, RenderResult, State} from "../../../jig/src/components/component";
+import {FragmentOptions} from "../../../jig/src/microfrontends/fragments/fragments";
 
 @Component('index-component')
 export class Index implements OnRehydrate {
@@ -25,26 +25,14 @@ export class Index implements OnRehydrate {
     }
 }
 
+@Component('cart-count-fragment')
+class CartCountFragment extends FragmentComponent {
+    readonly options: FragmentOptions = {
+        url: 'http://127.0.0.1:3001'
+    }
+}
+
 export const app = new JigApp({
     bootstrap: Index,
-    modules: [new JigModule({
-        providers: [
-            {provide: FragmentComponentFactory, useClass: FragmentComponentFactory}
-        ]
-    })]
-})
-    .registerModuleUsingContainer((container) => {
-        const fragmentFactory: FragmentComponentFactory = container.resolve(FragmentComponentFactory);
-
-        return new JigModule({
-            components: [
-                fragmentFactory.createFragment({
-                    selector: 'cart-count-fragment',
-                    options: {
-                        url: 'http://127.0.0.1:3001'
-                    },
-                    onErrorRender: () => html`Error :(`
-                })
-            ]
-        })
-    });
+    components: [CartCountFragment],
+});

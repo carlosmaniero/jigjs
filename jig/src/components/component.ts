@@ -82,7 +82,7 @@ export const State = () => (target: any, propertyKey: string) => {
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export const Prop = () => (target: Object, propertyKey: string) => {
-    const props = Reflect.getMetadata("design:type", target, "componentProperties") || [];
+    const props: string[] = Reflect.getMetadata("design:type", target, "componentProperties") || [];
     Reflect.defineMetadata("design:type", [...props, propertyKey], target, "componentProperties");
 }
 
@@ -232,7 +232,7 @@ export const Component = <T extends RequiredComponentMethods>(selector: string, 
 
                     private registerProps() {
                         const props = this.props || {};
-                        const expectedProps = Reflect.getMetadata("design:type", this.componentInstance, "componentProperties") || [];
+                        const expectedProps: string[] = Reflect.getMetadata("design:type", this.componentInstance, "componentProperties") || [];
 
                         expectedProps.forEach((propName) => {
                             this.componentInstance[propName] = props[propName];

@@ -22,6 +22,7 @@ describe('Dependency Injection Container', () => {
     });
 
     it('registers singleton', () => {
+        @Injectable()
         class MyClass {
             static count = 0;
 

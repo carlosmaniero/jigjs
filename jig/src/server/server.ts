@@ -3,6 +3,7 @@ import {JigApp} from "../core/app";
 import {globalContainer} from "../core/di";
 import {ServerTemplateController} from "./controller";
 import {ModuleProvider} from "../core/module";
+import {PerRequestContainer} from "./di";
 
 export interface TemplateRoute {
     route: string;
@@ -30,6 +31,7 @@ export class JigServer {
             globalContainer.register(provider.provide, provider as any);
         });
 
+        globalContainer.registerAbsent(PerRequestContainer, PerRequestContainer);
         globalContainer.registerAbsent(ServerTemplateController, ServerTemplateController);
 
         this.setupStaticDirectory();

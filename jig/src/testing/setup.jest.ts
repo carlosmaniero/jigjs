@@ -1,4 +1,4 @@
-import "reflect-metadata";
+import '@abraham/reflection';
 import {globalContainer} from "../core/di";
 import {register} from "../core/register";
 

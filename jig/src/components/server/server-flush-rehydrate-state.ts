@@ -2,10 +2,11 @@ import {BeforeFlushRequest} from "../../server/middlewares";
 import {Inject, Injectable} from "../../core/di";
 import {ServerRehydrateService} from "./server-rehydrate-service";
 import {DocumentInjectionToken} from "../../core/dom";
+import {RehydrateService} from "../component";
 
 @Injectable([BeforeFlushRequest])
 export class ServerFlushRehydrateState implements BeforeFlushRequest {
-    constructor(private readonly serverRehydrateService: ServerRehydrateService,
+    constructor(@Inject(RehydrateService.InjectionToken) private readonly serverRehydrateService: ServerRehydrateService,
                 @Inject(DocumentInjectionToken) private readonly document) {
     }
 

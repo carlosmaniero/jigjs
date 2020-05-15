@@ -1,5 +1,5 @@
 import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentResponse} from "./fragments";
-import {GlobalInjectable, Inject} from "../../core/di";
+import {GlobalInjectable, Inject, Injectable} from "../../core/di";
 import {Component, OnMount, RenderResult, State} from "../../components/component";
 
 interface FragmentStateComponent {
@@ -7,13 +7,14 @@ interface FragmentStateComponent {
     error?: Error;
 }
 
+@Injectable()
 export abstract class FragmentComponent implements OnMount {
     @State()
     state: FragmentStateComponent = {}
     abstract readonly options: FragmentOptions;
 
-    protected constructor(private readonly fragmentResolver: FragmentResolver,
-                          private readonly fragmentContentRender: FragmentContentRender) {
+    constructor(@Inject(FragmentResolver.InjectionToken) protected readonly fragmentResolver: FragmentResolver,
+                @Inject(FragmentContentRender.InjectionToken) protected readonly fragmentContentRender: FragmentContentRender,) {
     }
 
     async mount(): Promise<void> {
@@ -63,23 +64,12 @@ interface FragmentComponentFactoryProps {
 
 @GlobalInjectable()
 export class FragmentComponentFactory {
-    constructor(
-        @Inject(FragmentResolver.InjectionToken) private readonly fragmentResolver: FragmentResolver,
-        @Inject(FragmentContentRender.InjectionToken) private readonly fragmentContentRender: FragmentContentRender,) {
-    }
-
     createFragment({selector, options, onErrorRender}: FragmentComponentFactoryProps) {
-        const fragmentResolver = this.fragmentResolver;
-        const fragmentContentRender = this.fragmentContentRender;
 
         @Component(selector)
         class DynamicallyCreatedFragment extends FragmentComponent {
             readonly selector: string = selector;
             readonly options: FragmentOptions = options;
-
-            constructor() {
-                super(fragmentResolver, fragmentContentRender);
-            }
 
             protected onErrorRender(error: Error): RenderResult {
                 if (!onErrorRender) {

@@ -38,13 +38,11 @@ describe('Fragment Component', () => {
                 readonly options: FragmentOptions = options;
 
                 protected response: FragmentResponse;
-
-                constructor() {
-                    super(fragmentResolverMock, fragmentContentRenderMock);
-                }
             }
 
             globalContainer.register(MyFragment, MyFragment);
+            globalContainer.registerInstance(FragmentResolver.InjectionToken, fragmentResolverMock);
+            globalContainer.registerInstance(FragmentContentRender.InjectionToken, fragmentContentRenderMock);
 
             const dom = configureJSDOM();
 
@@ -87,6 +85,8 @@ describe('Fragment Component', () => {
                 }
             }
 
+            globalContainer.registerInstance(FragmentResolver.InjectionToken, fragmentResolverMock);
+            globalContainer.registerInstance(FragmentContentRender.InjectionToken, fragmentContentRenderMock);
             globalContainer.register(MyFragment, MyFragment);
 
             const dom = configureJSDOM()
@@ -124,8 +124,6 @@ describe('Fragment Component', () => {
 
             const options = {url: 'http://localhost:3000/'};
 
-
-            globalContainer.register(RehydrateService.InjectionToken, {useClass: ServerRehydrateService})
             globalContainer.register(FragmentResolver.InjectionToken, {useValue: fragmentResolverMock});
             globalContainer.register(FragmentContentRender.InjectionToken, {useValue: fragmentContentRenderMock});
             globalContainer.register(FragmentComponentFactory, FragmentComponentFactory);
@@ -168,12 +166,10 @@ describe('Fragment Component', () => {
             @Component('my-fragment')
             class MyFragment extends FragmentComponent {
                 readonly options: FragmentOptions = options;
-
-                constructor() {
-                    super(fragmentResolverMock as any, fragmentContentRenderMock as any);
-                }
             }
 
+            globalContainer.registerInstance(FragmentResolver.InjectionToken, fragmentResolverMock);
+            globalContainer.registerInstance(FragmentContentRender.InjectionToken, fragmentContentRenderMock);
             globalContainer.register(MyFragment, MyFragment);
 
             const dom = configureJSDOM()
@@ -216,14 +212,12 @@ describe('Fragment Component', () => {
                 readonly options: FragmentOptions = options;
 
                 protected response: FragmentResponse;
-
-                constructor() {
-                    super(fragmentResolverMock, fragmentContentRenderMock);
-                }
             }
 
             const dom = configureJSDOM()
 
+            globalContainer.registerInstance(FragmentResolver.InjectionToken, fragmentResolverMock);
+            globalContainer.registerInstance(FragmentContentRender.InjectionToken, fragmentContentRenderMock);
             globalContainer.register(MyFragment, MyFragment);
             const factory = componentFactoryFor(MyFragment);
             factory.registerComponent(dom.window as any, globalContainer);
