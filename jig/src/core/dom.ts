@@ -2,6 +2,7 @@ export const DocumentInjectionToken = "Document";
 export const WindowInjectionToken = "Window";
 
 export const configureJSDOM = (data?: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const jsdom = require('jsdom');
     const dom = new jsdom.JSDOM(data);
 
