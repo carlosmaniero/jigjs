@@ -59,11 +59,11 @@ export class CounterPage {
 }
 ```
 
-**@Component** creates a custom element component with the given tag name.
+**@Component:** creates a custom element component with the given tag name.
 
-**@State** the component state. Every change at the state will generate a render.
+**@State:** the component state. Every change at the state will generate a render.
 
-**Prop** a property that can be received by component. The `@` at the beginning of `initialCounter` indicates that this
+**@Prop:** a property that can be received by component. The `@` at the beginning of `initialCounter` indicates that this
 value should be passed as is, that's because by default every property is passed as string following the 
 [Element.setAttribute()](https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute) API. 
 
