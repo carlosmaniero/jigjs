@@ -25,9 +25,9 @@ jobs:
       with:
         node-version: '12.x'
     - run: npm install yarn
-    - run: yarn --cwd frontends/checkout
+    - run: yarn --cwd demo/frontends/checkout
       env:
         CI: true
-    - run: yarn --cwd frontends/checkout test
+    - run: yarn --cwd demo/frontends/checkout test
       env:
         CI: true

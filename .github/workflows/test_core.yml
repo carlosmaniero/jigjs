@@ -25,9 +25,9 @@ jobs:
       with:
         node-version: '12.x'
     - run: npm install yarn
-    - run: yarn --cwd core
+    - run: yarn --cwd demo/core
       env:
         CI: true
-    - run: yarn --cwd core test
+    - run: yarn --cwd demo/core test
       env:
         CI: true

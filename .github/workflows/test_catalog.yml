@@ -25,9 +25,9 @@ jobs:
       with:
         node-version: '12.x'
     - run: npm install yarn
-    - run: yarn --cwd frontends/catalog
+    - run: yarn --cwd demo/frontends/catalog
       env:
         CI: true
-    - run: yarn --cwd frontends/catalog test
+    - run: yarn --cwd demo/frontends/catalog test
       env:
         CI: true
