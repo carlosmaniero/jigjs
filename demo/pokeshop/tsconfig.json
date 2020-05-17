@@ -5,7 +5,6 @@
     "baseUrl": "./src",
     "outDir": "dist",
     "esModuleInterop": true,
-    "allowJs": true,
     "importHelpers": true,
     "noEmitHelpers": true,
     "sourceMap": true,

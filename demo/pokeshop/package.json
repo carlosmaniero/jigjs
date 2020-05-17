@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "ts-node src/server.ts",
-    "build": "node ../../jig/cli/build.js",
+    "build": "jigjs-build",
     "dev": "npm run build:components && ts-node src/server.ts",
     "test": "jest --no-cache"
   },

@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const fs = require('fs');
 const webpack = require('webpack');
 const config = require('./webpack.config');
