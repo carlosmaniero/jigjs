@@ -18,10 +18,10 @@
   },
   "exclude": [
     "**/*.spec.ts",
-    "/node_modules/",
-    "../jig/node_modules/"
+    "/node_modules/"
   ],
   "include": [
-    "./**/*.ts"
+    "./**/*.ts",
+    "/node_modules/**/*.d.ts"
   ]
 }
