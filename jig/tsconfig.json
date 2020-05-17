@@ -4,8 +4,7 @@
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "baseUrl": "./src",
-    "outDir": "dist",
+    "baseUrl": "./",
     "declaration": true,
     "allowJs": true,
     "lib": [
@@ -16,6 +15,6 @@
     "target": "ES2015"
   },
   "include": [
-    "./src/**/*.ts"
+    "./**/*.ts"
   ]
 }
