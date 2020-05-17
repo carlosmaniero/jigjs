@@ -5,12 +5,17 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "baseUrl": "./src",
+    "outDir": "dist",
+    "declaration": true,
     "allowJs": true,
     "lib": [
       "dom",
       "es6",
       "es2019"
     ],
-    "target": "es2015"
-  }
+    "target": "ES5"
+  },
+  "include": [
+    "./src/**/*.ts"
+  ]
 }

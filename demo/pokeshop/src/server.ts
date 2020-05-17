@@ -1,9 +1,9 @@
-import '../../../jig/src/core/register';
-import {JigServer} from "../../../jig/src/server/server";
+import 'jigjs/core/register';
+import {JigServer} from "jigjs/server/server";
 import path from "path";
-import {serverComponentModule} from "../../../jig/src/components/server/module";
+import {serverComponentModule} from "jigjs/components/server/module";
 import homeApp from "./apps/home";
-import {serverFragmentModule} from "../../../jig/src/microfrontends/fragments/server/module";
+import {serverFragmentModule} from "jigjs/microfrontends/fragments/server/module";
 
 const serverHomeApp = homeApp
     .withModule(serverComponentModule())

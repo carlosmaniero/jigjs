@@ -3,13 +3,13 @@ import {componentFactoryFor, JigWindow} from "../components/component";
 
 export type ModuleProvider<T> = DIRegistration<T> & { provide: DIInjectionToken<T> };
 
-interface JigModuleProps {
+export interface JigModuleProps {
     components?: any[];
     providers?: ModuleProvider<any>[];
     modules?: JigModule[];
 }
 
-type RegistrationCallback = (container: Container) => JigModule | void;
+export type RegistrationCallback = (container: Container) => JigModule | void;
 
 export class JigModule {
     private readonly registrationCallbacks: RegistrationCallback[];

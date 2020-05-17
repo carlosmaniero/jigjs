@@ -1,10 +1,10 @@
-import '../../../../jig/src/core/register';
-import {JigApp} from "../../../../jig/src/core/app";
-import {FragmentComponent} from "../../../../jig/src/microfrontends/fragments/fragment-component";
-import {Component, html, OnRehydrate, Prop, RenderResult, State} from "../../../../jig/src/components/component";
-import {FragmentOptions} from "../../../../jig/src/microfrontends/fragments/fragments";
-import {Inject, Optional} from '../../../../jig/src/core/di';
-import {Request} from "../../../../jig/src/router/router";
+import 'jigjs/core/register';
+import {JigApp} from "jigjs/core/app";
+import {FragmentComponent} from "jigjs/microfrontends/fragments/fragment-component";
+import {Component, html, OnRehydrate, Prop, RenderResult, State} from "jigjs/components/component";
+import {FragmentOptions} from "jigjs/microfrontends/fragments/fragments";
+import {Inject, Optional} from 'jigjs/core/di';
+import {Request} from "jigjs/router/router";
 
 @Component('index-component')
 export class Index implements OnRehydrate {
