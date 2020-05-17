@@ -1,7 +1,7 @@
-import '../../../jig/src/core/register';
-import {JigBrowser} from "../../../jig/src/browser/browser";
-import {browserFragmentModule} from "../../../jig/src/microfrontends/fragments/browser/module";
-import {browserComponentModule} from "../../../jig/src/components/browser/module";
+import 'jigjs/core/register';
+import {JigBrowser} from "jigjs/browser/browser";
+import {browserFragmentModule} from "jigjs/microfrontends/fragments/browser/module";
+import {browserComponentModule} from "jigjs/components/browser/module";
 
 
 export default new JigBrowser([

@@ -1,11 +1,13 @@
 {
   "name": "jigjs",
+  "version": "0.0.0-pre-alpha",
   "description": "A micro front-end framework",
   "author": "Carlos Maniero",
   "scripts": {
     "lint": "eslint './**/*.ts' --quiet",
     "build": "webpack --config webpack.library.config.js",
-    "test": "jest"
+    "test": "jest",
+    "prepublish": "tsc"
   },
   "repository": {
     "type": "git",
