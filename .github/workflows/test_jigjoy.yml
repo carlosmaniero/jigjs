@@ -27,6 +27,9 @@ jobs:
     - run: yarn --cwd jig
       env:
         CI: true
+    - run: yarn --cwd jig clean
+        env:
+          CI: true
     - run: yarn --cwd jig lint
       env:
         CI: true
