@@ -1,13 +1,7 @@
-import {globalContainer, GlobalInjectable, Injectable} from "../core/di";
-import {Request as ExpressRequest, Response as ExpressResponse} from "express";
+import {globalContainer, Injectable} from "../core/di";
 import {DocumentInjectionToken, WindowInjectionToken} from "../core/dom";
 import {Platform} from "../core/platform";
-
-export type Request = ExpressRequest;
-export type Response = ExpressResponse;
-
-export const Request = {InjectionToken: 'Request'}
-export const Response = {InjectionToken: 'Response'}
+import {Request, Response} from "../router/router";
 
 @Injectable()
 export class PerRequestContainer {

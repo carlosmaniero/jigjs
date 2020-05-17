@@ -1,4 +1,4 @@
-import {Container as InversifyContainer, inject, injectable, interfaces} from "inversify";
+import {Container as InversifyContainer, inject, injectable, interfaces, optional} from "inversify";
 import ServiceIdentifier = interfaces.ServiceIdentifier;
 
 export interface ClassProvider<T> {
@@ -10,7 +10,7 @@ export interface ValueProvider<T> {
 }
 
 export type constructor<T> = {
-    new (...args: any[]): T;
+    new(...args: any[]): T;
 };
 
 export type TInjectionToken<T = any> = constructor<T> | string | symbol;
@@ -18,6 +18,8 @@ export type TInjectionToken<T = any> = constructor<T> | string | symbol;
 export const GlobalInjectable = injectable;
 
 export const Inject = inject;
+
+export const Optional = optional;
 
 export class Container {
     private container: InversifyContainer;

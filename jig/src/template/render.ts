@@ -14,15 +14,15 @@ export interface HtmlTemplate {
 
 export type Renderable = HtmlTemplate | HTMLElement;
 
-const isElement = (element: Node): element is HTMLElement => element.nodeType === NODES.ELEMENT_NODE;
-const isTextNode = (element: Node) => element.nodeType === NODES.TEXT_NODE;
-
+const placeHolderRegex = /(__render_placeholder_)(\d+)(_render_placeholder__)/g;
 const customPropertySyntaxSugerAttributeRegex = /([/@](\w+)[ ]*[=])/g;
 const customPropertySyntaxSugarAttributeGroup = '$2';
 const customPropertyAttributePrefix = 'jig-custom-property-';
 
 const isCustomProperty = (attributeName: string) => attributeName.startsWith(customPropertyAttributePrefix);
-
+const isElement = (element: Node): element is HTMLElement => element.nodeType === NODES.ELEMENT_NODE;
+const isTextNode = (element: Node) => element.nodeType === NODES.TEXT_NODE;
+const isPlaceHolder = (value: string): boolean => placeHolderRegex.test(value);
 
 function cloneActualElementFromFragment(bindElement: Node & ParentNode, documentFragment: DocumentFragment) {
     const clone: HTMLElement = bindElement.cloneNode() as HTMLElement;
@@ -84,7 +84,10 @@ const hasPlaceHolder = (text: string): boolean => {
 }
 
 const getPlaceHolderIndex = (placeholder: string): number[] => {
-    return placeholder.match(/(__render_placeholder_)(\d+)(_render_placeholder__)/g)
+    if (!isPlaceHolder(placeholder)) {
+        return null;
+    }
+    return placeholder.match(placeHolderRegex)
         .map((mathPlaceholder) =>
             parseInt(mathPlaceholder.match(/(__render_placeholder_)(\d+)(_render_placeholder__)/)[2]));
 }
@@ -154,10 +157,11 @@ const customPropertyHandler: AttributeHandler = {
     handle(props: AttributeHandlerProps): void {
         const {attributeName, element, values}: AttributeHandlerProps = props;
         const originalAttribute = element.getAttribute(attributeName);
-        const placeHolderIndexes = getPlaceHolderIndex(originalAttribute);
         const propsKey = attributeName.replace(customPropertyAttributePrefix, '');
 
         (element as any).props = (element as any).props || {};
+
+        const placeHolderIndexes = getPlaceHolderIndex(originalAttribute) || [];
 
         if (placeHolderIndexes.length === 1) {
             const placeHolderIndex = placeHolderIndexes[0];
@@ -186,6 +190,7 @@ const customPropertyHandler: AttributeHandler = {
         });
 
         (element as any).props[propsKey] = attributeToAdd;
+        element.removeAttribute(attributeName);
     },
     isHandlerOf(element: HTMLElement, attributeName: string): boolean {
         return isCustomProperty(attributeName);

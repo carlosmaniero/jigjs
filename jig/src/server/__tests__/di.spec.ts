@@ -1,9 +1,9 @@
-import {PerRequestContainer, Request, Response} from "../di";
+import {PerRequestContainer} from "../di";
 import {globalContainer, Inject, Injectable, Singleton} from "../../core/di";
-import {RequestWaitMiddleware} from "../middlewares";
 import {JSDOM} from 'jsdom';
 import {DocumentInjectionToken, WindowInjectionToken} from "../../core/dom";
 import {Platform} from "../../core/platform";
+import {Request, Response} from "router/router";
 
 describe('Server Dependency Injection', () => {
     const dom = new JSDOM();

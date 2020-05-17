@@ -31,18 +31,9 @@ export class FragmentFetch {
         }
 
         const html = await res.text();
-        const eventDependencies = res.headers.get('X-Event-Dependency') || '';
 
         return {
-            html,
-            dependencies: FragmentFetch.parseDependencies(eventDependencies)
+            html
         };
     }
-
-    private static parseDependencies(eventDependencies: string) {
-        return eventDependencies.split(',')
-            .map((dep) => dep.trim())
-            .filter((dep) => !!dep);
-    }
-
 }

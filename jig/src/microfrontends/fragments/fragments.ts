@@ -6,7 +6,6 @@ export interface FragmentOptions {
 
 export interface FragmentResponse {
     html: string;
-    dependencies: string[];
 }
 
 export interface FragmentResolver {

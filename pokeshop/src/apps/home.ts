@@ -1,28 +1,47 @@
 import '../../../jig/src/core/register';
 import {JigApp} from "../../../jig/src/core/app";
 import {FragmentComponent} from "../../../jig/src/microfrontends/fragments/fragment-component";
-import {Component, html, OnRehydrate, RenderResult, State} from "../../../jig/src/components/component";
+import {Component, html, OnRehydrate, Prop, RenderResult, State} from "../../../jig/src/components/component";
 import {FragmentOptions} from "../../../jig/src/microfrontends/fragments/fragments";
+import {Inject, Optional} from '../../../jig/src/core/di';
+import {Request} from "../../../jig/src/router/router";
 
 @Component('index-component')
 export class Index implements OnRehydrate {
     @State()
-    private clicks = {
-        number: 0
+    private state = {
+        number: 0,
+        page: '1',
     };
+
+    constructor(@Inject(Request.InjectionToken) @Optional() private readonly request: Request) {
+    }
+
+    mount() {
+        if (this.request && this.request.params.page) {
+            this.state.page = this.request.params.page
+        }
+    }
 
     render(): RenderResult {
         return html`
-            <cart-count-fragment></cart-count-fragment>
+            <button onclick="${() => {
+            this.state.number++
+        }}">+</button>
+                ${this.state.number}
+            <button onclick="${() => {
+            this.state.number--
+        }}">-</button>
             
-            <button onclick="${() => { this.clicks.number++ }}">+</button>
-            ${this.clicks.number}
-            <button onclick="${() => { this.clicks.number-- }}">-</button>
+            <hr />
+            
+            <cart-count-fragment></cart-count-fragment>
+            <catalog-fragment @page="${this.state.page}"></catalog-fragment>
         `;
     }
 
     rehydrate(): void {
-        this.clicks.number = 0;
+        this.state.number = 0;
     }
 }
 
@@ -33,7 +52,19 @@ class CartCountFragment extends FragmentComponent {
     }
 }
 
+@Component('catalog-fragment')
+class CatalogFragment extends FragmentComponent {
+    @Prop()
+    private readonly page;
+
+    get options() {
+        return {
+            url: `http://localhost:3000/catalog/page/${this.page}`
+        }
+    }
+}
+
 export default new JigApp({
     bootstrap: Index,
-    components: [CartCountFragment],
+    components: [CartCountFragment, CatalogFragment],
 });

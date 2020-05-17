@@ -281,6 +281,19 @@ describe('Render', () => {
             expect(divElement.getAttributeNames()).toEqual([]);
         });
 
+        it('adds static props', () => {
+            render(html`
+                <div 
+                    @props1="1" 
+                    @props2="Hi"></div>
+            `)(document.body);
+
+            const divElement = document.querySelector('div');
+            expect((divElement as any).props.props1).toBe('1');
+            expect((divElement as any).props.props2).toBe('Hi');
+            expect(divElement.getAttributeNames()).toEqual([]);
+        });
+
         it('adds props with static content', () => {
             const prop = "Socrates";
             const greatestTeamInTheWorld = 'Corinthians';
@@ -289,6 +302,7 @@ describe('Render', () => {
 
             const divElement = document.querySelector('div');
             expect((divElement as any).props.prop).toBe('Hi Socrates of Corinthians!');
+            expect(divElement.getAttributeNames()).toEqual([]);
         });
     });
 });

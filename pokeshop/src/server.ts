@@ -4,18 +4,23 @@ import path from "path";
 import {serverComponentModule} from "../../jig/src/components/server/module";
 import homeApp from "./apps/home";
 import {serverFragmentModule} from "../../jig/src/microfrontends/fragments/server/module";
-import {serverMetadataModule} from "../../jig/src/microfrontends/dependency-resolver/server/module";
-import {MetadataResolver} from "../../jig/src/microfrontends/dependency-resolver/metadata-resolver";
+
+const serverHomeApp = homeApp
+    .withModule(serverComponentModule())
+    .withModule(serverFragmentModule());
 
 new JigServer({
-    routes: [{
-        route: '/',
-        templatePath: path.join(__dirname, 'templates', 'index.html'),
-        app: homeApp
-            .withModule(serverComponentModule())
-            .withModule(serverFragmentModule())
-            .withModule(serverMetadataModule(MetadataResolver.of("http://localhost:3001/metadata")))
-    }],
+    routes: [
+        {
+            route: '/',
+            templatePath: path.join(__dirname, 'templates', 'index.html'),
+            app: serverHomeApp
+        },
+        {
+            route: '/page/:page',
+            templatePath: path.join(__dirname, 'templates', 'index.html'),
+            app: serverHomeApp
+        }],
     assetsPath: path.join(__dirname, '../', 'dist'),
     port: 4200
 }).start()

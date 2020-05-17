@@ -3,9 +3,14 @@ const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
+const isDevelopment = process.env.DEV;
+
+const developmentPlugins = isDevelopment ? [new BundleAnalyzerPlugin()] : [];
+
 module.exports = {
+    mode: isDevelopment ? 'development' : 'production',
     plugins: [
-        new BundleAnalyzerPlugin(),
+        ...developmentPlugins,
         new webpack.IgnorePlugin(/jsdom/),
         new webpack.IgnorePlugin(/mutationobserver-shim/),
     ],
@@ -24,6 +29,7 @@ module.exports = {
         extensions: ['.ts', '.js', '.json']
     },
     output: {
+        jsonpFunction: 'jigJsonpFlightsWidget',
         filename: '[name].app.js',
         chunkFilename: '[name].bundle.js',
         path: path.resolve('./dist'),
