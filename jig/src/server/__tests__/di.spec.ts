@@ -3,7 +3,7 @@ import {globalContainer, Inject, Injectable, Singleton} from "../../core/di";
 import {JSDOM} from 'jsdom';
 import {DocumentInjectionToken, WindowInjectionToken} from "../../core/dom";
 import {Platform} from "../../core/platform";
-import {Request, Response} from "router/router";
+import {Request, Response} from "../../router/router";
 
 describe('Server Dependency Injection', () => {
     const dom = new JSDOM();
