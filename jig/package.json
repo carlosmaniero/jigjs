@@ -1,12 +1,12 @@
 {
   "name": "jigjs",
-  "version": "0.0.0-pre-alpha.3",
+  "version": "0.0.0-pre-alpha.4",
   "description": "A micro front-end framework",
   "author": "Carlos Maniero",
   "scripts": {
     "lint": "eslint './**/*.ts' --quiet",
     "clean": "tsc --build --clean",
-    "build": "tsc && cp package.json dist/package.json",
+    "build": "tsc && cp package.json dist/ && cp ../README.md dist/",
     "test": "jest"
   },
   "main": "./main.js",

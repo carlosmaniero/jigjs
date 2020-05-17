@@ -4055,10 +4055,10 @@ jest@^25.5.0:
     import-local "^3.0.2"
     jest-cli "^25.5.4"
 
-jigjs@^0.0.0-pre-alpha.2:
-  version "0.0.0-pre-alpha.2"
-  resolved "https://registry.yarnpkg.com/jigjs/-/jigjs-0.0.0-pre-alpha.2.tgz#f8fc59839cfcc0a255d2b645853db246d4128a9d"
-  integrity sha512-YNA2u18ijeZjjw/nKF/v+vhXAKI/9DHT+VgDe4985cWwzNu0JkZ9+3h2jOfLDi2Eai3Y8B9HFBGRdaQHwUwrbA==
+jigjs@^0.0.0-pre-alpha.3:
+  version "0.0.0-pre-alpha.3"
+  resolved "https://registry.yarnpkg.com/jigjs/-/jigjs-0.0.0-pre-alpha.3.tgz#0a7a79132553d7fe12dab832602536f010fc24d8"
+  integrity sha512-u5gfR8ZX8AhSKC1jxEjlFvsxhhc0OZLJlsgw6HDX42Huu4tE6iC8IiklkPO3PsSp4jFfkSukBqZbbktEdSV4BQ==
   dependencies:
     "@abraham/reflection" "^0.7.0"
     express "^4.17.1"
