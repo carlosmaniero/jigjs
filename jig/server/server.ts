@@ -42,7 +42,7 @@ export class JigServer {
         const {port} = this.options;
 
         this.app.listen(port, function () {
-            console.log(`Jig.jS is running on http://localhost:${port}!`);
+            console.log(`Jig.js is running on http://localhost:${port}!`);
         });
     }
 
