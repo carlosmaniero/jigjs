@@ -16,6 +16,9 @@
     ],
     "target": "ES2015"
   },
+  "exclude": [
+    "./cli/new-project/template"
+  ],
   "include": [
     "./**/*.ts"
   ]

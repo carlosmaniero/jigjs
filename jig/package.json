@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint './**/*.ts' --quiet",
     "clean": "tsc --build --clean",
-    "build": "tsc && cp package.json dist/ && cp ../README.md dist/",
+    "build": "tsc && cp package.json dist/ && cp ../README.md dist/ && cp -R cli/ dist/cli",
     "test": "jest"
   },
   "main": "./main.js",
