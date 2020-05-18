@@ -8,8 +8,14 @@ Jig.js is a web framework focused in micro front-ends with native side rendering
 # Installation
 
 ```bash
-yarn add jigjs
+npm install -g jigjs 
 ```
+
+Install the npm package and then run the `jigjs-new-project` to create a new Jig.js project.
+
+```bash
+npx jigjs-new-project
+``` 
 
 # First component
 

@@ -1,6 +1,6 @@
 {
   "name": "jigjs",
-  "version": "0.0.0-pre-alpha.4",
+  "version": "0.0.0-pre-alpha.5",
   "description": "A micro front-end framework",
   "author": "Carlos Maniero",
   "scripts": {
@@ -37,6 +37,8 @@
     "jsdom": "^16.2.2",
     "morphdom": "^2.6.1",
     "mutationobserver-shim": "^0.3.5",
+    "ncp": "^2.0.0",
+    "prompts": "^2.3.2",
     "ts-jest": "^25.4.0",
     "ts-loader": "^7.0.1",
     "ts-node": "^8.9.1",
@@ -60,6 +62,7 @@
     "yarn": "^1.22.4"
   },
   "bin": {
-    "jigjs-build": "./cli/build/command.js"
+    "jigjs-build": "./cli/build/command.js",
+    "jigjs-new-project": "./cli/new-project/command.js"
   }
 }
