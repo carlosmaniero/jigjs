@@ -12,6 +12,7 @@ export abstract class FragmentComponent implements OnMount {
     @State()
     state: FragmentStateComponent = {}
     abstract readonly options: FragmentOptions;
+    private contentRendered = false;
 
     constructor(@Inject(FragmentResolver.InjectionToken) protected readonly fragmentResolver: FragmentResolver,
                 @Inject(FragmentContentRender.InjectionToken) protected readonly fragmentContentRender: FragmentContentRender,) {
@@ -43,11 +44,19 @@ export abstract class FragmentComponent implements OnMount {
         return htmlDivElement;
     }
 
-    shouldUpdate({from}) {
-        if (from.childNodes.length > 0) {
-            return from.childNodes[0].className === 'jig-joy-fragment-placeholder';
+    shouldUpdate() {
+        if (this.contentRendered) {
+            return false;
+        }
+        if(this.state.response || this.state.error) {
+            this.contentRendered = true;
         }
         return true;
+    }
+
+    shouldRenderAfterRehydrate() {
+        this.contentRendered = true;
+        return false;
     }
 
     protected onErrorRender(error: Error): RenderResult {

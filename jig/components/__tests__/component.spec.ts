@@ -48,6 +48,33 @@ describe('Component Annotation', () => {
             });
         });
 
+        it('does not fully updates components', () => {
+            @Component('my-component')
+            class MyComponent {
+                @Prop()
+                private readonly name: string;
+
+                render() {
+                    return html`Hello, ${this.name}`
+                }
+            }
+
+            globalContainer.register(MyComponent, MyComponent);
+
+            const factory = componentFactoryFor(MyComponent);
+
+            const dom = configureJSDOM();
+
+            globalContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
+            factory.registerComponent(dom.window as any, globalContainer);
+
+            render(html`<my-component @name="World"></my-component>`)(dom.window.document.body);
+            expect(dom.window.document.body.textContent).toContain('World');
+
+            render(html`<my-component @name="Universe"></my-component>`)(dom.window.document.body);
+            expect(dom.window.document.body.textContent).toContain('Universe');
+        });
+
         it('updates the state partially', () => {
             @Component('my-component')
             class MyComponent {
@@ -412,7 +439,7 @@ describe('Component Annotation', () => {
                             return html`Anything else!`
                         }
 
-                        shouldUpdate() {
+                        shouldRenderAfterRehydrate() {
                             return false;
                         }
                     }
@@ -424,14 +451,14 @@ describe('Component Annotation', () => {
                     factory.registerComponent(dom.window as any, globalContainer);
 
                     dom.window.document.body.innerHTML =
-                        '<component-custom>Corinthians</component-custom>'
+                        '<component-custom rehydrate-context-name="0">Corinthians</component-custom>'
 
                     const element = dom.window.document.querySelector('component-custom');
                     expect(element.textContent).toBe('Corinthians');
                 });
 
                 it('passes the current element and the next', () => {
-                    expect.assertions(2 + (global as any).fixedAssertions);
+                    expect.assertions(1 + (global as any).fixedAssertions);
 
                     @Component("component-custom")
                     class MyComponent {
@@ -440,8 +467,11 @@ describe('Component Annotation', () => {
                         }
 
                         shouldUpdate(context) {
-                            expect(context.from.textContent).toBe('Corinthians')
-                            expect(context.to.textContent).toBe('Anything else!')
+                            expect(context.from.textContent).toBe('Corinthians');
+                            return false;
+                        }
+
+                        shouldRenderAfterRehydrate() {
                             return false;
                         }
                     }
@@ -452,8 +482,40 @@ describe('Component Annotation', () => {
                     const factory = componentFactoryFor(MyComponent);
                     factory.registerComponent(dom.window as any, globalContainer);
 
+                    render(html`<component-custom rehydrate-context-name="0">Corinthians</component-custom>`)(dom.window.document.body);
+                    render(html`<component-custom rehydrate-context-name="0">Corinthians</component-custom>`)(dom.window.document.body);
+                });
+
+                it('binds the events', () => {
+                    @Component("component-custom")
+                    class MyComponent {
+                        @State()
+                        private readonly state = {
+                            count: 0
+                        }
+
+                        render(): RenderResult {
+                            return html`<button onclick="${(): number => this.state.count++}">+</button><span>${this.state.count}</span>`
+                        }
+                    }
+
+                    globalContainer.register(MyComponent, MyComponent);
+                    const serverRehydrateService = new ServerRehydrateService();
+                    globalContainer.register(RehydrateService.InjectionToken, {useValue: serverRehydrateService});
+                    const dom = configureJSDOM();
+                    const factory = componentFactoryFor(MyComponent);
+                    factory.registerComponent(dom.window as any, globalContainer);
+
+                    serverRehydrateService.updateContext('0', {
+                        count: 10
+                    });
+
                     dom.window.document.body.innerHTML =
-                        '<component-custom>Corinthians</component-custom>'
+                        '<component-custom rehydrate-context-name="0"><button>+</button><span>10</span></component-custom>';
+
+                    dom.window.document.querySelector('button').click();
+
+                    expect(dom.window.document.querySelector('span').textContent).toBe('11');
                 });
             });
         });

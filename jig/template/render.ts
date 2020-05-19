@@ -43,6 +43,7 @@ type HTMLElementWithJigProperties = HTMLElement & {
 
 const applyToDom = (bindElement: Node & ParentNode, clone: HTMLElement): void => {
     morphdom(bindElement, clone, {
+        childrenOnly: true,
         onBeforeElUpdated: (from: HTMLElementWithJigProperties, to: HTMLElementWithJigProperties) => {
             if (from.shouldUpdate) {
                 return from.shouldUpdate(to);

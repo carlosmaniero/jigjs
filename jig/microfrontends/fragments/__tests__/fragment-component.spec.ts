@@ -222,7 +222,7 @@ describe('Fragment Component', () => {
             const factory = componentFactoryFor(MyFragment);
             factory.registerComponent(dom.window as any, globalContainer);
 
-            dom.window.document.body.innerHTML = '<my-fragment>Already Fetched!</my-fragment>';
+            dom.window.document.body.innerHTML = '<my-fragment rehydrate-context-name="0">Already Fetched!</my-fragment>';
 
             await new Promise(resolve => setImmediate(() => resolve()));
 

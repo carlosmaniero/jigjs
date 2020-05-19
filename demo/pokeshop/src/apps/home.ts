@@ -24,19 +24,9 @@ export class Index implements OnRehydrate {
     }
 
     render(): RenderResult {
-        return html`
-            <button onclick="${() => {
-            this.state.number++
-        }}">+</button>
-                ${this.state.number}
-            <button onclick="${() => {
-            this.state.number--
-        }}">-</button>
-            
-            <hr />
-            
+        return html`     
             <cart-count-fragment></cart-count-fragment>
-            <catalog-fragment @page="${this.state.page}"></catalog-fragment>
+            <catalog-fragment @page="${1}"></catalog-fragment>
         `;
     }
 
@@ -48,7 +38,7 @@ export class Index implements OnRehydrate {
 @Component('cart-count-fragment')
 class CartCountFragment extends FragmentComponent {
     readonly options: FragmentOptions = {
-        url: 'http://127.0.0.1:3001'
+        url: 'http://127.0.0.1:3001/cart'
     }
 }
 
@@ -62,9 +52,14 @@ class CatalogFragment extends FragmentComponent {
             url: `http://localhost:3000/catalog/page/${this.page}`
         }
     }
+
+    protected onErrorRender(error: Error): RenderResult {
+        return html`Ooops`;
+    }
 }
 
 export default new JigApp({
+    bundleName: 'home',
     bootstrap: Index,
     components: [CartCountFragment, CatalogFragment],
 });

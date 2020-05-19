@@ -108,12 +108,13 @@ export const Component = <T extends RequiredComponentMethods>(selector: string, 
                     private readonly componentInstance: T;
                     private readonly stateKey?: string;
                     private readonly props?: Record<string, any>;
+                    private lifeCycleStarted = false;
 
                     constructor() {
                         super();
 
                         this.componentInstance = this.createComponentInstance();
-                        this.registerProps();
+                        this.registerProps(this.props);
                         this.updateRender = () => render(this.render())(this);
 
                         this.stateKey = Reflect.getMetadata("design:type", this.componentInstance, "stateProperty");
@@ -144,7 +145,10 @@ export const Component = <T extends RequiredComponentMethods>(selector: string, 
                                 to, from: this
                             });
                         }
-                        return true;
+
+                        this.registerProps(to.props);
+                        this.updateRender();
+                        return false;
                     }
 
                     parsedCallback() {
@@ -160,26 +164,55 @@ export const Component = <T extends RequiredComponentMethods>(selector: string, 
                     }
 
                     private triggerLifeCycle() {
-                        if (this.hasAttribute(REHYDRATE_CONTEXT_ATTRIBUTE_NAME)) {
-                            const context = rehydrateService.getContext(this.getContextName());
+                        this.lifeCycleStarted = true;
 
-                            this.setComponentInstanceState(context);
-
-                            if (this.hasRehydrate(this.componentInstance)) {
-                                this.componentInstance.rehydrate();
-                            }
+                        if (this.canBeRehydrated()) {
+                            this.rehydrate();
                             return;
                         }
 
+                        this.createComponentRehydrateContext();
+
+                        this.mount();
+                    }
+
+                    private mount() {
+                        if (this.hasMountMethod(this.componentInstance)) {
+                            this.componentInstance.mount();
+                        }
+                        this.updateRender();
+                    }
+
+                    private createComponentRehydrateContext() {
                         this.setAttribute(REHYDRATE_CONTEXT_ATTRIBUTE_NAME, rehydrateService.incrementalContextName());
 
                         if (this.stateKey) {
                             rehydrateService.updateContext(this.getContextName(), this.getComponentState());
                         }
+                    }
 
-                        if (this.hasMountMethod(this.componentInstance)) {
-                            this.componentInstance.mount();
+                    private canBeRehydrated() {
+                        return this.hasAttribute(REHYDRATE_CONTEXT_ATTRIBUTE_NAME);
+                    }
+
+                    private rehydrate() {
+                        const context = rehydrateService.getContext(this.getContextName());
+
+                        this.setComponentInstanceState(context);
+
+                        if (this.hasRehydrate(this.componentInstance)) {
+                            this.componentInstance.rehydrate();
                         }
+
+                        this.afterRehydrate();
+                        return;
+                    }
+
+                    private afterRehydrate() {
+                        if ((this.componentInstance as any).shouldRenderAfterRehydrate && !(this.componentInstance as any).shouldRenderAfterRehydrate()) {
+                            return;
+                        }
+
                         this.updateRender();
                     }
 
@@ -230,8 +263,8 @@ export const Component = <T extends RequiredComponentMethods>(selector: string, 
                         return this.componentInstance[this.stateKey];
                     }
 
-                    private registerProps() {
-                        const props = this.props || {};
+                    private registerProps(elementProps: Record<string, any>) {
+                        const props = elementProps || {};
                         const expectedProps: string[] = Reflect.getMetadata("design:type", this.componentInstance, "componentProperties") || [];
 
                         expectedProps.forEach((propName) => {
