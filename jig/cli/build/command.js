@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require('ts-node').register();
 const fs = require('fs');
 const path = require('path');
 const toDeletePath = require('path');
@@ -16,16 +17,30 @@ const finishWithError = (e, humanMessage) => {
     process.exit(1);
 }
 
+const compiledBundles = {};
+
 const createAppBuildFile = (appFile) => new Promise((resolve, reject) => {
     fs.readFile(`${__dirname}/entry-template.js`, 'utf-8', (err, template) => {
-        const buildFile = template.replace(/!!app-name!!/g, appFile);
+        const appTsFile = path.join(process.cwd(), 'src', 'apps', `${appFile}`)
+        const app = require(appTsFile)
+        const appBundleName = app.default.options.bundleName;
 
-        const appJsName = appFile.replace('.ts', '.js');
+        if (compiledBundles[appBundleName]) {
+            finishWithError(null, `🛑 Could not compile ${chalk.bold.red(appFile)}. The bundle name ${chalk.bold(appBundleName)} was already taken by ${chalk.bold(compiledBundles[appBundleName])}`);
+            return;
+        }
+
+        compiledBundles[appBundleName] = appFile;
+
+        const buildFile = template
+            .replace(/!!app-name!!/g, appFile);
+
+        const appJsName = appBundleName + '.js';
         const buildPath = `./.jig/${appJsName}`;
 
         fs.writeFile(buildPath, buildFile, (err) => {
             if (!err) {
-                console.log(`${chalk.green('✔️')} created browser setup for ${chalk.bold(appFile)}`);
+                console.log(`${chalk.bold.green('✅️')} created browser setup from ${chalk.bold(appFile)} to ${chalk.bold(appJsName)}`);
                 return resolve({
                     buildFile: buildPath,
                     appName: appJsName

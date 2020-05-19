@@ -1,19 +1,14 @@
 import {Container, globalContainer, Inject} from "./di";
 import {JigModule} from "./module";
 import {Component, componentFactoryFor, JigWindow} from "../components/component";
+import {Renderable} from "../template/render";
+import {Platform} from "./platform";
 
 export interface EntryPointOptions {
     bootstrap: new(...args: unknown[]) => any;
+    bundleName: string;
     components?: any[];
     modules?: JigModule[];
-}
-
-export interface AppInitializer {
-    init(): Promise<void> | void;
-}
-
-export const AppInitializer = {
-    InjectionToken: "AppInitializer"
 }
 
 const BootstrapInjectionToken = 'JigBootstrap';
@@ -22,7 +17,7 @@ const BootstrapInjectionToken = 'JigBootstrap';
 export class JigAppComponent {
     constructor(@Inject(BootstrapInjectionToken) private readonly bootstrap: any) {}
 
-    render() {
+    render(): Renderable {
         return document.createElement(this.bootstrap);
     }
 }
@@ -35,12 +30,12 @@ export class JigApp {
         this.modules = options.modules || [];
     }
 
-    registerModuleUsingContainer(moduleRegister: (container: Container) => JigModule) {
+    registerModuleUsingContainer(moduleRegister: (container: Container) => JigModule): JigApp {
         this.moduleRegisters.push(moduleRegister);
         return this;
     }
 
-    withModule(module: JigModule) {
+    withModule(module: JigModule): JigApp {
         this.modules = [...this.modules, module];
         return this;
     }
@@ -60,11 +55,29 @@ export class JigApp {
         });
 
         container.register(this.options.bootstrap, this.options.bootstrap);
+
         const bootstrapFactory = componentFactoryFor(this.options.bootstrap);
         bootstrapFactory.registerComponent(window, container);
-        container.register(BootstrapInjectionToken, {useValue: bootstrapFactory.componentSelector});
 
+        container.register(BootstrapInjectionToken, {useValue: bootstrapFactory.componentSelector});
         container.register(JigAppComponent, JigAppComponent);
+        const platform = container.resolve<Platform>(Platform);
+
         componentFactoryFor(JigAppComponent).registerComponent(window, container);
+
+        this.appendBundleFile(window, platform);
+    }
+
+    private appendBundleFile(window: Window, platform: Platform): void {
+        if (!platform.isBrowser) {
+            const script = window.document.createElement('script');
+            script.src = `/${this.options.bundleName}.app.js`;
+
+            if (window.document.head.querySelectorAll(`script[src="${script.src}"]`).length > 0) {
+                return;
+            }
+
+            window.document.head.appendChild(script);
+        }
     }
 }

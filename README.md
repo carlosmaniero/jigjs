@@ -3,8 +3,7 @@
 # Jig.js - A Micro-frontend framework
 ![Jig](https://github.com/carlosmaniero/jigjs/workflows/Jig/badge.svg)
 
-Jig.js is a web framework focused in micro front-ends with native side rendering support!
-
+Jig.js is a web framework focused on micro front-ends with native server-side rendering support!
 # Installation
 
 ```bash
@@ -19,8 +18,8 @@ npx jigjs-new-project
 
 # First component
 
-It's very simple to create a JigJs component. 
-Let's create a simple counter component.
+It's pretty simple to create a JigJs component. 
+Let's create a counter component.
 
 ```typescript
 @Component('counter-component')
@@ -47,10 +46,10 @@ export class CounterComponent implements OnMount {
 }
 ```
 
-This will create a component using the
+It will create a component using the
  [Custom Elements](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements) API.
  
-Using this component is very simple:
+Using the component: 
 
 ```typescript
 @Component('counter-page')
@@ -67,30 +66,29 @@ export class CounterPage {
 
 **@Component:** creates a custom element component with the given tag name.
 
-**@State:** the component state. Every change at the state will generate a render.
+**@State:** the component state. Every change at the state performs a render.
 
-**@Prop:** a property that can be received by component. The `@` at the beginning of `initialCounter` indicates that this
-value should be passed as is, that's because by default every property is passed as string following the 
+**@Prop:** is a decorator that binds the element attributes to the class instance. The `@` at the beginning of an `attribute` indicates that this
+value should be passed as a Javascript Object. By default, every property is passed as a string following the 
 [Element.setAttribute()](https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute) API. 
-
-By using the `@propetyName` you are able to pass javascript objects to the child component.
 
 # Creating an APP
 
-Every app should live into an `apps/` directory and the `export default` should be the app itself.
+Every app should live into an `apps/` directory, and the `export default` should be the app itself.
 
 ```typescript
 export default new JigApp({
     bootstrap: CounterPage,
     components: [CounterComponent],
+    bundleName: 'my-app'
 });
 ```
 
 # Creating you very first fragment
 
-The concept of a fragment is pretty similar of an iframe. It basically renders another website content inside 
-your page so then you are able to have independent deploys of yours micro front-ends. The fragment could be 
-resolved at the server side which brings less glitch to the application.
+The concept of a fragment is pretty similar to an iframe. It renders another website content inside your page. So then you could have independent deploys of your micro front-ends. The fragment can be 
+resolved at the server-side which brings less glitch to the application.
+
 
 ```typescript
 @Component('catalog-fragment')

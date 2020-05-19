@@ -52,6 +52,7 @@ class Home implements OnRehydrate {
 }
 
 export default new JigApp({
+    bundleName: 'home',
     bootstrap: Home,
     components: [],
 });
