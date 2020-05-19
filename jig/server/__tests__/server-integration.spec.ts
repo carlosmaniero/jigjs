@@ -30,6 +30,7 @@ describe('Jig Joy Server', () => {
                     route: '/my-route',
                     templatePath: path.join(__dirname, 'basic.html'),
                     app: new JigApp({
+                        bundleName: 'test-app',
                         bootstrap: DefaultBootstrapComponent
                     }).withModule(serverComponentModule())
                 }
@@ -59,6 +60,7 @@ describe('Jig Joy Server', () => {
                     route: '/my-route',
                     templatePath: path.join(__dirname, 'basic.html'),
                     app: new JigApp({
+                        bundleName: 'test-app',
                         bootstrap: DefaultBootstrapComponent
                     })
                 }
@@ -86,6 +88,7 @@ describe('Jig Joy Server', () => {
                     route: '/my-route',
                     templatePath: path.join(__dirname, 'basic.html'),
                     app: new JigApp({
+                        bundleName: 'test-app',
                         modules: [
                             new JigModule({
                                 providers: [
@@ -127,6 +130,7 @@ describe('Jig Joy Server', () => {
                     route: '/my-route',
                     templatePath: path.join(__dirname, 'basic.html'),
                     app: new JigApp({
+                        bundleName: 'test-app',
                         modules: [
                             new JigModule({
                                 providers: [
@@ -195,6 +199,7 @@ describe('Jig Joy Server', () => {
                     route: '/my-route',
                     templatePath: path.join(__dirname, 'basic.html'),
                     app: new JigApp({
+                        bundleName: 'test-app',
                         bootstrap: BootstrapComponent,
                     })
                         .withModule(serverComponentModule())
