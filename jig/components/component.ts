@@ -68,6 +68,12 @@ export const Prop = () => (target: Target, propertyKey: string): void => {
     propsMetadata.appendProps(target, propertyKey);
 }
 
+type RegisterProps<T extends RequiredComponentMethods> = {
+    elementProps: Record<string, unknown>;
+    componentInstance: T;
+    attributesElement: HTMLElement;
+    initialRender?: boolean;
+};
 export const Component = <T extends RequiredComponentMethods>(selector: string) =>
     (componentClass: Constructor<T>): void => {
         Injectable()(componentClass);
@@ -122,7 +128,11 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                     }
 
                     private parentComponentUpdatedThisComponent(newThis): void {
-                        this.registerProps(newThis.props, this.componentInstance);
+                        this.registerProps({
+                            elementProps: newThis.props,
+                            componentInstance: this.componentInstance,
+                            attributesElement: newThis
+                        });
 
                         if (!this.componentLifecycle.shouldUpdate()) {
                             return;
@@ -214,7 +224,12 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
 
                     private createComponentInstance(): T {
                         const componentInstance = container.resolve(componentClass);
-                        this.registerProps(this.props, componentInstance);
+                        this.registerProps({
+                            elementProps: this.props,
+                            componentInstance: componentInstance,
+                            attributesElement: this,
+                            initialRender: true
+                        });
                         return componentInstance;
                     }
 
@@ -227,13 +242,29 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                         return this.componentInstance[this.stateKey];
                     }
 
-                    private registerProps(elementProps: Record<string, unknown>, componentInstance: T): void {
+                    private registerProps({elementProps, componentInstance, initialRender = false, attributesElement}: RegisterProps<T>): void {
                         const props = elementProps || {};
                         const expectedProps: string[] = propsMetadata.getProps(componentInstance);
+                        const oldProps = {};
+                        const currentProps = {};
 
                         expectedProps.forEach((propName) => {
-                            componentInstance[propName] = props[propName];
+                            oldProps[propName] = componentInstance[propName];
+
+                            if (propName in props) {
+                                componentInstance[propName] = props[propName];
+                                currentProps[propName] = props[propName];
+                                return;
+                            }
+
+                            componentInstance[propName] = attributesElement.getAttribute(propName);
+                            currentProps[propName] = attributesElement.getAttribute(propName);
                         });
+
+                        if (!initialRender && JSON.stringify(oldProps) !== JSON.stringify(currentProps)) {
+                            this.componentLifecycle.propsChanged(oldProps);
+                        }
+
                     }
                 }));
             }

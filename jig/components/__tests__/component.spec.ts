@@ -67,6 +67,8 @@ describe('Component Annotation', () => {
         });
 
         it('does not fully updates components', () => {
+            const propsChangeMock = jest.fn();
+
             @Component('my-component')
             class MyComponent {
                 @Prop()
@@ -74,6 +76,10 @@ describe('Component Annotation', () => {
 
                 render() {
                     return html`Hello, ${this.name}`
+                }
+
+                propsChanged(oldProps): void {
+                    propsChangeMock(oldProps);
                 }
             }
 
@@ -88,9 +94,22 @@ describe('Component Annotation', () => {
 
             render(html`<my-component @name="World"></my-component>`)(dom.window.document.body);
             expect(dom.window.document.body.textContent).toContain('World');
+            expect(propsChangeMock).not.toBeCalled();
 
             render(html`<my-component @name="Universe"></my-component>`)(dom.window.document.body);
             expect(dom.window.document.body.textContent).toContain('Universe');
+
+            expect(propsChangeMock).toBeCalledWith({name: 'World'});
+            expect(propsChangeMock).toBeCalledTimes(1);
+
+            render(html`<my-component @name="Universe"></my-component>`)(dom.window.document.body);
+            expect(propsChangeMock).toBeCalledTimes(1);
+
+            render(html`<my-component name="Multiverse"></my-component>`)(dom.window.document.body);
+            expect(dom.window.document.body.textContent).toContain('Multiverse');
+
+            expect(propsChangeMock).toBeCalledWith({name: 'Universe'});
+            expect(propsChangeMock).toBeCalledTimes(2);
         });
 
         it('updates the state partially', () => {
@@ -286,7 +305,6 @@ describe('Component Annotation', () => {
 
     describe('Props', () => {
         it('has props that can be passed as is without serialization', () => {
-
             @Component('user-component')
             class UserComponent {
                 @Prop()
@@ -315,6 +333,30 @@ describe('Component Annotation', () => {
 
             expect(testingLibrary.getByText(body, '#1')).not.toBeNull();
             expect(testingLibrary.getByText(body, 'Formiga')).not.toBeNull();
+        });
+
+        it('transforms attributes to props', () => {
+            @Component('hello-component')
+            class UserComponent {
+                @Prop()
+                private readonly name: string;
+
+                render() {
+                    return html`Hello, ${this.name}`
+                }
+            }
+
+            const dom = configureJSDOM();
+
+            globalContainer.register(UserComponent, UserComponent);
+            globalContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
+            componentFactoryFor(UserComponent).registerComponent(dom.window as any, globalContainer);
+
+            const body = dom.window.document.body;
+            render(html`
+                <hello-component name="World"></hello-component>`)(body);
+
+            expect(testingLibrary.getByText(body, 'Hello, World')).not.toBeNull();
         });
     });
 
