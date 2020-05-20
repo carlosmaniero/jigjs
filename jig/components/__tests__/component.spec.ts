@@ -1,15 +1,4 @@
-import {
-    Component,
-    componentFactoryFor,
-    OnMount,
-    OnRehydrate,
-    OnUnmount,
-    Prop,
-    RehydrateService,
-    RenderResult,
-    State,
-    StateFactoryWithValue
-} from "../component";
+import {Component, componentFactoryFor, Prop, RehydrateService, RenderResult, State} from "../component";
 import {globalContainer, Injectable} from "../../core/di";
 import {ServerRehydrateService} from "../server/server-rehydrate-service";
 import waitForExpect from "wait-for-expect";
@@ -17,6 +6,7 @@ import * as testingLibrary from "@testing-library/dom";
 import {html, render} from "../../template/render";
 import {configureJSDOM} from "../../core/dom";
 import {Platform} from "../../core/platform";
+import {createStateProxy} from "../component-state";
 
 describe('Component Annotation', () => {
     beforeEach(() => {
@@ -24,6 +14,30 @@ describe('Component Annotation', () => {
     });
 
     describe('render lifecycle', () => {
+        it('renders a component', async () => {
+            @Component('my-component')
+            class MyComponent {
+                render() {
+                    return html`Hello, World!`
+                }
+            }
+
+            globalContainer.register(MyComponent, MyComponent);
+
+            const factory = componentFactoryFor(MyComponent);
+
+            const dom = configureJSDOM();
+
+            globalContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
+            factory.registerComponent(dom.window as any, globalContainer);
+
+            dom.window.document.body.innerHTML = '<my-component></my-component>';
+
+            await waitForExpect(() => {
+                expect(dom.serialize()).toContain('Hello, World!');
+            });
+        });
+
         it('renders a component', async () => {
             @Component('my-component')
             class MyComponent {
@@ -136,7 +150,7 @@ describe('Component Annotation', () => {
 
         it('has a mount method', () => {
             @Component('my-component')
-            class MyComponent implements OnMount {
+            class MyComponent {
                 @State()
                 private state = {
                     name: 'Universe'
@@ -146,7 +160,7 @@ describe('Component Annotation', () => {
                     return html`Hello, ${this.state.name}!`
                 }
 
-                mount() {
+                mount(): void {
                     this.state.name = 'World'
                 }
             }
@@ -166,7 +180,7 @@ describe('Component Annotation', () => {
 
         it('updates render for state change of abstract class', () => {
             @Injectable()
-            abstract class MyComponentBase implements OnMount {
+            abstract class MyComponentBase {
                 @State()
                 private state = {
                     name: 'Universe'
@@ -200,8 +214,9 @@ describe('Component Annotation', () => {
 
         it('has a unmount method', () => {
             const mock = jest.fn();
+
             @Component('my-component')
-            class MyComponent implements OnUnmount {
+            class MyComponent {
                 @State()
                 private state = {
                     name: 'Universe'
@@ -233,17 +248,17 @@ describe('Component Annotation', () => {
 
     describe('State', () => {
         it('updates state', () => {
-           const state = StateFactoryWithValue<{name: string}>(jest.fn())({
-               name: 'la'
-           });
-           state.name = 'My Name'
+            const state = createStateProxy<{ name: string }>(jest.fn())({
+                name: 'la'
+            });
+            state.name = 'My Name'
 
-           expect(state.name).toBe('My Name');
+            expect(state.name).toBe('My Name');
         });
 
         it('calls the update render function', () => {
             const mock = jest.fn();
-            const state = StateFactoryWithValue<{name: string}>(mock)({
+            const state = createStateProxy<{ name: string }>(mock)({
                 name: 'hi!'
             });
             state.name = 'My Name'
@@ -253,7 +268,7 @@ describe('Component Annotation', () => {
 
         it('calls the update render function for nested properties', () => {
             const mock = jest.fn();
-            const state = StateFactoryWithValue<{person: {name: string}}>(mock)({
+            const state = createStateProxy<{ person: { name: string } }>(mock)({
                 person: {
                     name: 'Socrates'
                 }
@@ -334,7 +349,7 @@ describe('Component Annotation', () => {
                 globalContainer.register(RehydrateService.InjectionToken, {useValue: rehydrateService});
 
                 @Component("component-custom")
-                class MyComponent implements OnMount {
+                class MyComponent {
                     @State()
                     private state = {name: 'World'};
 
@@ -377,7 +392,7 @@ describe('Component Annotation', () => {
                     mountMock = jest.fn();
 
                     @Component('component-custom')
-                    class MyComponent implements OnRehydrate, OnMount {
+                    class MyComponent {
                         @State()
                         state = {
                             name: 'no-name'
@@ -455,35 +470,6 @@ describe('Component Annotation', () => {
 
                     const element = dom.window.document.querySelector('component-custom');
                     expect(element.textContent).toBe('Corinthians');
-                });
-
-                it('passes the current element and the next', () => {
-                    expect.assertions(1 + (global as any).fixedAssertions);
-
-                    @Component("component-custom")
-                    class MyComponent {
-                        render(): RenderResult {
-                            return html`Anything else!`
-                        }
-
-                        shouldUpdate(context) {
-                            expect(context.from.textContent).toBe('Corinthians');
-                            return false;
-                        }
-
-                        shouldRenderAfterRehydrate() {
-                            return false;
-                        }
-                    }
-
-                    globalContainer.register(MyComponent, MyComponent);
-                    globalContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
-                    const dom = configureJSDOM();
-                    const factory = componentFactoryFor(MyComponent);
-                    factory.registerComponent(dom.window as any, globalContainer);
-
-                    render(html`<component-custom rehydrate-context-name="0">Corinthians</component-custom>`)(dom.window.document.body);
-                    render(html`<component-custom rehydrate-context-name="0">Corinthians</component-custom>`)(dom.window.document.body);
                 });
 
                 it('binds the events', () => {

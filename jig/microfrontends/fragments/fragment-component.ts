@@ -1,6 +1,6 @@
 import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentResponse} from "./fragments";
 import {constructor, GlobalInjectable, Inject, Injectable} from "../../core/di";
-import {Component, OnMount, RenderResult, State} from "../../components/component";
+import {Component, RenderResult, State} from "../../components/component";
 
 interface FragmentStateComponent {
     response?: FragmentResponse;
@@ -8,7 +8,7 @@ interface FragmentStateComponent {
 }
 
 @Injectable()
-export abstract class FragmentComponent implements OnMount {
+export abstract class FragmentComponent {
     @State()
     state: FragmentStateComponent = {}
     abstract readonly options: FragmentOptions;

@@ -1,11 +1,11 @@
 import 'jigjs/core/register';
 import {JigApp} from "jigjs/core/app";
-import {Component, html, OnRehydrate, RenderResult, State} from "jigjs/components/component";
+import {Component, html, RenderResult, State} from "jigjs/components/component";
 import {Inject, Optional} from 'jigjs/core/di';
 import {Request} from "jigjs/router/router";
 
 @Component('home-component')
-class Home implements OnRehydrate {
+class Home {
     @State()
     private state = {
         number: 0,
@@ -42,12 +42,6 @@ class Home implements OnRehydrate {
                 }}">-</button>
             </main>
         `;
-    }
-
-    rehydrate(): void {
-        this.state = {
-            number: 0,
-        }
     }
 }
 
