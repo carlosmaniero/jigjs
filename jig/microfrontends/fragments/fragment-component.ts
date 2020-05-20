@@ -44,19 +44,22 @@ export abstract class FragmentComponent {
         return htmlDivElement;
     }
 
-    shouldUpdate() {
-        if (this.contentRendered) {
-            return false;
-        }
-        if(this.state.response || this.state.error) {
-            this.contentRendered = true;
-        }
-        return true;
+    shouldUpdate(): boolean {
+        return !this.contentRendered;
     }
 
-    shouldRenderAfterRehydrate() {
-        this.contentRendered = true;
+    afterRender(): void {
+        if (this.state.response || this.state.error) {
+            this.contentRendered = true;
+        }
+    }
+
+    shouldRenderAfterRehydrate(): boolean {
         return false;
+    }
+
+    rehydrate(): void {
+        this.contentRendered = true;
     }
 
     protected onErrorRender(error: Error): RenderResult {

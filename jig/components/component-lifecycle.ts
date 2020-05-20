@@ -16,13 +16,24 @@ interface ShouldUpdate {
     shouldUpdate: () => boolean;
 }
 
+interface AfterRender {
+    afterRender: () => void;
+}
+
 interface ShouldRenderAfterRehydrate {
     shouldRenderAfterRehydrate: () => boolean;
 }
 
 type RequiredComponentMethods = {
     render: () => Renderable;
-} & (OnMount | OnUnmount | OnRehydrate | ShouldUpdate | ShouldRenderAfterRehydrate | {});
+} & (
+    OnMount |
+    OnUnmount |
+    OnRehydrate |
+    ShouldUpdate |
+    ShouldRenderAfterRehydrate |
+    AfterRender |
+    {});
 
 export class ComponentLifecycle<T extends RequiredComponentMethods> {
     constructor(private readonly componentInstance: T) {
@@ -30,6 +41,12 @@ export class ComponentLifecycle<T extends RequiredComponentMethods> {
 
     render(): Renderable {
         return this.componentInstance.render();
+    }
+
+    afterRender(): void {
+        if (this.hasAfterRenderMethod(this.componentInstance)) {
+            this.componentInstance.afterRender();
+        }
     }
 
     mount(): void {
@@ -84,5 +101,9 @@ export class ComponentLifecycle<T extends RequiredComponentMethods> {
 
     private hasShouldRenderAfterRehydrate(componentInstance: T): componentInstance is T & ShouldRenderAfterRehydrate {
         return 'shouldRenderAfterRehydrate' in componentInstance;
+    }
+
+    private hasAfterRenderMethod(componentInstance: T): componentInstance is T & AfterRender {
+        return 'afterRender' in componentInstance;
     }
 }

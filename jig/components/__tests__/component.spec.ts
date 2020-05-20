@@ -3,7 +3,7 @@ import {globalContainer, Injectable} from "../../core/di";
 import {ServerRehydrateService} from "../server/server-rehydrate-service";
 import waitForExpect from "wait-for-expect";
 import * as testingLibrary from "@testing-library/dom";
-import {html, render} from "../../template/render";
+import {html, render, Renderable} from "../../template/render";
 import {configureJSDOM} from "../../core/dom";
 import {Platform} from "../../core/platform";
 import {createStateProxy} from "../component-state";
@@ -38,11 +38,18 @@ describe('Component Annotation', () => {
             });
         });
 
-        it('renders a component', async () => {
+        it('calls the afterRender hook', async () => {
+            const dom = configureJSDOM();
+            const afterRenderMock = jest.fn();
+
             @Component('my-component')
             class MyComponent {
-                render() {
+                render(): Renderable {
                     return html`Hello, World!`
+                }
+
+                afterRender(): void {
+                    afterRenderMock(dom.serialize());
                 }
             }
 
@@ -50,16 +57,13 @@ describe('Component Annotation', () => {
 
             const factory = componentFactoryFor(MyComponent);
 
-            const dom = configureJSDOM();
-
             globalContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
             factory.registerComponent(dom.window as any, globalContainer);
 
             dom.window.document.body.innerHTML = '<my-component></my-component>';
 
-            await waitForExpect(() => {
-                expect(dom.serialize()).toContain('Hello, World!');
-            });
+            expect(afterRenderMock).toBeCalled();
+            expect(afterRenderMock.mock.calls[0][0]).toContain('Hello, World!');
         });
 
         it('does not fully updates components', () => {

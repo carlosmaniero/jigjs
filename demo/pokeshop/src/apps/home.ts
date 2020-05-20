@@ -1,13 +1,13 @@
 import 'jigjs/core/register';
 import {JigApp} from "jigjs/core/app";
 import {FragmentComponent} from "jigjs/microfrontends/fragments/fragment-component";
-import {Component, html, OnRehydrate, Prop, RenderResult, State} from "jigjs/components/component";
+import {Component, html, Prop, RenderResult, State} from "jigjs/components/component";
 import {FragmentOptions} from "jigjs/microfrontends/fragments/fragments";
 import {Inject, Optional} from 'jigjs/core/di';
 import {Request} from "jigjs/router/router";
 
 @Component('index-component')
-export class Index implements OnRehydrate {
+export class Index {
     @State()
     private state = {
         number: 0,
@@ -28,10 +28,6 @@ export class Index implements OnRehydrate {
             <cart-count-fragment></cart-count-fragment>
             <catalog-fragment @page="${1}"></catalog-fragment>
         `;
-    }
-
-    rehydrate(): void {
-        this.state.number = 0;
     }
 }
 

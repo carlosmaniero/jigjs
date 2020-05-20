@@ -151,6 +151,7 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
 
                     private updateRender(): void {
                         render(this.render())(this);
+                        this.componentLifecycle.afterRender();
                     }
 
                     private triggerLifeCycle(): void {
