@@ -38,6 +38,7 @@ export class Container {
 
     private setContainer(): void {
         this.container = new InversifyContainer();
+        this.register(Container, {useValue: this});
 
         if (this.parentContainer) {
             this.container.parent = this.parentContainer.container;

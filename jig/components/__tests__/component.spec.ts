@@ -1,5 +1,13 @@
-import {Component, componentFactoryFor, Prop, RehydrateService, RenderResult, State} from "../component";
-import {globalContainer, Injectable} from "../../core/di";
+import {
+    Component,
+    componentFactoryFor,
+    lazyLoadComponent,
+    Prop,
+    RehydrateService,
+    RenderResult,
+    State
+} from "../component";
+import {Container, globalContainer, Injectable} from "../../core/di";
 import {ServerRehydrateService} from "../server/server-rehydrate-service";
 import waitForExpect from "wait-for-expect";
 import * as testingLibrary from "@testing-library/dom";
@@ -500,7 +508,7 @@ describe('Component Annotation', () => {
                             return html`Anything else!`
                         }
 
-                        shouldRenderAfterRehydrate() {
+                        shouldRenderAfterRehydrate(): boolean {
                             return false;
                         }
                     }
@@ -550,6 +558,41 @@ describe('Component Annotation', () => {
                     expect(dom.window.document.querySelector('span').textContent).toBe('11');
                 });
             });
+        });
+    });
+
+    describe('Lazy load', () => {
+        it('returns a lazy loaded component', () => {
+            const constructorMock = jest.fn();
+            @Component('hello-component')
+            class HelloComponent {
+                @Prop()
+                private readonly name: string;
+
+                constructor() {
+                    constructorMock();
+                }
+
+                render() {
+                    return html`Hello, ${this.name}`
+                }
+            }
+
+            const container = new Container();
+            container.register(HelloComponent, HelloComponent);
+            container.register(RehydrateService.InjectionToken, ServerRehydrateService);
+            container.register(Platform, {useValue: new Platform(false)});
+
+            const dom = configureJSDOM();
+
+            componentFactoryFor(HelloComponent).registerComponent(dom.window as any, container);
+
+            const component = lazyLoadComponent(dom.document, HelloComponent, {
+                name: 'World'
+            });
+            expect(constructorMock).not.toBeCalled();
+            dom.body.appendChild(component);
+            expect(dom.serialize()).toContain('Hello, World');
         });
     });
 });

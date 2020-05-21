@@ -1,5 +1,5 @@
 import {Container, Injectable} from "../core/di";
-import {html as templateHtml, render, Renderable} from "../template/render";
+import {createTemplateElement, html as templateHtml, render, Renderable} from "../template/render";
 import {htmlParsedElementFactory} from "../third-party/html-parsed-element";
 import {Platform} from "../core/platform";
 import {Target} from "@abraham/reflection";
@@ -20,6 +20,8 @@ type Constructor<T> = {
     new(...args: unknown[]): T;
 }
 
+export type AnyComponent = Constructor<RequiredComponentMethods>;
+
 export interface RehydrateService {
     incrementalContextName(): string;
 
@@ -32,7 +34,7 @@ export const RehydrateService = {
     InjectionToken: 'RehydrateService'
 }
 
-type Factory = {
+export type Factory = {
     registerComponent: (window: JigWindow, container: Container) => void;
     componentSelector: string;
 };
@@ -42,12 +44,27 @@ const componentFactoryMetadata = {
         Reflect.defineMetadata("design:type", componentFactory, componentClass1, "componentFactory");
     },
     getComponentFactoryFor<T>(component: Constructor<T>): Factory {
-        return Reflect.getMetadata("design:type", component, "componentFactory")
+        return Reflect.getMetadata("design:type", component, "componentFactory");
     }
 }
 
 export const componentFactoryFor = <T extends RequiredComponentMethods>(component: Constructor<T>): Factory => {
     return componentFactoryMetadata.getComponentFactoryFor(component);
+}
+
+export const lazyLoadComponent = <T extends RequiredComponentMethods>(
+    document,
+    component: Constructor<T>,
+    props: Record<string, unknown> = {}): ChildNode => {
+
+    const template = createTemplateElement(document);
+    const componentSelector = componentFactoryFor(component).componentSelector;
+    template.innerHTML = `<${componentSelector}></${componentSelector}>`
+    const componentElement = template.content.childNodes[0];
+
+    (componentElement as any).props = props;
+
+    return componentElement;
 }
 
 export const State = () => (target: Target, propertyKey: string): void => {

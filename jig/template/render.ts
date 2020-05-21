@@ -296,7 +296,7 @@ const createTemplateWithPlaceholders = (template: TemplateStringsArray, values: 
         }).join('');
 }
 
-const createTemplateElement = (document: Document): HTMLTemplateElement => {
+export const createTemplateElement = (document: Document): HTMLTemplateElement => {
     return document.createElementNS('http://www.w3.org/1999/xhtml', 'template') as HTMLTemplateElement;
 }
 

@@ -1,12 +1,24 @@
 export const DocumentInjectionToken = "Document";
 export const WindowInjectionToken = "Window";
 
-export const configureJSDOM = (data?: string) => {
+interface DOM {
+    HTMLElement: { prototype: HTMLElement; new(): HTMLElement };
+    document: any;
+    window: Window;
+    body: HTMLElement;
+    head: HTMLHeadElement;
+    requestAnimationFrame: (callback) => void;
+    serialize: () => string;
+}
+
+export const configureJSDOM = (data?: string): DOM => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const jsdom = require('jsdom');
     const dom = new jsdom.JSDOM(data);
 
-    const requestAnimationFrame = (callback) => setImmediate(callback);
+    const requestAnimationFrame = (callback): void => {
+        setImmediate(callback);
+    };
 
     (dom.window as any).requestAnimationFrame = requestAnimationFrame;
 
@@ -14,6 +26,8 @@ export const configureJSDOM = (data?: string) => {
         HTMLElement: dom.window.HTMLElement,
         document: dom.window.document,
         window: dom.window,
+        body: dom.window.document.body,
+        head: dom.window.document.head,
         requestAnimationFrame,
         serialize: dom.serialize.bind(dom)
     };

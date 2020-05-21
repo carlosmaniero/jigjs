@@ -5,6 +5,7 @@ import {register} from "../core/register";
 declare let global: any
 
 global.beforeEach(() => {
+    jest.restoreAllMocks();
     jest.spyOn(console, 'error');
     globalContainer.reset();
 
