@@ -1,5 +1,5 @@
 import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentResponse} from "./fragments";
-import {constructor, GlobalInjectable, Inject, Injectable} from "../../core/di";
+import {constructor, Inject, Injectable} from "../../core/di";
 import {Component, RenderResult, State} from "../../components/component";
 
 interface FragmentStateComponent {
@@ -74,7 +74,7 @@ interface FragmentComponentFactoryProps {
     onErrorRender?: (error: Error) => RenderResult;
 }
 
-@GlobalInjectable()
+@Injectable()
 export class FragmentComponentFactory {
     createFragment({selector, options, onErrorRender}: FragmentComponentFactoryProps): constructor<FragmentComponent> {
 

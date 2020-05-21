@@ -1,6 +1,7 @@
 export interface FragmentOptions {
     url: string;
     async?: boolean;
+    required?: boolean;
     headers?: Record<string, string>;
 }
 

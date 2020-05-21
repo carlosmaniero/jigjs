@@ -1,9 +1,8 @@
-import {Container, Inject, Optional, Singleton} from "../core/di";
+import {Container, Inject, Singleton} from "../core/di";
 import {WindowInjectionToken} from "../core/dom";
-import {AnyComponent, componentFactoryFor, Factory, JigWindow, lazyLoadComponent} from "../components/component";
-import {DefaultErrorHandlerComponent} from "./default-error-handler-component";
+import {AnyComponent, JigWindow, lazyLoadComponent} from "../components/component";
 
-export const ErrorHandlerComponentClassInjectionToken = 'ErrorHandlerComponentInjectionToken';
+export const ErrorHandlerComponentClassInjectionToken = 'ErrorHandlerComponentClassInjectionToken';
 
 export type ErrorListener = (error: Error) => void
 

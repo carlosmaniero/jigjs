@@ -1,4 +1,4 @@
-import {Container, GlobalInjectable} from "../core/di";
+import {Container, Injectable} from "../core/di";
 import {Request, Response} from 'express';
 import fs from "fs";
 import {JigApp} from "../core/app";
@@ -14,7 +14,7 @@ export interface ServerTemplateControllerResolver {
     req: Request;
 }
 
-@GlobalInjectable()
+@Injectable()
 export class ServerTemplateController {
     constructor(private readonly perRequestContainer: PerRequestContainer) {
     }

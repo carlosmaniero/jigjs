@@ -15,8 +15,6 @@ export type constructor<T> = {
 
 export type TInjectionToken<T = any> = constructor<T> | string | symbol;
 
-export const GlobalInjectable = injectable;
-
 export const Inject = inject;
 
 export const Optional = optional;
@@ -140,7 +138,7 @@ export const Injectable = (injectionTokens: InjectionToken[] = []) => (injectabl
         injectionTokens,
         singleton: false
     });
-    return GlobalInjectable()(injectableClass);
+    return injectable()(injectableClass);
 }
 export const Singleton = (injectionTokens: InjectionToken[] = []) => (injectableClass) => {
     toBeInjectable.push({

@@ -1,9 +1,13 @@
 import 'isomorphic-fetch'
 import {FragmentOptions, FragmentResolverError, FragmentResponse} from "./fragments";
-import {GlobalInjectable} from "../../core/di";
+import {Injectable} from "../../core/di";
+import {ErrorHandler} from "../../error/error-handler";
 
-@GlobalInjectable()
+@Injectable()
 export class FragmentFetch {
+    constructor(private readonly errorHandler: ErrorHandler) {
+    }
+
     async fetch(options: FragmentOptions): Promise<FragmentResponse> {
         const url = options.url;
         const headers = options.headers || {};
@@ -17,16 +21,20 @@ export class FragmentFetch {
                 cache: 'default'
             }));
         } catch (e) {
-            throw new FragmentResolverError(options, e);
+            const fragmentResolverError = new FragmentResolverError(options, e);
+            this.handleError(options, fragmentResolverError);
+            throw fragmentResolverError;
         }
 
-        return await FragmentFetch.handleResponse(res, options);
+        return await this.handleResponse(res, options);
     }
 
-    private static async handleResponse(res: Response, options: FragmentOptions) {
+    private async handleResponse(res: Response, options: FragmentOptions): Promise<FragmentResponse> {
         if (res.status > 299) {
+            const fragmentResolverError = new FragmentResolverError(options, res);
+            this.handleError(options, fragmentResolverError);
             return Promise.reject(
-                new FragmentResolverError(options, res)
+                fragmentResolverError
             )
         }
 
@@ -35,5 +43,9 @@ export class FragmentFetch {
         return {
             html
         };
+    }
+
+    private handleError(options: FragmentOptions, fragmentResolverError: FragmentResolverError): void {
+        options.required && this.errorHandler.fatal(fragmentResolverError);
     }
 }

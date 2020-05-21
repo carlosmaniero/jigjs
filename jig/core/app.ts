@@ -1,13 +1,16 @@
 import {Container, globalContainer, Inject} from "./di";
 import {JigModule} from "./module";
-import {Component, componentFactoryFor, JigWindow} from "../components/component";
+import {AnyComponent, Component, componentFactoryFor, JigWindow} from "../components/component";
 import {Renderable} from "../template/render";
 import {Platform} from "./platform";
+import {DefaultErrorHandlerComponent} from "../error/default-error-handler-component";
+import {ErrorHandler, ErrorHandlerComponentClassInjectionToken} from "../error/error-handler";
 
 export interface EntryPointOptions {
-    bootstrap: new(...args: unknown[]) => any;
+    bootstrap: AnyComponent;
     bundleName: string;
-    components?: any[];
+    errorHandlerComponent?: AnyComponent;
+    components?: AnyComponent[];
     modules?: JigModule[];
 }
 
@@ -41,6 +44,9 @@ export class JigApp {
     }
 
     async registerCustomElementClass(window: JigWindow, container = globalContainer): Promise<void> {
+        container.register(ErrorHandlerComponentClassInjectionToken, {useValue: this.getErrorHandlerComponent()});
+        container.register(ErrorHandler, ErrorHandler);
+
         this.modules.forEach((module) => {
             module.register(window, container);
         });
@@ -49,15 +55,12 @@ export class JigApp {
             moduleRegister(container).register(window, container);
         });
 
-        this.options.components?.forEach((component) => {
+        this.getComponents().forEach((component) => {
             container.register(component, component);
             componentFactoryFor(component).registerComponent(window, container);
         });
 
-        container.register(this.options.bootstrap, this.options.bootstrap);
-
         const bootstrapFactory = componentFactoryFor(this.options.bootstrap);
-        bootstrapFactory.registerComponent(window, container);
 
         container.register(BootstrapInjectionToken, {useValue: bootstrapFactory.componentSelector});
         container.register(JigAppComponent, JigAppComponent);
@@ -66,6 +69,19 @@ export class JigApp {
         componentFactoryFor(JigAppComponent).registerComponent(window, container);
 
         this.appendBundleFile(window, platform);
+    }
+
+    private getComponents(): AnyComponent[] {
+        const optionsComponents = this.options.components || [];
+        return [
+            ...optionsComponents,
+            this.getErrorHandlerComponent(),
+            this.options.bootstrap
+        ];
+    }
+
+    private getErrorHandlerComponent(): AnyComponent {
+        return this.options.errorHandlerComponent || DefaultErrorHandlerComponent;
     }
 
     private appendBundleFile(window: Window, platform: Platform): void {

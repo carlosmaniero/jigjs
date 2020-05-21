@@ -4,7 +4,9 @@ import {FragmentComponent} from "jigjs/microfrontends/fragments/fragment-compone
 import {Component, html, Prop, RenderResult, State} from "jigjs/components/component";
 import {FragmentOptions} from "jigjs/microfrontends/fragments/fragments";
 import {Inject, Optional} from 'jigjs/core/di';
-import {Request} from "jigjs/router/router";
+import {Request, Response} from "jigjs/router/router";
+import {Renderable} from "jigjs/template/render";
+import {DocumentInjectionToken} from "jigjs/core/dom";
 
 @Component('index-component')
 export class Index {
@@ -26,7 +28,7 @@ export class Index {
     render(): RenderResult {
         return html`     
             <cart-count-fragment></cart-count-fragment>
-            <catalog-fragment @page="${1}"></catalog-fragment>
+            <catalog-fragment @page="${this.state.page}"></catalog-fragment>
         `;
     }
 }
@@ -38,6 +40,32 @@ class CartCountFragment extends FragmentComponent {
     }
 }
 
+@Component('error-handler')
+class ErrorHandler {
+    constructor(
+        @Inject(DocumentInjectionToken) private readonly document,
+        @Inject(Response.InjectionToken) @Optional() private readonly response?: Response
+    ) {
+    }
+
+    render(): Renderable {
+        return html`
+            <iframe src="https://giphy.com/embed/Pok6284jGzyGA" 
+                width="480"
+                height="273" 
+                frameBorder="0" 
+                allowFullScreen>    
+            </iframe>`
+    }
+
+    mount() {
+        this.document.title = 'Pokeshop | Internal Server Error :('
+        if (this.response) {
+            this.response.status(500);
+        }
+    }
+}
+
 @Component('catalog-fragment')
 class CatalogFragment extends FragmentComponent {
     @Prop()
@@ -45,7 +73,8 @@ class CatalogFragment extends FragmentComponent {
 
     get options() {
         return {
-            url: `http://localhost:3000/catalog/page/${this.page}`
+            url: `http://localhost:3000/catalog/page/${this.page}`,
+            required: true
         }
     }
 
@@ -58,4 +87,5 @@ export default new JigApp({
     bundleName: 'home',
     bootstrap: Index,
     components: [CartCountFragment, CatalogFragment],
+    errorHandlerComponent: ErrorHandler
 });
