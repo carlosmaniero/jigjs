@@ -1,10 +1,10 @@
  ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Jig](https://github.com/carlosmaniero/jigjs/workflows/Jig/badge.svg) [![npm version](https://badge.fury.io/js/jigjs.svg)](https://badge.fury.io/js/jigjs)
 
-# ![Jig Logo](jig/ghassets/logo.svg) A Micro front-end 
+# ![Jig Logo](jig/ghassets/logo.svg) a micro-frontend framework 
 
 Jig.js is a web framework focused on micro front-ends with native server-side rendering support!
 
-# Installation
+## Installation
 
 ```bash
 npm install -g jigjs 
@@ -16,7 +16,7 @@ Install the npm package and then run the `jigjs-new-project` to create a new Jig
 npx jigjs-new-project
 ``` 
 
-# First component
+## First component
 
 It's pretty simple to create a Jig.js component. 
 Let's create a counter component.
@@ -72,7 +72,7 @@ export class CounterPage {
 value should be passed as a Javascript Object. By default, every property is passed as a string following the 
 [Element.setAttribute()](https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute) API. 
 
-# Creating an APP
+## Creating an APP
 
 Every app should live into an `apps/` directory, and the `export default` should be the app itself.
 
@@ -84,7 +84,7 @@ export default new JigApp({
 });
 ```
 
-# Creating you very first fragment
+## Creating you very first fragment
 
 The concept of a fragment is pretty similar to an iframe. It renders another website content inside your page. So then you could have independent deploys of your micro front-ends. The fragment can be 
 resolved at the server-side which brings less glitch to the application.
@@ -130,13 +130,13 @@ export class CatalogPage {
 }
 ``` 
 
-# Explore
+## Explore
 
 - Pokemon e-commerce [demo](./demo/pokeshop) - WIP
 - Dependency injection concept - WIP
 
-## Core Concepts - WIP
-### Communication between micro front-ends
+### Core Concepts - WIP
+#### Communication between micro front-ends
 In an e-commerce system, either the **cart** and the **product catalog** can be expressed as a micro front-end. It is commonly **cart's** responsibility to manage the list of products, however, it is **product catalog** responsibility to actually add a product to the **cart**.
 
 Keeping this in mind, we could expose a service into the **cart** context who can be accessed by any micro front-end on demand. And then make it possible to **product catalog** to add a product to cart.
