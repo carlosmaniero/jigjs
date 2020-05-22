@@ -74,8 +74,8 @@ describe('Error Handle', () => {
         const mock2 = jest.fn();
 
         container.register(ErrorHandlerComponentClassInjectionToken, {useValue: DefaultErrorHandlerComponent});
-        container.resolve<ErrorHandler>(ErrorHandler).listen(mock1)
-        container.resolve<ErrorHandler>(ErrorHandler).listen(mock2)
+        container.resolve<ErrorHandler>(ErrorHandler).subscribe(mock1)
+        container.resolve<ErrorHandler>(ErrorHandler).subscribe(mock2)
 
         const error = new Error('Any thing');
         container.resolve<ErrorHandler>(ErrorHandler).fatal(error);

@@ -18,7 +18,7 @@ export class FragmentFetch {
         const signal = controller.signal;
         let finished = false;
 
-        this.errorHandler.listen(() => {
+        this.errorHandler.subscribe(() => {
             !finished && controller.abort();
         });
 

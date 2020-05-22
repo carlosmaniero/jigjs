@@ -29,7 +29,7 @@ export class ServerTemplateController {
 
             const errorHandler: ErrorHandler = dependencyContainer.resolve(ErrorHandler);
 
-            errorHandler.listen(() => {
+            errorHandler.subscribe(() => {
                 this.respond(dependencyContainer, res, dom);
             });
 

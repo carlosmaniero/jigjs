@@ -24,7 +24,7 @@ describe('FragmentResolver', () => {
         container.register(ErrorHandler, {
             useValue: {
                 fatal: fatalMock,
-                listen: (listener): void => {
+                subscribe: (listener): void => {
                     errorListener = listener
                 }
             }
