@@ -1,9 +1,9 @@
-![Jig Logo](jig/ghassets/logo.png)
+ ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Jig](https://github.com/carlosmaniero/jigjs/workflows/Jig/badge.svg) [![npm version](https://badge.fury.io/js/jigjs.svg)](https://badge.fury.io/js/jigjs)
 
-# Jig.js - A Micro-frontend framework
-![Jig](https://github.com/carlosmaniero/jigjs/workflows/Jig/badge.svg)
+# ![Jig Logo](jig/ghassets/logo.svg) A Micro front-end 
 
 Jig.js is a web framework focused on micro front-ends with native server-side rendering support!
+
 # Installation
 
 ```bash
@@ -18,7 +18,7 @@ npx jigjs-new-project
 
 # First component
 
-It's pretty simple to create a JigJs component. 
+It's pretty simple to create a Jig.js component. 
 Let's create a counter component.
 
 ```typescript
