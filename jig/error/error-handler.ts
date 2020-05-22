@@ -16,8 +16,8 @@ export class ErrorHandler {
         @Inject(ErrorHandlerComponentClassInjectionToken) private readonly componentClass?: AnyComponent) {}
 
     fatal(error: Error): void {
-        this.listeners.forEach((listener) => listener(error));
         this.renderFatalComponent(error);
+        this.listeners.forEach((listener) => listener(error));
     }
 
     private renderFatalComponent(error: Error) {
