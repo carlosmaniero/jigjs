@@ -11,7 +11,9 @@ import {ServerTemplateController, ServerTemplateControllerResolver} from "../con
 import {serverComponentModule} from "../../components/server/module";
 import {serverFragmentModule} from "../../microfrontends/fragments/server/module";
 import request from "supertest";
-import {globalContainer, Injectable} from "../../core/di";
+import {Injectable} from "../../core/di";
+import {ErrorHandler} from "../../error/error-handler";
+import {waitForPromises} from "../../testing/wait-for-promises";
 
 describe('Jig Joy Server', () => {
     @Component('my-component')
@@ -280,5 +282,79 @@ describe('Jig Joy Server', () => {
         await new Promise(resolve => setImmediate(() => resolve()));
 
         expect(secondResponseBody).toContain('Hello, Universe!');
+    });
+
+    it('finishes the request rendering error when an error happen', async () => {
+        let responseBody;
+        let errorHandler;
+
+        @Component('my-component')
+        class BootstrapComponent {
+            render(): RenderResult {
+                return document.createElement('first-fragment');
+            }
+        }
+
+        const server = new JigServer({
+            port: 4200,
+            assetsPath: '/assets/',
+            routes: [
+                {
+                    route: '/my-route',
+                    templatePath: path.join(__dirname, 'basic.html'),
+                    app: new JigApp({
+                        bundleName: 'test-app',
+                        bootstrap: BootstrapComponent,
+                    })
+                        .withModule(serverComponentModule())
+                        .withModule(serverFragmentModule())
+                        .registerModuleUsingContainer((container) => {
+                            container.unregister(FragmentFetch);
+                            return new JigModule({
+                                providers: [
+                                    {
+                                        provide: FragmentFetch,
+                                        useValue: {
+                                            fetch: () => new Promise(() => {
+                                                errorHandler = container.resolve(ErrorHandler);
+                                                return;
+                                            })
+                                        } as any
+                                    }
+                                ]
+                            });
+                        })
+                        .registerModuleUsingContainer((container) => {
+                            const fragmentComponentFactory = container.resolve(FragmentComponentFactory);
+
+                            return new JigModule({
+                                components: [
+                                    fragmentComponentFactory.createFragment({
+                                        selector: 'first-fragment',
+                                        options: {
+                                            url: 'http://localhost:8000',
+                                        }
+                                    })
+                                ]
+                            })
+                        })
+                }
+            ]
+        });
+
+        request(server.app)
+            .get('/my-route')
+            .then((response) => {
+                responseBody = response.text
+            });
+
+        await waitForExpect(() => {
+            expect(errorHandler).toBeTruthy();
+        });
+
+        errorHandler.fatal(new Error('bla!'));
+        await waitForPromises();
+
+        expect(responseBody).toContain('Internal Server Error');
     });
 })

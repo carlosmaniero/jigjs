@@ -5,13 +5,17 @@ import {FragmentResolverError} from "../fragments";
 import {Container} from "../../../core/di";
 import {ErrorHandler} from "../../../error/error-handler";
 import {waitForPromises} from "../../../testing/wait-for-promises";
+import {configureJSDOM, WindowInjectionToken} from "../../../core/dom";
 
 describe('FragmentResolver', () => {
     let container;
     let fatalMock;
+    let errorListener;
+    let window;
 
     beforeAll(() => {
         fetchMock.enableMocks();
+        jest.useFakeTimers();
     });
 
     beforeEach(() => {
@@ -19,15 +23,21 @@ describe('FragmentResolver', () => {
         container = new Container();
         container.register(ErrorHandler, {
             useValue: {
-                fatal: fatalMock
+                fatal: fatalMock,
+                listen: (listener): void => {
+                    errorListener = listener
+                }
             }
         });
+        window = configureJSDOM().window;
+        container.register(WindowInjectionToken, {useValue: window});
         container.register(FragmentFetch, FragmentFetch);
         fetchMock.resetMocks();
     })
 
     afterAll(() => {
         fetchMock.disableMocks();
+        jest.useRealTimers();
     });
 
     it('fetches the html', async () => {
@@ -97,5 +107,45 @@ describe('FragmentResolver', () => {
 
         await waitForPromises();
         expect(fatalMock).toBeCalledWith(new FragmentResolverError(options, response));
+    });
+
+    it('aborts requests when error', async () => {
+        const fragmentFetch: FragmentFetch = container.resolve(FragmentFetch);
+
+        const options = {
+            url: 'http://localhost:1221',
+            headers: {ping: 'pong'},
+            required: true
+        };
+
+        fetchMock.mockResponse(async () => {
+            errorListener(new Error());
+            return '';
+        });
+
+        await fragmentFetch.fetch(options);
+
+        // Needs improvement!
+        // It would be nice to look at the fetch return instead of the mock configuration
+        expect((fetch as any).mock.calls[0][1].signal.aborted).toBeTruthy();
+    });
+
+    it('aborts requests does not calls the error handler', async () => {
+        const fragmentFetch: FragmentFetch = container.resolve(FragmentFetch);
+
+        const options = {
+            url: 'http://localhost:1221',
+            headers: {ping: 'pong'},
+            required: true
+        };
+
+        (global as any).DOMException = window.DOMException;
+        fetchMock.mockAbort();
+
+        try {
+            await fragmentFetch.fetch(options);
+        } catch {}
+
+        expect(fatalMock).not.toBeCalled();
     });
 });

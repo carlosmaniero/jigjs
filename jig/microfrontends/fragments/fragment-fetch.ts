@@ -1,16 +1,26 @@
-import 'isomorphic-fetch'
+import 'cross-fetch/polyfill';
 import {FragmentOptions, FragmentResolverError, FragmentResponse} from "./fragments";
-import {Injectable} from "../../core/di";
+import {Inject, Injectable} from "../../core/di";
 import {ErrorHandler} from "../../error/error-handler";
+import {WindowInjectionToken} from "../../core/dom";
 
 @Injectable()
 export class FragmentFetch {
-    constructor(private readonly errorHandler: ErrorHandler) {
+    constructor(
+        private readonly errorHandler: ErrorHandler,
+        @Inject(WindowInjectionToken) private readonly window) {
     }
 
     async fetch(options: FragmentOptions): Promise<FragmentResponse> {
         const url = options.url;
         const headers = options.headers || {};
+        const controller = new this.window.AbortController();
+        const signal = controller.signal;
+        let finished = false;
+
+        this.errorHandler.listen(() => {
+            !finished && controller.abort();
+        });
 
         let res;
         try {
@@ -19,7 +29,8 @@ export class FragmentFetch {
                 headers: new Headers(headers),
                 mode: 'cors',
                 cache: 'default'
-            }));
+            }), {signal});
+            finished = true;
         } catch (e) {
             const fragmentResolverError = new FragmentResolverError(options, e);
             this.handleError(options, fragmentResolverError);
@@ -46,6 +57,9 @@ export class FragmentFetch {
     }
 
     private handleError(options: FragmentOptions, fragmentResolverError: FragmentResolverError): void {
+        if((fragmentResolverError.error as DOMException).name === 'AbortError') {
+            return;
+        }
         options.required && this.errorHandler.fatal(fragmentResolverError);
     }
 }

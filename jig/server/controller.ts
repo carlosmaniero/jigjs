@@ -5,6 +5,7 @@ import {JigApp} from "../core/app";
 import {BeforeFlushRequest, RequestWaitMiddleware} from "./middlewares";
 import {PerRequestContainer} from "./di";
 import {configureJSDOM} from "../core/dom";
+import {ErrorHandler} from "../error/error-handler";
 
 export interface ServerTemplateControllerResolver {
     app: JigApp;
@@ -26,14 +27,24 @@ export class ServerTemplateController {
 
             await app.registerCustomElementClass(dom.window as any, dependencyContainer);
 
-            await ServerTemplateController.waitForMiddlewareList(dependencyContainer);
+            const errorHandler: ErrorHandler = dependencyContainer.resolve(ErrorHandler);
 
-            ServerTemplateController.getBeforeFlushList(dependencyContainer).forEach((middleware) => {
-                middleware.beforeFlushRequest()
+            errorHandler.listen(() => {
+                this.respond(dependencyContainer, res, dom);
             });
 
-            res.send(dom.serialize());
+            await ServerTemplateController.waitForMiddlewareList(dependencyContainer);
+
+            this.respond(dependencyContainer, res, dom);
         });
+    }
+
+    private respond(dependencyContainer: Container, res: Response, dom): void {
+        ServerTemplateController.getBeforeFlushList(dependencyContainer).forEach((middleware) => {
+            middleware.beforeFlushRequest()
+        });
+
+        !res.writableEnded && res.send(dom.serialize());
     }
 
     private static async waitForMiddlewareList(dependencyContainer: Container) {

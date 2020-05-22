@@ -13,6 +13,7 @@
     "jest-when": "^2.7.1",
     "jigjs": "^0.0.0-pre-alpha.3",
     "jsdom": "^16.2.2",
+    "node-fetch": "^2.6.0",
     "node-html-parser": "^1.2.16",
     "tsyringe": "^4.1.0",
     "webpack": "^4.43.0",
