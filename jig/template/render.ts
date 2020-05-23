@@ -39,6 +39,29 @@ function cloneActualElementFromFragment(bindElement: Node & ParentNode, document
 type HTMLElementWithJigProperties = HTMLElement & {
     shouldUpdate?: (to: HTMLElement) => boolean;
     events: Record<string, (event: Event) => void>;
+    props: Record<string, unknown>;
+}
+
+const bindEvents = (from: HTMLElementWithJigProperties, to: HTMLElementWithJigProperties) => {
+    const events = to.events;
+    if (events) {
+        const fromEvents = from.events || {};
+
+        Object.keys(events)
+            .forEach((event) => {
+                if (fromEvents[event]) {
+                    from.removeEventListener(event, fromEvents[event]);
+                }
+                from.addEventListener(event, events[event])
+                fromEvents[event] = events[event];
+            });
+
+        from.events = fromEvents;
+    }
+}
+
+const bindProps = (from: HTMLElementWithJigProperties, to: HTMLElementWithJigProperties): void => {
+    from.props = to.props;
 }
 
 const applyToDom = (bindElement: Node & ParentNode, clone: HTMLElement): void => {
@@ -49,19 +72,9 @@ const applyToDom = (bindElement: Node & ParentNode, clone: HTMLElement): void =>
                 return from.shouldUpdate(to);
             }
 
-            const events = to.events;
-            if (events) {
-                const fromEvents = from.events || {};
+            bindEvents(from, to);
+            bindProps(from, to);
 
-                Object.keys(events)
-                    .filter((event) => !fromEvents[event])
-                    .forEach((event) => {
-                        from.addEventListener(event, events[event])
-                        fromEvents[event] = events[event];
-                    });
-
-                from.events = fromEvents;
-            }
             return true;
         }
     });

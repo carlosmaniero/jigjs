@@ -37,6 +37,7 @@ module.exports = {
         filename: '[name].app.js',
         chunkFilename: '[name].bundle.js',
         path: path.resolve('./dist'),
+        publicPath: '/'
     },
     optimization: {
         usedExports: true,

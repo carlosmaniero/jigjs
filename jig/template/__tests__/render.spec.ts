@@ -215,6 +215,7 @@ describe('Render', () => {
 
        it('binds events if they does not exists', () => {
            const mock = jest.fn();
+           const mock2 = jest.fn();
 
            render(html`
                 <div>
@@ -233,7 +234,35 @@ describe('Render', () => {
 
            expect(buttonElement.hasAttribute('onclick')).toBeFalsy();
            expect(mock).toBeCalled();
+
+           render(html`
+                <div>
+                    <button onclick="${mock2}">Hit me!</button>
+                </div>
+            `)(document.body);
+
+           buttonElement.click();
+           expect(mock2).toBeCalled();
+           expect(mock).toBeCalledTimes(1);
        });
+
+
+        it('binds new props', () => {
+            render(html`
+                <div>
+                    <button>Hit me!</button>
+                </div>
+            `)(document.body);
+
+            render(html`
+                <div>
+                    <button @prop="cool!">Hit me!</button>
+                </div>
+            `)(document.body);
+
+            const buttonElement = document.querySelector('button');
+            expect((buttonElement as any).props.prop).toBe('cool!');
+        });
 
         it('prevents to rerender given a should render function', () => {
             render(html`
