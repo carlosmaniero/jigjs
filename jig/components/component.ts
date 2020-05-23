@@ -1,7 +1,5 @@
 import {Container, Injectable} from "../core/di";
 import {createTemplateElement, html as templateHtml, render, Renderable} from "../template/render";
-import {htmlParsedElementFactory} from "../third-party/html-parsed-element";
-import {Platform} from "../core/platform";
 import {Target} from "@abraham/reflection";
 import {ComponentLifecycle} from "./component-lifecycle";
 import {createStateProxy, stateMetadata} from "./component-state";
@@ -102,13 +100,10 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
 
             public registerComponent(window: JigWindow, container: Container): void {
                 const rehydrateService: RehydrateService = container.resolve(RehydrateService.InjectionToken);
-                const platform: Platform = container.resolve(Platform);
                 const REHYDRATE_CONTEXT_ATTRIBUTE_NAME = 'rehydrate-context-name';
                 const stateCopyKey = '__jig__state__';
 
-                const HTMLParsedElement = htmlParsedElementFactory(window);
-
-                window.customElements.define(selector, HTMLParsedElement.withParsedCallback(class extends window.HTMLElement {
+                window.customElements.define(selector, class extends window.HTMLElement {
                     private readonly componentInstance: T;
                     private readonly stateKey?: string;
                     private readonly props?: Record<string, unknown>;
@@ -123,16 +118,8 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                         this.registerStateChangeListener();
                     }
 
-                    public parsedCallback(): void {
-                        if (platform.isBrowser) {
-                            this.triggerLifeCycle();
-                        }
-                    }
-
                     public connectedCallback(): void {
-                        if (!platform.isBrowser) {
-                            this.triggerLifeCycle();
-                        }
+                        this.triggerLifeCycle();
                     }
 
                     public disconnectedCallback(): void {
@@ -283,7 +270,7 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                         }
 
                     }
-                }));
+                });
             }
         }
 

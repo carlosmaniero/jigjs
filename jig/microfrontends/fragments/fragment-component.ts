@@ -1,6 +1,7 @@
 import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentResponse} from "./fragments";
 import {constructor, Inject, Injectable} from "../../core/di";
 import {Component, RenderResult, State} from "../../components/component";
+import {Platform} from "../../core/platform";
 
 interface FragmentStateComponent {
     response?: FragmentResponse;
@@ -14,11 +15,17 @@ export abstract class FragmentComponent {
     abstract readonly options: FragmentOptions;
     private contentRendered = false;
 
-    constructor(@Inject(FragmentResolver.InjectionToken) protected readonly fragmentResolver: FragmentResolver,
-                @Inject(FragmentContentRender.InjectionToken) protected readonly fragmentContentRender: FragmentContentRender,) {
+    constructor(
+        @Inject(FragmentResolver.InjectionToken) protected readonly fragmentResolver: FragmentResolver,
+        @Inject(FragmentContentRender.InjectionToken) protected readonly fragmentContentRender: FragmentContentRender,
+        @Inject(Platform) protected readonly platform: Platform
+        ) {
     }
 
     async mount(): Promise<void> {
+        if (this.options.async && !this.platform.isBrowser) {
+            return;
+        }
         try {
             this.state.response = await this.fragmentResolver.resolve(this.options);
         } catch (e) {
@@ -33,15 +40,11 @@ export abstract class FragmentComponent {
         if (this.state.response) {
             return this.fragmentContentRender.render(this.state.response.html);
         }
-        return FragmentComponent.pendingFragment();
+        return this.placeholder();
     }
 
-    static readonly FragmentPlaceholderClass = 'jig-joy-fragment-placeholder';
-
-    private static pendingFragment() {
-        const htmlDivElement = document.createElement('div');
-        htmlDivElement.className = this.FragmentPlaceholderClass
-        return htmlDivElement;
+    protected placeholder(): RenderResult {
+        return document.createElement('div');
     }
 
     shouldUpdate(): boolean {
@@ -58,7 +61,10 @@ export abstract class FragmentComponent {
         return false;
     }
 
-    rehydrate(): void {
+    rehydrate(): void | Promise<void> {
+        if (this.options.async) {
+            return this.mount();
+        }
         this.contentRendered = true;
     }
 

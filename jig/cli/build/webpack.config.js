@@ -5,7 +5,11 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 
 const isDevelopment = process.env.DEV;
 
-const developmentPlugins = isDevelopment ? [new BundleAnalyzerPlugin()] : [];
+const developmentPlugins = [];
+
+if (process.env.SHOW_BUNDLE_REPORT) {
+    developmentPlugins.push(new BundleAnalyzerPlugin())
+}
 
 module.exports = {
     mode: isDevelopment ? 'development' : 'production',

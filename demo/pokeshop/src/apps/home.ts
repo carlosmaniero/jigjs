@@ -36,7 +36,8 @@ export class Index {
 @Component('cart-count-fragment')
 class CartCountFragment extends FragmentComponent {
     readonly options: FragmentOptions = {
-        url: 'http://127.0.0.1:3001/cart'
+        url: 'http://127.0.0.1:3001/cart',
+        async: true
     }
 }
 
@@ -73,8 +74,9 @@ class CatalogFragment extends FragmentComponent {
 
     get options() {
         return {
-            url: `http://localhost:3000/catalog/page/${this.page}`,
-            required: true
+            url: `http://localhost:3000/catalog/page/1`,
+            required: true,
+            async: true
         }
     }
 

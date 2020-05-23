@@ -6,6 +6,8 @@ import {Component, componentFactoryFor, html, RehydrateService, RenderResult} fr
 import * as testingLibrary from '@testing-library/dom';
 import {Platform} from "../../../core/platform";
 import {configureJSDOM} from "../../../core/dom";
+import {Renderable} from "../../../template/render";
+import waitForExpect from "wait-for-expect";
 
 describe('Fragment Component', () => {
     beforeEach(() => {
@@ -76,7 +78,7 @@ describe('Fragment Component', () => {
                 protected response: FragmentResponse;
 
                 constructor() {
-                    super(fragmentResolverMock, fragmentContentRenderMock);
+                    super(fragmentResolverMock, fragmentContentRenderMock, new Platform(false));
                 }
 
                 onErrorRender(error: Error): RenderResult {
@@ -158,7 +160,9 @@ describe('Fragment Component', () => {
 
             const fragmentContentRenderMock = {
                 // eslint-disable-next-line @typescript-eslint/no-empty-function
-                render:  <T>(): Promise<T> => new Promise(() => {})
+                render:  <T>(): Promise<T> => new Promise(() => {
+                    return;
+                })
             };
 
             const options = {url: 'http://localhost:3000/'};
@@ -166,6 +170,10 @@ describe('Fragment Component', () => {
             @Component('my-fragment')
             class MyFragment extends FragmentComponent {
                 readonly options: FragmentOptions = options;
+
+                protected placeholder(): RenderResult {
+                    return html`Waiting`;
+                }
             }
 
             globalContainer.registerInstance(FragmentResolver.InjectionToken, fragmentResolverMock);
@@ -183,8 +191,7 @@ describe('Fragment Component', () => {
 
             const fragmentComponent: HTMLElement = dom.window.document.querySelector('my-fragment');
 
-            expect((fragmentComponent.childNodes[0] as any).className)
-                .toBe(FragmentComponent.FragmentPlaceholderClass);
+            expect(testingLibrary.getByText(fragmentComponent, 'Waiting')).not.toBeNull();
         });
 
         it('resolves using the given options', async () => {
@@ -227,6 +234,75 @@ describe('Fragment Component', () => {
             await new Promise(resolve => setImmediate(() => resolve()));
 
             expect(dom.window.document.querySelector('my-fragment').textContent).toBe('Already Fetched!');
+        });
+    });
+
+    describe('async fragments', () => {
+        it('renders the placeholder at the server', async () => {
+            const fragmentResolverMock = {resolve: jest.fn(() => Promise.resolve())};
+            const fragmentContentRenderMock = {render: jest.fn()};
+
+            globalContainer.registerInstance(FragmentResolver.InjectionToken, fragmentResolverMock);
+            globalContainer.registerInstance(FragmentContentRender.InjectionToken, fragmentContentRenderMock);
+
+            const options = {url: 'http://localhost:3000/', async: true};
+
+            @Component('my-fragment')
+            class MyFragment extends FragmentComponent {
+                readonly options: FragmentOptions = options;
+
+                placeholder(): Renderable {
+                    return html`fragment placeholder`
+                }
+            }
+
+            globalContainer.register(MyFragment, MyFragment);
+
+            const dom = configureJSDOM();
+
+            const factory = componentFactoryFor(MyFragment);
+            factory.registerComponent(dom.window as any, globalContainer);
+
+            dom.window.document.body.innerHTML = '<my-fragment></my-fragment>';
+
+            await new Promise(resolve => setImmediate(() => resolve()));
+
+            expect(fragmentResolverMock.resolve).not.toBeCalled();
+            expect(fragmentContentRenderMock.render).not.toBeCalled();
+            expect(testingLibrary.getByText(dom.body, 'fragment placeholder')).not.toBeNull();
+        });
+
+        it('resolves the async fragment at the browser', async () => {
+            const fragmentResolverMock = {resolve: jest.fn(() => Promise.resolve())};
+            const fragmentContentRenderMock = {render: jest.fn()};
+            globalContainer.unregister(Platform);
+            globalContainer.registerInstance(Platform, Platform.browser());
+            globalContainer.registerInstance(FragmentResolver.InjectionToken, fragmentResolverMock);
+            globalContainer.registerInstance(FragmentContentRender.InjectionToken, fragmentContentRenderMock);
+
+            const options = {url: 'http://localhost:3000/', async: true};
+
+            @Component('my-fragment')
+            class MyFragment extends FragmentComponent {
+                readonly options: FragmentOptions = options;
+
+                placeholder(): Renderable {
+                    return html`fragment placeholder`
+                }
+            }
+
+            globalContainer.register(MyFragment, MyFragment);
+
+            const dom = configureJSDOM();
+
+            const factory = componentFactoryFor(MyFragment);
+            factory.registerComponent(dom.window as any, globalContainer);
+
+            dom.window.document.body.innerHTML = '<my-fragment rehydrate-context-name="0"></my-fragment>';
+
+            await waitForExpect(() => {
+                expect(fragmentResolverMock.resolve).toBeCalled();
+            });
         });
     });
 });
