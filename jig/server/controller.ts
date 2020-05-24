@@ -22,7 +22,7 @@ export class ServerTemplateController {
 
     resolve({app, templatePath, encode, req, res}: ServerTemplateControllerResolver) {
         fs.readFile(templatePath, encode || 'utf-8', async (err, data) => {
-            const dom = configureJSDOM(data);
+            const dom = configureJSDOM(data, 'http://localhost' + req.url);
             const dependencyContainer = this.perRequestContainer.createRequestContainer(req, res, dom);
 
             await app.registerCustomElementClass(dom.window as any, dependencyContainer);

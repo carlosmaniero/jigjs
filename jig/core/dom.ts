@@ -11,10 +11,10 @@ interface DOM {
     serialize: () => string;
 }
 
-export const configureJSDOM = (data?: string): DOM => {
+export const configureJSDOM = (data?: string, url?: string): DOM => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const jsdom = require('jsdom');
-    const dom = new jsdom.JSDOM(data);
+    const dom = new jsdom.JSDOM(data, {url});
 
     const requestAnimationFrame = (callback): void => {
         setImmediate(callback);

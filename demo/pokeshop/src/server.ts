@@ -12,12 +12,7 @@ const serverHomeApp = homeApp
 new JigServer({
     routes: [
         {
-            route: '/',
-            templatePath: path.join(__dirname, 'templates', 'index.html'),
-            app: serverHomeApp
-        },
-        {
-            route: '/page/:page',
+            route: '*',
             templatePath: path.join(__dirname, 'templates', 'index.html'),
             app: serverHomeApp
         }],

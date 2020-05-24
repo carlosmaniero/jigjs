@@ -87,7 +87,7 @@ type RegisterProps<T extends RequiredComponentMethods> = {
     elementProps: Record<string, unknown>;
     componentInstance: T;
     attributesElement: HTMLElement;
-    initialRender?: boolean;
+    sendUpdateMessage?: boolean;
 };
 export const Component = <T extends RequiredComponentMethods>(selector: string) =>
     (componentClass: Constructor<T>): void => {
@@ -99,7 +99,6 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
             }
 
             public registerComponent(window: JigWindow, container: Container): void {
-                const rehydrateService: RehydrateService = container.resolve(RehydrateService.InjectionToken);
                 const REHYDRATE_CONTEXT_ATTRIBUTE_NAME = 'rehydrate-context-name';
                 const stateCopyKey = '__jig__state__';
 
@@ -108,6 +107,7 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                     private readonly stateKey?: string;
                     private readonly props?: Record<string, unknown>;
                     private componentLifecycle: ComponentLifecycle<T>;
+                    private rehydrateService: RehydrateService;
 
                     constructor() {
                         super();
@@ -115,6 +115,7 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                         this.componentInstance = this.createComponentInstance();
                         this.componentLifecycle = new ComponentLifecycle(this.componentInstance);
                         this.stateKey = stateMetadata.getStateProperty(this.componentInstance);
+                        this.rehydrateService = container.resolve(RehydrateService.InjectionToken);
                         this.registerStateChangeListener();
                     }
 
@@ -184,10 +185,10 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                     }
 
                     private createComponentRehydrateContext(): void {
-                        this.setAttribute(REHYDRATE_CONTEXT_ATTRIBUTE_NAME, rehydrateService.incrementalContextName());
+                        this.setAttribute(REHYDRATE_CONTEXT_ATTRIBUTE_NAME, this.rehydrateService.incrementalContextName());
 
                         if (this.stateKey) {
-                            rehydrateService.updateContext(this.getContextName(), this.getComponentState());
+                            this.rehydrateService.updateContext(this.getContextName(), this.getComponentState());
                         }
                     }
 
@@ -196,7 +197,7 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                     }
 
                     private rehydrate(): void {
-                        const state = rehydrateService.getContext(this.getContextName());
+                        const state = this.rehydrateService.getContext(this.getContextName());
                         this.createProxyToComponentState(state);
                         this.componentLifecycle.rehydrate();
                         this.afterRehydrate();
@@ -232,21 +233,21 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                             elementProps: this.props,
                             componentInstance: componentInstance,
                             attributesElement: this,
-                            initialRender: true
+                            sendUpdateMessage: true
                         });
                         return componentInstance;
                     }
 
                     private stateChanged(): void {
                         this.updateRender();
-                        rehydrateService.updateContext(this.getContextName(), this.getComponentState())
+                        this.rehydrateService.updateContext(this.getContextName(), this.getComponentState())
                     }
 
                     private getComponentState(): unknown {
                         return this.componentInstance[this.stateKey];
                     }
 
-                    private registerProps({elementProps, componentInstance, initialRender = false, attributesElement}: RegisterProps<T>): void {
+                    private registerProps({elementProps, componentInstance, sendUpdateMessage = false, attributesElement}: RegisterProps<T>): void {
                         const props = elementProps || {};
                         const expectedProps: string[] = propsMetadata.getProps(componentInstance);
                         const oldProps = {};
@@ -265,7 +266,7 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                             currentProps[propName] = attributesElement.getAttribute(propName);
                         });
 
-                        if (!initialRender && JSON.stringify(oldProps) !== JSON.stringify(currentProps)) {
+                        if (!sendUpdateMessage && JSON.stringify(oldProps) !== JSON.stringify(currentProps)) {
                             this.componentLifecycle.propsChanged(oldProps);
                         }
 

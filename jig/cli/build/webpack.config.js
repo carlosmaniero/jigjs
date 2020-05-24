@@ -11,6 +11,21 @@ if (process.env.SHOW_BUNDLE_REPORT) {
     developmentPlugins.push(new BundleAnalyzerPlugin())
 }
 
+function getMinimizer() {
+    if (isDevelopment) {
+        return [];
+    }
+
+    return [
+        new TerserPlugin({
+            parallel: true,
+            terserOptions: {
+                ecma: 6,
+            },
+        })
+    ];
+}
+
 module.exports = {
     mode: isDevelopment ? 'development' : 'production',
     plugins: [
@@ -41,14 +56,7 @@ module.exports = {
     },
     optimization: {
         usedExports: true,
-        minimizer: [
-            new TerserPlugin({
-                parallel: true,
-                terserOptions: {
-                    ecma: 6,
-                },
-            })
-        ]
+        minimizer: getMinimizer()
     },
     node: {
         net: 'empty',

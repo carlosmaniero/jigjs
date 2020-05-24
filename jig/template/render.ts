@@ -12,7 +12,7 @@ export interface HtmlTemplate {
     renderAt: (element: Node & ParentNode) => DocumentFragment;
 }
 
-export type Renderable = HtmlTemplate | HTMLElement;
+export type Renderable = HtmlTemplate | ChildNode;
 
 const placeHolderRegex = /(__render_placeholder_)(\d+)(_render_placeholder__)/g;
 const customPropertySyntaxSugerAttributeRegex = /([/@](\w+)[ ]*[=])/g;
@@ -82,14 +82,14 @@ const applyToDom = (bindElement: Node & ParentNode, clone: HTMLElement): void =>
 
 export const render = (renderable: Renderable) =>
     (bindElement: Node & ParentNode): void => {
-        if ('renderAt' in renderable) {
+        if (renderable !== undefined && 'renderAt' in renderable) {
             const clone = cloneActualElementFromFragment(bindElement, renderable.renderAt(bindElement));
             applyToDom(bindElement, clone);
             return;
         }
 
         const clone = cloneActualElementFromFragment(bindElement, bindElement.ownerDocument.createDocumentFragment());
-        clone.appendChild(renderable);
+        renderable && clone.appendChild(renderable as HTMLElement);
         applyToDom(bindElement, clone);
     }
 

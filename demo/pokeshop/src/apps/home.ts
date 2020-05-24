@@ -4,9 +4,21 @@ import {FragmentComponent} from "jigjs/microfrontends/fragments/fragment-compone
 import {Component, html, Prop, RenderResult, State} from "jigjs/components/component";
 import {FragmentOptions} from "jigjs/microfrontends/fragments/fragments";
 import {Inject, Optional} from 'jigjs/core/di';
-import {Request, Response} from "jigjs/router/router";
+import {Request, Response, Routes} from "jigjs/router/router";
 import {Renderable} from "jigjs/template/render";
 import {DocumentInjectionToken} from "jigjs/core/dom";
+import {RouterOutlet} from "jigjs/router/router-outlet";
+import {routerModule} from "jigjs/router/module";
+
+@Component('simple-test')
+class SimpleTest {
+    @Prop()
+    private readonly x;
+
+    render() {
+        return html`HI ${this.x}`;
+    }
+}
 
 @Component('index-component')
 export class Index {
@@ -16,17 +28,16 @@ export class Index {
         page: '1',
     };
 
-    constructor(@Inject(Request.InjectionToken) @Optional() private readonly request: Request) {
-    }
+    @Prop()
+    private page: string | null;
 
     mount() {
-        if (this.request && this.request.params.page) {
-            this.state.page = this.request.params.page
-        }
+        this.state.page = this.page || '1';
     }
 
     render(): RenderResult {
-        return html`     
+        return html`
+            ${this.page} ${this.state.page}
             <cart-count-fragment></cart-count-fragment>
             <catalog-fragment @page="${this.state.page}"></catalog-fragment>
         `;
@@ -74,9 +85,9 @@ class CatalogFragment extends FragmentComponent {
 
     get options() {
         return {
-            url: `http://localhost:3000/catalog/page/1`,
+            url: `http://localhost:3000/catalog/page/${this.page}`,
             required: true,
-            async: true
+            async: false
         }
     }
 
@@ -87,7 +98,21 @@ class CatalogFragment extends FragmentComponent {
 
 export default new JigApp({
     bundleName: 'home',
-    bootstrap: Index,
-    components: [CartCountFragment, CatalogFragment],
+    bootstrap: RouterOutlet,
+    components: [CartCountFragment, CatalogFragment, Index],
+    modules: [
+        routerModule(new Routes([
+            {
+                name: 'index',
+                component: Index,
+                route: '/'
+            },
+            {
+                name: 'catalog:page',
+                component: Index,
+                route: '/page/:page'
+            },
+        ]))
+    ],
     errorHandlerComponent: ErrorHandler
 });
