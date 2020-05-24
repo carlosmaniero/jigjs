@@ -5,7 +5,7 @@ import {ServerRehydrateService} from "../../components/server/server-rehydrate-s
 import {Component, RehydrateService, RenderResult} from "../../components/component";
 import {html} from "../../template/render";
 import {Platform} from "../platform";
-import {configureJSDOM} from "../dom";
+import {configureJSDOM, DocumentInjectionToken} from "../dom";
 import {waitForPromises} from "../../testing/wait-for-promises";
 import {ErrorHandler, ErrorHandlerComponentClassInjectionToken} from "../../error/error-handler";
 import {DefaultErrorHandlerComponent} from "../../error/default-error-handler-component";
@@ -20,24 +20,30 @@ describe('JigEntryPoint', () => {
     }
 
     it('renders the given EntryPoint', async () => {
+        const jsdom = configureJSDOM();
+
         globalContainer.register(Platform, {useValue: new Platform(false)});
         globalContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
+        globalContainer.registerInstance(DocumentInjectionToken, jsdom.document);
 
         const entryPoint = new JigApp({
             bundleName: 'test-app',
             bootstrap: TestComponent,
         });
 
-        const jsdom = configureJSDOM();
-
         await entryPoint.registerCustomElementClass(jsdom.window as any);
 
-        jsdom.window.document.body.innerHTML = `<jig-app></jig-app>`
+        jsdom.window.document.body.innerHTML = `<jig-app></jig-app>`;
+
+        await waitForPromises();
 
         expect(jsdom.serialize()).toContain('hell yeah!');
     });
 
     it('adds the bundle file at the application head', async () => {
+        const jsdom = configureJSDOM();
+
+        globalContainer.registerInstance(DocumentInjectionToken, jsdom.document);
         globalContainer.register(Platform, {useValue: new Platform(false)});
         globalContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
 
@@ -45,8 +51,6 @@ describe('JigEntryPoint', () => {
             bundleName: 'test-app',
             bootstrap: TestComponent,
         });
-
-        const jsdom = configureJSDOM();
 
         await entryPoint.registerCustomElementClass(jsdom.window as any);
 

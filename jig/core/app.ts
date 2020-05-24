@@ -1,10 +1,11 @@
 import {Container, globalContainer, Inject} from "./di";
 import {JigModule} from "./module";
-import {AnyComponent, Component, componentFactoryFor, JigWindow} from "../components/component";
+import {AnyComponent, Component, componentFactoryFor, JigWindow, lazyLoadComponent} from "../components/component";
 import {Renderable} from "../template/render";
 import {Platform} from "./platform";
 import {DefaultErrorHandlerComponent} from "../error/default-error-handler-component";
 import {ErrorHandler, ErrorHandlerComponentClassInjectionToken} from "../error/error-handler";
+import {DocumentInjectionToken} from "../core/dom";
 
 export interface EntryPointOptions {
     bootstrap: AnyComponent;
@@ -18,10 +19,13 @@ const BootstrapInjectionToken = 'JigBootstrap';
 
 @Component('jig-app')
 export class JigAppComponent {
-    constructor(@Inject(BootstrapInjectionToken) private readonly bootstrap: any) {}
+    constructor(
+        @Inject(BootstrapInjectionToken) private readonly bootstrap: any,
+        @Inject(DocumentInjectionToken) private readonly document: any
+    ) {}
 
     render(): Renderable {
-        return document.createElement(this.bootstrap);
+        return lazyLoadComponent(this.document, this.bootstrap);
     }
 }
 
@@ -60,9 +64,7 @@ export class JigApp {
             componentFactoryFor(component).registerComponent(window, container);
         });
 
-        const bootstrapFactory = componentFactoryFor(this.options.bootstrap);
-
-        container.register(BootstrapInjectionToken, {useValue: bootstrapFactory.componentSelector});
+        container.register(BootstrapInjectionToken, {useValue: this.options.bootstrap});
         container.register(JigAppComponent, JigAppComponent);
         const platform = container.resolve<Platform>(Platform);
 

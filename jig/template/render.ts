@@ -24,9 +24,20 @@ const isElement = (element: Node): element is HTMLElement => element.nodeType ==
 const isTextNode = (element: Node) => element.nodeType === NODES.TEXT_NODE;
 const isPlaceHolder = (value: string): boolean => placeHolderRegex.test(value);
 
+export const createTemplateElement = (document: Document): HTMLTemplateElement => {
+    return document.createElementNS('http://www.w3.org/1999/xhtml', 'template') as HTMLTemplateElement;
+}
+
 function cloneActualElementFromFragment(bindElement: Node & ParentNode, documentFragment: DocumentFragment) {
-    const clone: HTMLElement = bindElement.cloneNode() as HTMLElement;
-    clone.innerHTML = '';
+    const cloneTemplate = createTemplateElement(bindElement.ownerDocument);
+    const tagName = (bindElement as HTMLElement).tagName;
+
+    let clone = cloneTemplate.content;
+
+    if (tagName && tagName !== 'BODY') {
+        cloneTemplate.innerHTML = `<${tagName}></${tagName}>`;
+        clone = cloneTemplate.content.childNodes[0] as any;
+    }
 
     const content = documentFragment;
 
@@ -64,16 +75,19 @@ const bindProps = (from: HTMLElementWithJigProperties, to: HTMLElementWithJigPro
     from.props = to.props;
 }
 
-const applyToDom = (bindElement: Node & ParentNode, clone: HTMLElement): void => {
+const applyToDom = (bindElement: Node & ParentNode, clone: Node & ParentNode): void => {
+    bindElement.normalize();
+    clone.normalize();
+
     morphdom(bindElement, clone, {
         childrenOnly: true,
         onBeforeElUpdated: (from: HTMLElementWithJigProperties, to: HTMLElementWithJigProperties) => {
+            bindProps(from, to);
+            bindEvents(from, to);
+
             if (from.shouldUpdate) {
                 return from.shouldUpdate(to);
             }
-
-            bindEvents(from, to);
-            bindProps(from, to);
 
             return true;
         }
@@ -307,10 +321,6 @@ const createTemplateWithPlaceholders = (template: TemplateStringsArray, values: 
             const valuePlaceholder = index >= values.length ? '' : createPlaceholderForIndex(index);
             return `${(replaceCustomPropsSyntaxSugar(partialTemplate))}${valuePlaceholder}`;
         }).join('');
-}
-
-export const createTemplateElement = (document: Document): HTMLTemplateElement => {
-    return document.createElementNS('http://www.w3.org/1999/xhtml', 'template') as HTMLTemplateElement;
 }
 
 export const html = (template: TemplateStringsArray, ...values: unknown[]): Renderable => {

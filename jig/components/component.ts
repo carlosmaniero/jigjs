@@ -139,10 +139,6 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                             attributesElement: newThis
                         });
 
-                        if (!this.componentLifecycle.shouldUpdate()) {
-                            return;
-                        }
-
                         this.updateRender();
                     }
 
@@ -165,6 +161,9 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                     }
 
                     private updateRender(): void {
+                        if (!this.componentLifecycle.shouldUpdate()) {
+                            return;
+                        }
                         render(this.render())(this);
                         this.componentLifecycle.afterRender();
                     }

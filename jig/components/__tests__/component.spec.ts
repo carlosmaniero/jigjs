@@ -11,7 +11,7 @@ import {Container, globalContainer, Injectable} from "../../core/di";
 import {ServerRehydrateService} from "../server/server-rehydrate-service";
 import waitForExpect from "wait-for-expect";
 import * as testingLibrary from "@testing-library/dom";
-import {html, render, Renderable} from "../../template/render";
+import {html, HtmlTemplate, render, Renderable} from "../../template/render";
 import {configureJSDOM} from "../../core/dom";
 import {Platform} from "../../core/platform";
 import {createStateProxy} from "../component-state";

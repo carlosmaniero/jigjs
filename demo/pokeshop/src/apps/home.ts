@@ -36,14 +36,27 @@ export class Index {
         this.state.page = this.page || '1';
     }
 
+    propsChanged() {
+        this.state.page = this.page || '1';
+    }
+
     render(): RenderResult {
         const nextPage = (this.page ? parseInt(this.page) : 1) + 1;
         return html`
-            ${this.page} ${this.state.page}
-            <cart-count-fragment></cart-count-fragment>
-            <catalog-fragment @page="${this.state.page}"></catalog-fragment>
-            <router-link name="catalog:page" @params="${{page: nextPage}}" @children="${[html`Next!`]}"></router-link>
+            <div>
+                ${this.page} ${this.state.page}
+                <cart-count-fragment></cart-count-fragment>
+                ${this.renderCatalog()}
+                <router-link name="catalog:page" @params="${{page: nextPage}}" @children="${[html`Next!`]}"></router-link>
+            </div>
         `;
+    }
+
+    private renderCatalog() {
+        if (parseInt(this.state.page) % 2 === 0) {
+            return [html`EMPTY PAGE`];
+        }
+        return [html`<catalog-fragment @page="${this.state.page}"></catalog-fragment>`];
     }
 }
 

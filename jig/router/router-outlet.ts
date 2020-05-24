@@ -26,7 +26,7 @@ export class RouterOutlet {
         if (!this.state.result) {
             return;
         }
-        return lazyLoadComponent(document, this.state.result.component, this.state.result.params);
+        return lazyLoadComponent(this.document, this.state.result.component, this.state.result.params);
     }
 
     mount(): void {
@@ -34,10 +34,6 @@ export class RouterOutlet {
     }
 
     rehydrate(): void {
-        this.state = {
-            result: null
-        }
-
         this.start();
     }
 
