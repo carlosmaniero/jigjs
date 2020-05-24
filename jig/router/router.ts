@@ -70,6 +70,7 @@ export class RouterHooks {
 @Singleton()
 export class Router {
     private latestMatchRoute: MatchResult;
+    private steps = 0;
 
     constructor(
         @Inject(WindowInjectionToken) private readonly window,
@@ -80,7 +81,9 @@ export class Router {
     }
 
     init(): void {
-        this.window.addEventListener('popstate', () => {
+        this.window.history.replaceState(undefined, '', this.getUrl());
+        this.window.addEventListener('popstate', (e) => {
+            e.preventDefault();
             this.resolve();
         });
         this.resolve();
@@ -90,7 +93,7 @@ export class Router {
         const url = this.reverse(name, params);
 
         this.hooks.leaveSubject.publish(this.getCurrentMatchResult());
-        this.window.history.pushState(undefined, '', url);
+        this.window.history.pushState({steps: this.steps++}, '', url);
         this.resolve();
     }
 
@@ -122,10 +125,10 @@ export class Router {
     }
 
     private getCurrentMatchResult(): MatchResult {
-        return this.routes.match(this.getUrl(this.window));
+        return this.routes.match(this.getUrl());
     }
 
-    private getUrl(window): string {
-        return window.location.pathname + window.location.search;
+    private getUrl(): string {
+        return this.window.location.pathname + this.window.location.search;
     }
 }

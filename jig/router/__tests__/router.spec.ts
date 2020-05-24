@@ -1,7 +1,6 @@
 import {Router, RouterHooks, Routes} from "../router";
 import {Container} from "../../core/di";
 import {configureJSDOM, WindowInjectionToken} from "../../core/dom";
-import {waitForPromises} from "../../testing/wait-for-promises";
 import waitForExpect from "wait-for-expect";
 
 describe('Routing', () => {
@@ -90,7 +89,7 @@ describe('Routing', () => {
 
                 routerHandler.goTo('hello', {name: 'world'});
 
-                expect(dom.window.history.pushState).toBeCalledWith(undefined, '', '/hello/world');
+                expect(dom.window.history.pushState).toBeCalledWith({steps: 0}, '', '/hello/world');
             });
 
             it('interacts with hooks when route change', () => {

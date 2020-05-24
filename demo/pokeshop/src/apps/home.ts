@@ -4,11 +4,12 @@ import {FragmentComponent} from "jigjs/microfrontends/fragments/fragment-compone
 import {Component, html, Prop, RenderResult, State} from "jigjs/components/component";
 import {FragmentOptions} from "jigjs/microfrontends/fragments/fragments";
 import {Inject, Optional} from 'jigjs/core/di';
-import {Request, Response, Routes} from "jigjs/router/router";
+import {Response, Routes} from "jigjs/router/router";
 import {Renderable} from "jigjs/template/render";
 import {DocumentInjectionToken} from "jigjs/core/dom";
 import {RouterOutlet} from "jigjs/router/router-outlet";
 import {routerModule} from "jigjs/router/module";
+import {RouterLink} from "jigjs/router/router-link";
 
 @Component('simple-test')
 class SimpleTest {
@@ -36,10 +37,12 @@ export class Index {
     }
 
     render(): RenderResult {
+        const nextPage = (this.page ? parseInt(this.page) : 1) + 1;
         return html`
             ${this.page} ${this.state.page}
             <cart-count-fragment></cart-count-fragment>
             <catalog-fragment @page="${this.state.page}"></catalog-fragment>
+            <router-link name="catalog:page" @params="${{page: nextPage}}" @children="${[html`Next!`]}"></router-link>
         `;
     }
 }
@@ -99,7 +102,12 @@ class CatalogFragment extends FragmentComponent {
 export default new JigApp({
     bundleName: 'home',
     bootstrap: RouterOutlet,
-    components: [CartCountFragment, CatalogFragment, Index],
+    components: [
+        CartCountFragment,
+        CatalogFragment,
+        Index,
+        RouterLink
+    ],
     modules: [
         routerModule(new Routes([
             {
