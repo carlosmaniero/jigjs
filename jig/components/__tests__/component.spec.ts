@@ -5,7 +5,8 @@ import {
     Prop,
     RehydrateService,
     RenderResult,
-    State
+    State,
+    RehydrateData
 } from "../component";
 import {Container, globalContainer, Injectable} from "../../core/di";
 import {ServerRehydrateService} from "../server/server-rehydrate-service";
@@ -395,7 +396,7 @@ describe('Component Annotation', () => {
                 const element = dom.window.document.querySelector('component-custom');
                 expect(element.getAttribute('rehydrate-context-name')).toBe('0');
                 const contextName = element.getAttribute('rehydrate-context-name');
-                expect(rehydrateService.getContext(contextName)).toEqual({name: 'World'});
+                expect(rehydrateService.getContext<RehydrateData>(contextName).state).toEqual({name: 'World'});
             });
 
             it('updates the rehydration service given a state change', async () => {
@@ -426,7 +427,7 @@ describe('Component Annotation', () => {
 
                 const element = dom.window.document.querySelector('component-custom');
                 const contextName = element.getAttribute('rehydrate-context-name');
-                expect(rehydrateService.getContext(contextName)).toEqual({name: 'Universe'});
+                expect(rehydrateService.getContext<RehydrateData>(contextName).state).toEqual({name: 'Universe'});
             });
         });
 
@@ -441,7 +442,7 @@ describe('Component Annotation', () => {
                     const rehydrateService = new ServerRehydrateService();
                     globalContainer.register(RehydrateService.InjectionToken, {useValue: rehydrateService});
 
-                    rehydrateService.updateContext("0", {name: 'World'});
+                    rehydrateService.updateContext("0", {state: {name: 'World'}});
                     rehydrateMock = jest.fn();
                     mountMock = jest.fn();
 
@@ -547,7 +548,9 @@ describe('Component Annotation', () => {
                     factory.registerComponent(dom.window as any, globalContainer);
 
                     serverRehydrateService.updateContext('0', {
-                        count: 10
+                        state: {
+                            count: 10
+                        }
                     });
 
                     dom.window.document.body.innerHTML =

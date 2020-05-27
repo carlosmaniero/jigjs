@@ -10,9 +10,13 @@ export type JigWindow = Window & {
     HTMLElement: typeof HTMLElement;
 }
 
-type RequiredComponentMethods = {
-    render: () => Renderable;
-};
+interface RequiredComponentMethods {
+    render(): Renderable;
+}
+
+export interface RehydrateData {
+    state: Record<string, unknown>;
+}
 
 type Constructor<T> = {
     new(...args: unknown[]): T;
@@ -187,7 +191,7 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                         this.setAttribute(REHYDRATE_CONTEXT_ATTRIBUTE_NAME, this.rehydrateService.incrementalContextName());
 
                         if (this.stateKey) {
-                            this.rehydrateService.updateContext(this.getContextName(), this.getComponentState());
+                            this.updateRehydrateContext();
                         }
                     }
 
@@ -196,7 +200,7 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                     }
 
                     private rehydrate(): void {
-                        const state = this.rehydrateService.getContext(this.getContextName());
+                        const {state} = this.rehydrateService.getContext<RehydrateData>(this.getContextName()) || {};
                         this.createProxyToComponentState(state);
                         this.componentLifecycle.rehydrate();
                         this.afterRehydrate();
@@ -237,9 +241,15 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                         return componentInstance;
                     }
 
+                    private updateRehydrateContext() {
+                        this.rehydrateService.updateContext(this.getContextName(), {
+                            state: this.getComponentState()
+                        });
+                    }
+
                     private stateChanged(): void {
                         this.updateRender();
-                        this.rehydrateService.updateContext(this.getContextName(), this.getComponentState())
+                        this.updateRehydrateContext();
                     }
 
                     private getComponentState(): unknown {
