@@ -224,4 +224,6 @@ class CartComponent extends HTMLElement {
     }
 }
 
-customElements.define('cart-component', CartComponent);
+if (!customElements.get('cart-component')) {
+    customElements.define('cart-component', CartComponent);
+}

@@ -41,4 +41,6 @@ class CartCountComponent extends HTMLElement {
     }
 }
 
-customElements.define('cart-count-component', CartCountComponent);
+if (!customElements.get('cart-count-component')) {
+    customElements.define('cart-count-component', CartCountComponent);
+}

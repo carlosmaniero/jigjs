@@ -1,9 +1,22 @@
 import {Injectable} from "../../../core/di";
 import {FragmentContentRender} from "../fragments";
+import {Renderable} from "../../../template/render";
 
 @Injectable([FragmentContentRender])
 export class BrowserContentRender implements FragmentContentRender {
-    render(html: string): HTMLElement {
+    render(html: string): Renderable {
+        const htmlDivElement = this.appendElementsToDiv(html);
+        const fragment = document.createDocumentFragment();
+
+        while (htmlDivElement.childNodes.length !== 0) {
+            fragment.appendChild(htmlDivElement.childNodes[0]);
+        }
+
+        return fragment;
+    }
+
+
+    private appendElementsToDiv(html: string) {
         const div = document.createElement('div');
         div.innerHTML = html;
 
@@ -21,9 +34,8 @@ export class BrowserContentRender implements FragmentContentRender {
 
                 script.remove();
                 div.appendChild(recreatedScript);
-            })
+            });
+
         return div;
     }
-
-
 }

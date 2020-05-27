@@ -57,15 +57,10 @@ export abstract class FragmentComponent {
         }
     }
 
-    shouldRenderAfterRehydrate(): boolean {
-        return false;
-    }
-
     rehydrate(): void | Promise<void> {
         if (this.options.async) {
             return this.mount();
         }
-        this.contentRendered = true;
     }
 
     protected onErrorRender(error: Error): RenderResult {

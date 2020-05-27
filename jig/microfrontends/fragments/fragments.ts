@@ -1,3 +1,5 @@
+import {Renderable} from "../../template/render";
+
 export interface FragmentOptions {
     url: string;
     async?: boolean;
@@ -18,7 +20,7 @@ export const FragmentResolver = {
 }
 
 export interface FragmentContentRender {
-    render: (html: string) => HTMLElement;
+    render: (html: string) => Renderable;
 }
 
 export const FragmentContentRender = {

@@ -193,48 +193,6 @@ describe('Fragment Component', () => {
 
             expect(testingLibrary.getByText(fragmentComponent, 'Waiting')).not.toBeNull();
         });
-
-        it('resolves using the given options', async () => {
-            const responseHtml = '<b>Hey</b>';
-
-            const fragmentResolverMock = {
-                resolve: jest.fn(() => Promise.resolve({
-                    html: responseHtml,
-                    dependencies: []
-                }))
-            };
-
-            const fragmentContentRenderMock = {
-                render: jest.fn(() => {
-                    const div = document.createElement('div');
-                    div.innerHTML = '<i>How</i>';
-                    return div;
-                })
-            };
-
-            const options = {url: 'http://localhost:3000/'};
-
-            @Component('my-fragment')
-            class MyFragment extends FragmentComponent {
-                readonly options: FragmentOptions = options;
-
-                protected response: FragmentResponse;
-            }
-
-            const dom = configureJSDOM()
-
-            globalContainer.registerInstance(FragmentResolver.InjectionToken, fragmentResolverMock);
-            globalContainer.registerInstance(FragmentContentRender.InjectionToken, fragmentContentRenderMock);
-            globalContainer.register(MyFragment, MyFragment);
-            const factory = componentFactoryFor(MyFragment);
-            factory.registerComponent(dom.window as any, globalContainer);
-
-            dom.window.document.body.innerHTML = '<my-fragment rehydrate-context-name="0">Already Fetched!</my-fragment>';
-
-            await new Promise(resolve => setImmediate(() => resolve()));
-
-            expect(dom.window.document.querySelector('my-fragment').textContent).toBe('Already Fetched!');
-        });
     });
 
     describe('async fragments', () => {

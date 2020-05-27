@@ -12,7 +12,7 @@ export interface HtmlTemplate {
     renderAt: (element: Node & ParentNode) => DocumentFragment;
 }
 
-export type Renderable = HtmlTemplate | ChildNode;
+export type Renderable = HtmlTemplate | ChildNode | DocumentFragment;
 
 const placeHolderRegex = /(__render_placeholder_)(\d+)(_render_placeholder__)/g;
 const customPropertySyntaxSugerAttributeRegex = /([/@](\w+)[ ]*[=])/g;

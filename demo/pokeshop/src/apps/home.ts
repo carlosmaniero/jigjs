@@ -45,7 +45,6 @@ export class Index {
         return html`
             <div>
                 ${this.page} ${this.state.page}
-                <cart-count-fragment></cart-count-fragment>
                 ${this.renderCatalog()}
                 <router-link name="catalog:page" @params="${{page: nextPage}}" @children="${[html`Next!`]}"></router-link>
             </div>
@@ -56,7 +55,7 @@ export class Index {
         if (parseInt(this.state.page) % 2 === 0) {
             return [html`EMPTY PAGE`];
         }
-        return [html`<catalog-fragment @page="${this.state.page}"></catalog-fragment>`];
+        return [html`<cart-count-fragment></cart-count-fragment><catalog-fragment @page="${this.state.page}"></catalog-fragment>`];
     }
 }
 
@@ -104,6 +103,20 @@ class CatalogFragment extends FragmentComponent {
             url: `http://localhost:3000/catalog/page/${this.page}`,
             required: true,
             async: false
+        }
+    }
+
+    unmount() {
+        if (typeof (window as any).webpackJsonp !== "undefined") {
+            const currentWindow = window as any;
+            (currentWindow as any).webpackJsonp = [];
+            currentWindow.webpackJsonp = null;
+            currentWindow.__BUILD_MANIFEST = null;
+            currentWindow.__BUILD_MANIFEST_CB = null;
+            currentWindow.__NEXT_DATA__ = null;
+            currentWindow.__NEXT_P = null;
+            currentWindow.__SSG_MANIFEST = null;
+            currentWindow.__SSG_MANIFEST_CB = null;
         }
     }
 
