@@ -3,6 +3,7 @@ import {fetchPokemons, FetchPokemonsResponse} from "../../../services/catalog-se
 import {publishEvent, subscribeToEvent} from "../../../core/event-bus";
 import {PokemonList} from "../../../components/pokemons/pokemon-list";
 import {Pagination} from "../../../components/pagination/pagination";
+import Router from 'next/router'
 
 type Props = FetchPokemonsResponse & {
     paginationUrlTemplate: string,
@@ -16,6 +17,11 @@ export default class NumberPage extends React.Component<Props, FetchPokemonsResp
     }
 
     render() {
+        if (typeof window !== 'undefined') {
+            console.log('disable popstate');
+            window.removeEventListener('popstate', Router.router.onPopState);
+        }
+
         return (
             <section>
                 <style jsx>{`

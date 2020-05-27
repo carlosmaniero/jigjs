@@ -9,13 +9,13 @@ const NODES = {
 }
 
 export interface HtmlTemplate {
-    renderAt: (element: Node & ParentNode) => DocumentFragment;
+    renderAt: (document) => DocumentFragment;
 }
 
 export type Renderable = HtmlTemplate | ChildNode | DocumentFragment;
 
 const placeHolderRegex = /(__render_placeholder_)(\d+)(_render_placeholder__)/g;
-const customPropertySyntaxSugerAttributeRegex = /([/@](\w+)[ ]*[=])/g;
+const customPropertySyntaxSugarAttributeRegex = /([/@](\w+)[ ]*[=])/g;
 const customPropertySyntaxSugarAttributeGroup = '$2';
 const customPropertyAttributePrefix = 'jig-custom-property-';
 
@@ -97,7 +97,7 @@ const applyToDom = (bindElement: Node & ParentNode, clone: Node & ParentNode): v
 export const render = (renderable: Renderable) =>
     (bindElement: Node & ParentNode): void => {
         if (renderable !== undefined && 'renderAt' in renderable) {
-            const clone = cloneActualElementFromFragment(bindElement, renderable.renderAt(bindElement));
+            const clone = cloneActualElementFromFragment(bindElement, renderable.renderAt(bindElement.ownerDocument));
             applyToDom(bindElement, clone);
             return;
         }
@@ -120,53 +120,53 @@ const getPlaceHolderIndex = (placeholder: string): number[] => {
             parseInt(mathPlaceholder.match(/(__render_placeholder_)(\d+)(_render_placeholder__)/)[2]));
 }
 
-const fillArrayElementContent = (element: ChildNode, placeholder: string, value): void => {
-    const document = element.ownerDocument;
-    const texts = element.textContent.split(placeholder);
-    element.textContent = '';
+const createElementChildNodesForValue = (document, value: unknown): ChildNode[] => {
+    if (!value) {
+        return [];
+    }
 
-    texts.forEach((text, index) => {
-        element.parentElement.appendChild(
-            document.createTextNode(text));
+    if (Array.isArray(value)) {
+        return value.flatMap((val) => createElementChildNodesForValue(document, val));
+    }
 
-        if (index == 0) {
-            value.forEach((child) => {
+    if (typeof value === 'object' && 'renderAt' in value) {
+        return Array.from((value as any).renderAt(document).childNodes);
+    }
 
-                if (child.renderAt) {
-                    const fragment = document.createDocumentFragment();
-
-                    render(child)(fragment);
-
-                    while(fragment.childNodes.length !== 0) {
-                        element.parentElement.appendChild(fragment.childNodes[0]);
-                    }
-
-                    return;
-                }
-
-                element.parentElement.appendChild(document.createTextNode(child));
-            });
-        }
-    });
+    return [document.createTextNode(value.toString())];
 }
 
-const fillContentPlaceholder = (content: DocumentFragment | ChildNode, values: unknown[]): void => {
-    content.childNodes.forEach((element) => {
+const fillChildNodesContentPlaceholder = (content: DocumentFragment | ChildNode, values: unknown[]): void => {
+    Array.from(content.childNodes).forEach((element) => {
+        const document = element.ownerDocument;
+        const parent = content;
         if (isTextNode(element)) {
-            values.forEach((value, i) => {
-                const placeholder = createPlaceholderForIndex(i);
+            let textContent = element.textContent;
+            const placeholderIndexes = getPlaceHolderIndex(textContent);
 
-                if (element.textContent.indexOf(placeholder) >= 0 && Array.isArray(value)) {
-                    fillArrayElementContent(element, placeholder, value);
+            if (!placeholderIndexes || placeholderIndexes.length === 0) {
+                return;
+            }
 
-                    return
-                }
+            for (const placeholderIndex of placeholderIndexes) {
+                const placeholder = createPlaceholderForIndex(placeholderIndex);
 
-                element.textContent = element.textContent.replace(placeholder, value as string);
-            });
-            return;
+                const [beforePlaceholder, afterPlaceholder] = textContent.split(placeholder);
+
+                beforePlaceholder && parent.insertBefore(document.createTextNode(beforePlaceholder), element);
+
+                Array.from(createElementChildNodesForValue(document, values[placeholderIndex]))
+                    .forEach((child) => {
+                        parent.insertBefore(child, element);
+                    });
+
+                textContent = afterPlaceholder;
+            }
+
+            textContent && parent.insertBefore(document.createTextNode(textContent), element);
+            element.remove();
         }
-        fillContentPlaceholder(element, values);
+        fillChildNodesContentPlaceholder(element, values);
     });
 }
 
@@ -307,12 +307,12 @@ const fillAttributes = (element: DocumentFragment | ChildNode, values: unknown[]
 }
 
 const fillPlaceholders = (content: DocumentFragment, values: unknown[]): void => {
-    fillContentPlaceholder(content, values);
+    fillChildNodesContentPlaceholder(content, values);
     fillAttributes(content, values);
 }
 
 const replaceCustomPropsSyntaxSugar = (partialTemplate: string): string => {
-    return partialTemplate.replace(customPropertySyntaxSugerAttributeRegex, `${customPropertyAttributePrefix + customPropertySyntaxSugarAttributeGroup}=`);
+    return partialTemplate.replace(customPropertySyntaxSugarAttributeRegex, `${customPropertyAttributePrefix + customPropertySyntaxSugarAttributeGroup}=`);
 }
 
 const createTemplateWithPlaceholders = (template: TemplateStringsArray, values: unknown[]) => {
@@ -325,8 +325,7 @@ const createTemplateWithPlaceholders = (template: TemplateStringsArray, values: 
 
 export const html = (template: TemplateStringsArray, ...values: unknown[]): Renderable => {
     return {
-        renderAt: (element): DocumentFragment => {
-            const document = element.ownerDocument;
+        renderAt: (document): DocumentFragment => {
             const templateElement: HTMLTemplateElement = createTemplateElement(document);
             templateElement.innerHTML = createTemplateWithPlaceholders(template, values);
             const content = templateElement.content;

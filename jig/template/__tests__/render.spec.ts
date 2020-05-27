@@ -62,7 +62,20 @@ describe('Render', () => {
         });
     });
 
-    describe('listing', () => {
+    describe('nested html', () => {
+        it('renders a nested html list', () => {
+            render(html`
+                ${html`a`} ${[html`b`]} ${[html`c`]} ${[html`d`, html`e`]} ${['f', 'g', 123]} ${html`${html`4`}`}`)(document.body);
+
+            expect(document.body.textContent).toContain('a b c de fg123 4');
+        });
+
+        it('ignores null values', () => {
+            render(html`${null}Hi`)(document.body);
+
+            expect(document.body.textContent).toBe('Hi');
+        });
+
         it('renders a list', () => {
             const greetings = [
                 'Hello',
