@@ -3,16 +3,16 @@ import {
     componentFactoryFor,
     lazyLoadComponent,
     Prop,
+    RehydrateData,
     RehydrateService,
     RenderResult,
-    State,
-    RehydrateData
+    State
 } from "../component";
 import {Container, globalContainer, Injectable} from "../../core/di";
 import {ServerRehydrateService} from "../server/server-rehydrate-service";
 import waitForExpect from "wait-for-expect";
 import * as testingLibrary from "@testing-library/dom";
-import {html, HtmlTemplate, render, Renderable} from "../../template/render";
+import {html, render, Renderable} from "../../template/render";
 import {configureJSDOM} from "../../core/dom";
 import {Platform} from "../../core/platform";
 import {createStateProxy} from "../component-state";
@@ -81,10 +81,10 @@ describe('Component Annotation', () => {
             @Component('my-component')
             class MyComponent {
                 @Prop()
-                private readonly name: string;
+                private readonly myName: string;
 
                 render() {
-                    return html`Hello, ${this.name}`
+                    return html`Hello, ${this.myName}`
                 }
 
                 propsChanged(oldProps): void {
@@ -101,23 +101,23 @@ describe('Component Annotation', () => {
             globalContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
             factory.registerComponent(dom.window as any, globalContainer);
 
-            render(html`<my-component @name="World"></my-component>`)(dom.window.document.body);
+            render(html`<my-component @myName="World"></my-component>`)(dom.window.document.body);
             expect(dom.window.document.body.textContent).toContain('World');
             expect(propsChangeMock).not.toBeCalled();
 
-            render(html`<my-component @name="Universe"></my-component>`)(dom.window.document.body);
+            render(html`<my-component @myName="Universe"></my-component>`)(dom.window.document.body);
             expect(dom.window.document.body.textContent).toContain('Universe');
 
-            expect(propsChangeMock).toBeCalledWith({name: 'World'});
+            expect(propsChangeMock).toBeCalledWith({myName: 'World'});
             expect(propsChangeMock).toBeCalledTimes(1);
 
-            render(html`<my-component @name="Universe"></my-component>`)(dom.window.document.body);
+            render(html`<my-component @myName="Universe"></my-component>`)(dom.window.document.body);
             expect(propsChangeMock).toBeCalledTimes(1);
 
-            render(html`<my-component name="Multiverse"></my-component>`)(dom.window.document.body);
+            render(html`<my-component myName="Multiverse"></my-component>`)(dom.window.document.body);
             expect(dom.window.document.body.textContent).toContain('Multiverse');
 
-            expect(propsChangeMock).toBeCalledWith({name: 'Universe'});
+            expect(propsChangeMock).toBeCalledWith({myName: 'Universe'});
             expect(propsChangeMock).toBeCalledTimes(2);
         });
 
@@ -380,6 +380,9 @@ describe('Component Annotation', () => {
                     @State()
                     private state = {name: 'World'};
 
+                    @Prop()
+                    private myProp: string;
+
                     render(): RenderResult {
                         return html`Hey!`
                     }
@@ -390,13 +393,13 @@ describe('Component Annotation', () => {
                 const factory = componentFactoryFor(MyComponent);
                 factory.registerComponent(dom.window as any, globalContainer);
 
-                dom.window.document.body.innerHTML =
-                    '<component-custom></component-custom>'
+                render(html`<component-custom @myProp="${'Hello'}"></component-custom>`)(dom.window.document.body);
 
                 const element = dom.window.document.querySelector('component-custom');
                 expect(element.getAttribute('rehydrate-context-name')).toBe('0');
                 const contextName = element.getAttribute('rehydrate-context-name');
                 expect(rehydrateService.getContext<RehydrateData>(contextName).state).toEqual({name: 'World'});
+                expect(rehydrateService.getContext<RehydrateData>(contextName).props).toEqual({myprop: 'Hello'});
             });
 
             it('updates the rehydration service given a state change', async () => {
@@ -442,7 +445,15 @@ describe('Component Annotation', () => {
                     const rehydrateService = new ServerRehydrateService();
                     globalContainer.register(RehydrateService.InjectionToken, {useValue: rehydrateService});
 
-                    rehydrateService.updateContext("0", {state: {name: 'World'}});
+                    rehydrateService.updateContext("0", {
+                        state: {
+                            name: 'World'
+                        },
+                        props: {
+                            exclamationmark: '!'
+                        }
+                    });
+
                     rehydrateMock = jest.fn();
                     mountMock = jest.fn();
 
@@ -453,8 +464,11 @@ describe('Component Annotation', () => {
                             name: 'no-name'
                         };
 
+                        @Prop()
+                        exclamationMark: string;
+
                         render(): RenderResult {
-                            return html`<div>Hello, ${this.state.name}</div>`
+                            return html`<div>Hello, ${this.state.name}${this.exclamationMark}</div>`
                         }
 
                         rehydrate(): void {
@@ -478,19 +492,24 @@ describe('Component Annotation', () => {
 
                 });
 
-                it('renders the content of rehydration', async () => {
+                it('renders the content of rehydration ', async () => {
                     await waitForExpect(() => {
-                        expect(testingLibrary.getAllByText(dom.window.document.body, "Hello, World")).toHaveLength(1);
+                        expect(testingLibrary.getAllByText(dom.window.document.body, "Hello, World!")).toHaveLength(1);
                     });
                 });
 
-                it('keep the innerHtml', () => {
+                it('keeps the same element and only changes the content', () => {
                     expect(dom.window.document.querySelector('div') === originalDiv).toBeTruthy();
                 });
 
                 it('updates the state with the context', () => {
                     expect(dom.window.document
                         .querySelector('component-custom').componentInstance.state).toEqual({name: 'World'});
+                });
+
+                it('updates the element props', () => {
+                    expect(dom.window.document
+                        .querySelector('component-custom').componentInstance.exclamationMark).toEqual('!');
                 });
 
                 it('calls the rehydrate method when rehydrate', () => {

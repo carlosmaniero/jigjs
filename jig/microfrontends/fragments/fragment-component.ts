@@ -14,6 +14,7 @@ export abstract class FragmentComponent {
     state: FragmentStateComponent = {}
     abstract readonly options: FragmentOptions;
     private contentRendered = false;
+    private latestOptions: FragmentOptions | null;
 
     constructor(
         @Inject(FragmentResolver.InjectionToken) protected readonly fragmentResolver: FragmentResolver,
@@ -23,14 +24,7 @@ export abstract class FragmentComponent {
     }
 
     async mount(): Promise<void> {
-        if (this.options.async && !this.platform.isBrowser) {
-            return;
-        }
-        try {
-            this.state.response = await this.fragmentResolver.resolve(this.options);
-        } catch (e) {
-            this.state.error = e;
-        }
+        await this.fetchFragment();
     }
 
     render(): RenderResult {
@@ -59,7 +53,29 @@ export abstract class FragmentComponent {
 
     rehydrate(): void | Promise<void> {
         if (this.options.async) {
-            return this.mount();
+            return this.fetchFragment();
+        }
+    }
+
+    propsChanged(): void {
+        if (JSON.stringify(this.options) === JSON.stringify(this.latestOptions)) {
+            return null;
+        }
+
+        this.state = {};
+        this.contentRendered = false;
+        this.mount();
+    }
+
+    private async fetchFragment(): Promise<void> {
+        this.latestOptions = {...this.options};
+        if (this.options.async && !this.platform.isBrowser) {
+            return;
+        }
+        try {
+            this.state.response = await this.fragmentResolver.resolve(this.options);
+        } catch (e) {
+            this.state.error = e;
         }
     }
 

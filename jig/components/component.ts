@@ -16,6 +16,7 @@ interface RequiredComponentMethods {
 
 export interface RehydrateData {
     state: Record<string, unknown>;
+    props: Record<string, unknown>;
 }
 
 type Constructor<T> = {
@@ -91,7 +92,7 @@ type RegisterProps<T extends RequiredComponentMethods> = {
     elementProps: Record<string, unknown>;
     componentInstance: T;
     attributesElement: HTMLElement;
-    sendUpdateMessage?: boolean;
+    ignorePropsChanged?: boolean;
 };
 export const Component = <T extends RequiredComponentMethods>(selector: string) =>
     (componentClass: Constructor<T>): void => {
@@ -200,7 +201,13 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                     }
 
                     private rehydrate(): void {
-                        const {state} = this.rehydrateService.getContext<RehydrateData>(this.getContextName()) || {};
+                        const {state, props} = this.rehydrateService.getContext<RehydrateData>(this.getContextName()) || {};
+                        this.registerProps({
+                            elementProps: props,
+                            componentInstance: this.componentInstance,
+                            attributesElement: this,
+                            ignorePropsChanged: true
+                        });
                         this.createProxyToComponentState(state);
                         this.componentLifecycle.rehydrate();
                         this.afterRehydrate();
@@ -236,14 +243,15 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                             elementProps: this.props,
                             componentInstance: componentInstance,
                             attributesElement: this,
-                            sendUpdateMessage: true
+                            ignorePropsChanged: true
                         });
                         return componentInstance;
                     }
 
                     private updateRehydrateContext() {
                         this.rehydrateService.updateContext(this.getContextName(), {
-                            state: this.getComponentState()
+                            state: this.getComponentState(),
+                            props: this.props
                         });
                     }
 
@@ -256,8 +264,8 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                         return this.componentInstance[this.stateKey];
                     }
 
-                    private registerProps({elementProps, componentInstance, sendUpdateMessage = false, attributesElement}: RegisterProps<T>): void {
-                        const props = elementProps || {};
+                    private registerProps({elementProps, componentInstance, ignorePropsChanged = false, attributesElement}: RegisterProps<T>): void {
+                        const props = this.getPropsFrom(elementProps);
                         const expectedProps: string[] = propsMetadata.getProps(componentInstance);
                         const oldProps = {};
                         const currentProps = {};
@@ -265,9 +273,9 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                         expectedProps.forEach((propName) => {
                             oldProps[propName] = componentInstance[propName];
 
-                            if (propName in props) {
-                                componentInstance[propName] = props[propName];
-                                currentProps[propName] = props[propName];
+                            if (propName.toLowerCase() in props) {
+                                componentInstance[propName] = props[propName.toLowerCase()];
+                                currentProps[propName] = props[propName.toLowerCase()];
                                 return;
                             }
 
@@ -275,10 +283,19 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                             currentProps[propName] = attributesElement.getAttribute(propName);
                         });
 
-                        if (!sendUpdateMessage && JSON.stringify(oldProps) !== JSON.stringify(currentProps)) {
+                        if (!ignorePropsChanged && JSON.stringify(oldProps) !== JSON.stringify(currentProps)) {
                             this.componentLifecycle.propsChanged(oldProps);
                         }
 
+                    }
+
+                    private getPropsFrom(elementProps?: Record<string, unknown>): Record<string, unknown> {
+                        if (!elementProps) {
+                            return {}
+                        }
+                        return Object.keys(elementProps).reduce((acc, key) => {
+                            return {...acc, [key.toLowerCase()]: elementProps[key]}
+                        }, {});
                     }
                 });
             }

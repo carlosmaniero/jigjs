@@ -4,6 +4,7 @@ import {globalContainer} from "../core/di";
 import {ServerTemplateController} from "./controller";
 import {ModuleProvider} from "../core/module";
 import {PerRequestContainer} from "./di";
+import chalk from "chalk";
 
 export interface TemplateRoute {
     route: string;
@@ -42,7 +43,11 @@ export class JigServer {
         const {port} = this.options;
 
         this.app.listen(port, function () {
-            console.log(`Jig.js is running on http://localhost:${port}!`);
+            console.log('.----------------------------------------.')
+            console.log(`| 🧩 ${chalk.bold.hex('f67280')('Jig.js')} - ${chalk.bold('A micro-frontend framework')} |`)
+            console.log('|----------------------------------------|')
+            console.log(`|    Server is running at port: ${chalk.bold.green(port)}     |`);
+            console.log('\'----------------------------------------\'')
         });
     }
 
