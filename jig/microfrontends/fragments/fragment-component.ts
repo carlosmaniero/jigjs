@@ -6,6 +6,8 @@ import {Platform} from "../../core/platform";
 interface FragmentStateComponent {
     response?: FragmentResponse;
     error?: Error;
+    latestOptions?: FragmentOptions;
+    contentFetched?: boolean;
 }
 
 @Injectable()
@@ -14,7 +16,6 @@ export abstract class FragmentComponent {
     state: FragmentStateComponent = {}
     abstract readonly options: FragmentOptions;
     private contentRendered = false;
-    private latestOptions: FragmentOptions | null;
 
     constructor(
         @Inject(FragmentResolver.InjectionToken) protected readonly fragmentResolver: FragmentResolver,
@@ -24,6 +25,9 @@ export abstract class FragmentComponent {
     }
 
     async mount(): Promise<void> {
+        if (this.state.contentFetched) {
+            return;
+        }
         await this.fetchFragment();
     }
 
@@ -51,24 +55,18 @@ export abstract class FragmentComponent {
         }
     }
 
-    rehydrate(): void | Promise<void> {
-        if (this.options.async) {
-            return this.fetchFragment();
-        }
-    }
-
     propsChanged(): void {
-        if (JSON.stringify(this.options) === JSON.stringify(this.latestOptions)) {
+        if (JSON.stringify(this.options) === JSON.stringify(this.state.latestOptions)) {
             return null;
         }
 
-        this.state = {};
         this.contentRendered = false;
-        this.mount();
+        this.state = {};
+        this.fetchFragment();
     }
 
     private async fetchFragment(): Promise<void> {
-        this.latestOptions = {...this.options};
+        this.state.latestOptions = {...this.options};
         if (this.options.async && !this.platform.isBrowser) {
             return;
         }
@@ -77,6 +75,8 @@ export abstract class FragmentComponent {
         } catch (e) {
             this.state.error = e;
         }
+
+        this.state.contentFetched = true;
     }
 
     protected onErrorRender(error: Error): RenderResult {

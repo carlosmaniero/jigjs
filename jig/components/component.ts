@@ -33,6 +33,11 @@ export interface RehydrateService {
     getContext<T>(contextName: string): T;
 }
 
+export interface PropsSnapshot {
+    oldProps: Record<string, unknown>;
+    currentProps: Record<string, unknown>;
+}
+
 export const RehydrateService = {
     InjectionToken: 'RehydrateService'
 }
@@ -74,7 +79,7 @@ export const State = () => (target: Target, propertyKey: string): void => {
     stateMetadata.setStateProperty(target, propertyKey);
 }
 
-const propsMetadata = {
+export const propsMetadata = {
     appendProps(target: Target, propertyKey: string): void {
         const props: string[] = Reflect.getMetadata("design:type", target, "componentProperties") || [];
         Reflect.defineMetadata("design:type", [...props, propertyKey], target, "componentProperties");
@@ -118,33 +123,71 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                         super();
 
                         this.componentInstance = this.createComponentInstance();
-                        this.componentLifecycle = new ComponentLifecycle(this.componentInstance);
                         this.stateKey = stateMetadata.getStateProperty(this.componentInstance);
                         this.rehydrateService = container.resolve(RehydrateService.InjectionToken);
                         this.registerStateChangeListener();
+                        this.componentLifecycle = this.createComponentLifecycle();
                     }
 
-                    public connectedCallback(): void {
-                        this.triggerLifeCycle();
+                    connectedCallback(): void {
+                        this.setupRehydrateContext();
+                        this.componentLifecycle.start();
                     }
 
-                    public disconnectedCallback(): void {
+                    disconnectedCallback(): void {
                         this.componentLifecycle.unmount();
                     }
+
 
                     shouldUpdate(newThis): boolean {
                         this.parentComponentUpdatedThisComponent(newThis);
                         return false;
                     }
 
+                    private createComponentInstance(): T {
+                        return container.resolve<T>(componentClass);
+                    }
+
+                    private createComponentLifecycle(): ComponentLifecycle<T> {
+                        const rehydrationContextGetter = (): RehydrateData | null => {
+                            return this.getRehydrationContext();
+                        }
+
+                        const rehydrationContextSetter = (context: RehydrateData | null): void => {
+                            this.updateRehydrateContextWith(context);
+                        }
+
+                        return new ComponentLifecycle(this.componentInstance, {
+                            get preRenderContext(): RehydrateData | null {
+                                return rehydrationContextGetter();
+                            },
+                            set preRenderContext(context) {
+                                rehydrationContextSetter(context);
+                            },
+                            initialProps: this.getInitialProps({
+                                elementProps: this.props,
+                                componentInstance: this.componentInstance,
+                                attributesElement: this,
+                                ignorePropsChanged: true,
+                            }),
+                            propsKeys: propsMetadata.getProps(this.componentInstance),
+                            stateKey: stateMetadata.getStateProperty(this.componentInstance),
+                            updateRender: (renderable): void => this.updateRenderable(renderable)
+                        });
+                    }
+
                     private parentComponentUpdatedThisComponent(newThis): void {
-                        this.registerProps({
+                        const {currentProps, oldProps} = this.createPropsSnapshot({
                             elementProps: newThis.props,
                             componentInstance: this.componentInstance,
                             attributesElement: newThis
                         });
 
-                        this.updateRender();
+                        if (JSON.stringify(oldProps) === JSON.stringify(currentProps)) {
+                            return;
+                        }
+
+                        this.componentLifecycle.onPropsChanged(currentProps, oldProps);
                     }
 
                     private registerStateChangeListener(): void {
@@ -165,60 +208,32 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                         }
                     }
 
-                    private updateRender(): void {
-                        if (!this.componentLifecycle.shouldUpdate()) {
-                            return;
-                        }
-                        render(this.render())(this);
-                        this.componentLifecycle.afterRender();
+                    private updateRenderable(renderable: Renderable): void {
+                        render(renderable)(this);
                     }
 
-                    private triggerLifeCycle(): void {
-                        if (this.canBeRehydrated()) {
-                            this.rehydrate();
-                            return;
+                    private setupRehydrateContext(): void {
+                        if (!this.hasRehydrationContext()) {
+                            this.createComponentRehydrateContext();
                         }
-
-                        this.createComponentRehydrateContext();
-                        this.mount();
-                    }
-
-                    private mount(): void {
-                        this.componentLifecycle.mount();
-                        this.updateRender();
                     }
 
                     private createComponentRehydrateContext(): void {
                         this.setAttribute(REHYDRATE_CONTEXT_ATTRIBUTE_NAME, this.rehydrateService.incrementalContextName());
-
-                        if (this.stateKey) {
-                            this.updateRehydrateContext();
-                        }
                     }
 
-                    private canBeRehydrated(): boolean {
+                    private hasRehydrationContext(): boolean {
                         return this.hasAttribute(REHYDRATE_CONTEXT_ATTRIBUTE_NAME);
                     }
 
-                    private rehydrate(): void {
-                        const {state, props} = this.rehydrateService.getContext<RehydrateData>(this.getContextName()) || {};
-                        this.registerProps({
-                            elementProps: props,
-                            componentInstance: this.componentInstance,
-                            attributesElement: this,
-                            ignorePropsChanged: true
-                        });
-                        this.createProxyToComponentState(state);
-                        this.componentLifecycle.rehydrate();
-                        this.afterRehydrate();
-                    }
+                    private getRehydrationContext(): RehydrateData | null {
+                        const context = this.rehydrateService.getContext<RehydrateData>(this.getContextName());
 
-                    private afterRehydrate(): boolean {
-                        if (!this.componentLifecycle.shouldRenderAfterRehydrate()) {
-                            return;
+                        if (!this.hasRehydrationContext() || !context) {
+                            return null;
                         }
 
-                        this.updateRender();
+                        return context;
                     }
 
                     private getContextName(): string {
@@ -233,63 +248,42 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                             createStateProxy(() => this.stateChanged())(state);
                     }
 
-                    private render(): Renderable {
-                        return this.componentInstance.render();
-                    }
-
-                    private createComponentInstance(): T {
-                        const componentInstance = container.resolve(componentClass);
-                        this.registerProps({
-                            elementProps: this.props,
-                            componentInstance: componentInstance,
-                            attributesElement: this,
-                            ignorePropsChanged: true
-                        });
-                        return componentInstance;
-                    }
-
-                    private updateRehydrateContext() {
+                    private updateRehydrateContextWith(context: { props: unknown; state: unknown }): void {
                         this.rehydrateService.updateContext(this.getContextName(), {
-                            state: this.getComponentState(),
-                            props: this.props
+                            state: context.state,
+                            props: context.props
                         });
                     }
 
                     private stateChanged(): void {
-                        this.updateRender();
-                        this.updateRehydrateContext();
+                        this.componentLifecycle.onStateChange();
                     }
 
-                    private getComponentState(): unknown {
-                        return this.componentInstance[this.stateKey];
+                    private getInitialProps(registerProps: RegisterProps<T>): Record<string, unknown> {
+                        return this.createPropsSnapshot(registerProps).currentProps;
                     }
 
-                    private registerProps({elementProps, componentInstance, ignorePropsChanged = false, attributesElement}: RegisterProps<T>): void {
-                        const props = this.getPropsFrom(elementProps);
-                        const expectedProps: string[] = propsMetadata.getProps(componentInstance);
+                    private createPropsSnapshot(registerProps: RegisterProps<T>): PropsSnapshot {
+                        const props = this.applyElementAttributeCaseToProps(registerProps.elementProps);
+                        const expectedProps: string[] = propsMetadata.getProps(registerProps.componentInstance);
                         const oldProps = {};
                         const currentProps = {};
 
                         expectedProps.forEach((propName) => {
-                            oldProps[propName] = componentInstance[propName];
+                            oldProps[propName] = (registerProps.componentInstance)[propName];
 
                             if (propName.toLowerCase() in props) {
-                                componentInstance[propName] = props[propName.toLowerCase()];
                                 currentProps[propName] = props[propName.toLowerCase()];
                                 return;
                             }
 
-                            componentInstance[propName] = attributesElement.getAttribute(propName);
-                            currentProps[propName] = attributesElement.getAttribute(propName);
+                            currentProps[propName] = registerProps.attributesElement.getAttribute(propName);
                         });
 
-                        if (!ignorePropsChanged && JSON.stringify(oldProps) !== JSON.stringify(currentProps)) {
-                            this.componentLifecycle.propsChanged(oldProps);
-                        }
-
+                        return {oldProps, currentProps};
                     }
 
-                    private getPropsFrom(elementProps?: Record<string, unknown>): Record<string, unknown> {
+                    private applyElementAttributeCaseToProps(elementProps?: Record<string, unknown>): Record<string, unknown> {
                         if (!elementProps) {
                             return {}
                         }

@@ -12,6 +12,25 @@ describe('Render', () => {
         expect(document.body.textContent).toBe('Hey');
     });
 
+    it('ignores null values', () => {
+        render(html`${null}Hi`)(document.body);
+
+        expect(document.body.textContent).toBe('Hi');
+    });
+
+    it('ignores undefined values', () => {
+        render(html`${undefined}Hi`)(document.body);
+
+        expect(document.body.textContent).toBe('Hi');
+    });
+
+
+    it('does not ignores zeros', () => {
+        render(html`0${0}0`)(document.body);
+
+        expect(document.body.textContent).toBe('000');
+    });
+
     it('renders a simple html tag', () => {
         render(html`<div class="my-class">Hey</div>`)(document.body);
 
@@ -68,12 +87,6 @@ describe('Render', () => {
                 ${html`a`} ${[html`b`]} ${[html`c`]} ${[html`d`, html`e`]} ${['f', 'g', 123]} ${html`${html`4`}`}`)(document.body);
 
             expect(document.body.textContent).toContain('a b c de fg123 4');
-        });
-
-        it('ignores null values', () => {
-            render(html`${null}Hi`)(document.body);
-
-            expect(document.body.textContent).toBe('Hi');
         });
 
         it('renders a list', () => {

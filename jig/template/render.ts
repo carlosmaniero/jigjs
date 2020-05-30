@@ -121,7 +121,7 @@ const getPlaceHolderIndex = (placeholder: string): number[] => {
 }
 
 const createElementChildNodesForValue = (document, value: unknown): ChildNode[] => {
-    if (!value) {
+    if (value === undefined || value === null) {
         return [];
     }
 

@@ -148,6 +148,10 @@ describe('Component Annotation', () => {
             (dom.window.document.querySelector('my-component') as any).componentInstance.state.name = 'World';
 
             expect(dom.serialize()).toContain('World');
+
+            const context = globalContainer.resolve<RehydrateService>(RehydrateService.InjectionToken)
+                .getContext<any>('0');
+            expect(context.state).toEqual({name: 'World'});
         });
 
         it('updates the entire state', () => {
@@ -178,6 +182,9 @@ describe('Component Annotation', () => {
             };
 
             expect(dom.serialize()).toContain('World');
+            const context = globalContainer.resolve<RehydrateService>(RehydrateService.InjectionToken)
+                .getContext<any>('0');
+            expect(context.state).toEqual({name: 'World'});
         });
 
         it('has a mount method', () => {
@@ -370,7 +377,57 @@ describe('Component Annotation', () => {
     });
 
     describe('Rehydrating', () => {
-        describe('when populating rehydration servicer', () => {
+        describe('when it has a custom flush rehydration method', () => {
+            it('pushes the flush result into rehydration service', async () => {
+                const rehydrateService = new ServerRehydrateService();
+                globalContainer.register(RehydrateService.InjectionToken, {useValue: rehydrateService});
+
+                @Component("component-custom")
+                class MyComponent {
+                    @State()
+                    private state = {name: 'World'};
+
+                    @Prop()
+                    private myProp: string;
+
+                    render(): RenderResult {
+                        return html`Hey!`
+                    }
+
+                    flushRehydration() {
+                        return {
+                            props: {
+                                myProp: 'my custom value',
+                            },
+                            state: {
+                                name: 'my custom name'
+                            }
+                        }
+                    }
+                }
+
+                const dom = configureJSDOM();
+                globalContainer.register(MyComponent, MyComponent);
+                const factory = componentFactoryFor(MyComponent);
+                factory.registerComponent(dom.window as any, globalContainer);
+
+                render(html`<component-custom @myProp="${'Hello'}"></component-custom>`)(dom.window.document.body);
+
+                const element = dom.window.document.querySelector('component-custom');
+
+                expect(element.getAttribute('rehydrate-context-name')).toBe('0');
+                expect(rehydrateService.getContext<RehydrateData>('0')).toEqual({
+                    props: {
+                        myProp: 'my custom value',
+                    },
+                    state: {
+                        name: 'my custom name'
+                    }
+                });
+            });
+        });
+
+        describe('when populating rehydration service', () => {
             it('pushes the render result into rehydration service', async () => {
                 const rehydrateService = new ServerRehydrateService();
                 globalContainer.register(RehydrateService.InjectionToken, {useValue: rehydrateService});
@@ -399,7 +456,7 @@ describe('Component Annotation', () => {
                 expect(element.getAttribute('rehydrate-context-name')).toBe('0');
                 const contextName = element.getAttribute('rehydrate-context-name');
                 expect(rehydrateService.getContext<RehydrateData>(contextName).state).toEqual({name: 'World'});
-                expect(rehydrateService.getContext<RehydrateData>(contextName).props).toEqual({myprop: 'Hello'});
+                expect(rehydrateService.getContext<RehydrateData>(contextName).props).toEqual({myProp: 'Hello'});
             });
 
             it('updates the rehydration service given a state change', async () => {
@@ -435,10 +492,9 @@ describe('Component Annotation', () => {
         });
 
         describe('when rehydrate', () => {
-            describe('recovering state from server', () => {
+            describe('using the default rehydration method', () => {
                 let dom;
                 let originalDiv: HTMLDivElement;
-                let rehydrateMock;
                 let mountMock;
 
                 beforeEach(() => {
@@ -450,11 +506,10 @@ describe('Component Annotation', () => {
                             name: 'World'
                         },
                         props: {
-                            exclamationmark: '!'
+                            exclamationMark: '!'
                         }
                     });
 
-                    rehydrateMock = jest.fn();
                     mountMock = jest.fn();
 
                     @Component('component-custom')
@@ -469,10 +524,6 @@ describe('Component Annotation', () => {
 
                         render(): RenderResult {
                             return html`<div>Hello, ${this.state.name}${this.exclamationMark}</div>`
-                        }
-
-                        rehydrate(): void {
-                            rehydrateMock();
                         }
 
                         mount(): void {
@@ -512,14 +563,86 @@ describe('Component Annotation', () => {
                         .querySelector('component-custom').componentInstance.exclamationMark).toEqual('!');
                 });
 
-                it('calls the rehydrate method when rehydrate', () => {
-                    expect(rehydrateMock).toBeCalled();
-                });
-
-                it('does not calls the mount method when rehydrate', () => {
-                    expect(mountMock).not.toBeCalled();
+                it('calls the mount', () => {
+                    expect(mountMock).toBeCalled();
                 });
             });
+
+            describe('using the custom rehydration method', () => {
+                let dom;
+                let originalDiv: HTMLDivElement;
+                let rehydrateMock;
+                let mountMock;
+
+                beforeEach(() => {
+                    const rehydrateService = new ServerRehydrateService();
+                    globalContainer.register(RehydrateService.InjectionToken, {useValue: rehydrateService});
+                    mountMock = jest.fn();
+
+                    rehydrateService.updateContext("0", {
+                        state: {
+                            name: 'World'
+                        },
+                        props: {
+                            exclamationMark: '!'
+                        }
+                    });
+
+                    rehydrateMock = jest.fn();
+
+                    @Component('component-custom')
+                    class MyComponent {
+                        @State()
+                        state = {
+                            name: 'no-name'
+                        };
+
+                        @Prop()
+                        exclamationMark: string;
+
+                        render(): RenderResult {
+                            return html`<div>Hello, ${this.state.name}${this.exclamationMark}</div>`
+                        }
+
+                        rehydrate(props: { exclamationMark: string }, state: { name: string }): void {
+                            rehydrateMock(props, state);
+
+                            this.state = state;
+                            this.exclamationMark = props.exclamationMark;
+                        }
+
+                        mount() {
+                            expect(rehydrateMock).toBeCalled();
+                            mountMock();
+                        }
+                    }
+
+                    globalContainer.register(MyComponent, MyComponent);
+                    dom = configureJSDOM();
+                    const factory = componentFactoryFor(MyComponent);
+                    factory.registerComponent(dom.window as any, globalContainer);
+
+                    dom.window.document.body.innerHTML =
+                        '<component-custom rehydrate-context-name="0"><div>Hello, World</div></component-custom>'
+
+                    originalDiv = dom.window.document.querySelector('div');
+                });
+
+                it('renders the content of rehydration', async () => {
+                    await waitForExpect(() => {
+                        expect(testingLibrary.getAllByText(dom.window.document.body, "Hello, World!")).toHaveLength(1);
+                    });
+                });
+
+                it('calls the rehydration with props and state ', async () => {
+                    expect(rehydrateMock).toBeCalledWith({exclamationMark: '!'}, {name: 'World'});
+                });
+
+                it('calls the mount after rehydrate', () => {
+                    expect(mountMock).toBeCalled();
+                });
+            });
+
             describe('controlling rendering', () => {
                 it('does not update the content when should update is false', () => {
                     @Component("component-custom")
@@ -528,7 +651,7 @@ describe('Component Annotation', () => {
                             return html`Anything else!`
                         }
 
-                        shouldRenderAfterRehydrate(): boolean {
+                        shouldUpdate(): boolean {
                             return false;
                         }
                     }
