@@ -72,6 +72,10 @@ export class CounterPage {
 value should be passed as a Javascript Object. By default, every property is passed as a string following the 
 [Element.setAttribute()](https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute) API. 
 
+### Lifecycle
+
+![Jig Logo](jig/ghassets/component-lifecycle.png)
+
 ## Creating an APP
 
 Every app should live into an `apps/` directory, and the `export default` should be the app itself.
