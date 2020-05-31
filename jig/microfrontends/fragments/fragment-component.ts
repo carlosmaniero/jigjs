@@ -1,6 +1,6 @@
 import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentResponse} from "./fragments";
-import {constructor, Inject, Injectable} from "../../core/di";
-import {Component, RenderResult, State} from "../../components/component";
+import {Inject, Injectable} from "../../core/di";
+import {RenderResult, State} from "../../components/component";
 import {Platform} from "../../core/platform";
 
 interface FragmentStateComponent {
@@ -81,33 +81,5 @@ export abstract class FragmentComponent {
 
     protected onErrorRender(error: Error): RenderResult {
         return document.createElement('div');
-    }
-}
-
-
-interface FragmentComponentFactoryProps {
-    selector: string;
-    options: FragmentOptions;
-    onErrorRender?: (error: Error) => RenderResult;
-}
-
-@Injectable()
-export class FragmentComponentFactory {
-    createFragment({selector, options, onErrorRender}: FragmentComponentFactoryProps): constructor<FragmentComponent> {
-
-        @Component(selector)
-        class DynamicallyCreatedFragment extends FragmentComponent {
-            readonly selector: string = selector;
-            readonly options: FragmentOptions = options;
-
-            protected onErrorRender(error: Error): RenderResult {
-                if (!onErrorRender) {
-                    return super.onErrorRender(error);
-                }
-                return onErrorRender(error);
-            }
-        }
-
-        return DynamicallyCreatedFragment;
     }
 }

@@ -4,7 +4,7 @@ import {JigModule} from "../../core/module";
 import * as path from "path";
 import {BeforeFlushRequest, RequestWaitMiddleware} from "../middlewares";
 import {FragmentFetch} from "../../microfrontends/fragments/fragment-fetch";
-import {FragmentComponentFactory} from "../../microfrontends/fragments/fragment-component";
+import {FragmentComponent} from "../../microfrontends/fragments/fragment-component";
 import waitForExpect from "wait-for-expect";
 import {Component, html, RenderResult} from "../../components/component";
 import {ServerTemplateController, ServerTemplateControllerResolver} from "../controller";
@@ -193,6 +193,13 @@ describe('Jig Joy Server', () => {
             }
         }
 
+        @Component('first-fragment')
+        class FirstFragment extends FragmentComponent {
+            public options = {
+                url: 'http://localhost:8000',
+            }
+        }
+
         const server = new JigServer({
             port: 4200,
             assetsPath: '/assets/',
@@ -203,6 +210,7 @@ describe('Jig Joy Server', () => {
                     app: new JigApp({
                         bundleName: 'test-app',
                         bootstrap: BootstrapComponent,
+                        components: [FirstFragment]
                     })
                         .withModule(serverComponentModule())
                         .withModule(serverFragmentModule())
@@ -225,20 +233,6 @@ describe('Jig Joy Server', () => {
                                     ]
                                 });
                             })
-                        .registerModuleUsingContainer((container) => {
-                            const fragmentComponentFactory = container.resolve(FragmentComponentFactory);
-
-                            return new JigModule({
-                                components: [
-                                    fragmentComponentFactory.createFragment({
-                                        selector: 'first-fragment',
-                                        options: {
-                                            url: 'http://localhost:8000',
-                                        }
-                                    })
-                                ]
-                            })
-                        })
                 }
             ]
         });
@@ -295,6 +289,13 @@ describe('Jig Joy Server', () => {
             }
         }
 
+        @Component('first-fragment')
+        class FirstFragment extends FragmentComponent {
+            public options = {
+                url: 'http://localhost:8000',
+            }
+        }
+
         const server = new JigServer({
             port: 4200,
             assetsPath: '/assets/',
@@ -305,6 +306,7 @@ describe('Jig Joy Server', () => {
                     app: new JigApp({
                         bundleName: 'test-app',
                         bootstrap: BootstrapComponent,
+                        components: [FirstFragment]
                     })
                         .withModule(serverComponentModule())
                         .withModule(serverFragmentModule())
@@ -323,20 +325,6 @@ describe('Jig Joy Server', () => {
                                     }
                                 ]
                             });
-                        })
-                        .registerModuleUsingContainer((container) => {
-                            const fragmentComponentFactory = container.resolve(FragmentComponentFactory);
-
-                            return new JigModule({
-                                components: [
-                                    fragmentComponentFactory.createFragment({
-                                        selector: 'first-fragment',
-                                        options: {
-                                            url: 'http://localhost:8000',
-                                        }
-                                    })
-                                ]
-                            })
                         })
                 }
             ]

@@ -1,4 +1,4 @@
-import {FragmentComponent, FragmentComponentFactory} from "../fragment-component";
+import {FragmentComponent} from "../fragment-component";
 import {FragmentContentRender, FragmentOptions, FragmentResolver, FragmentResponse} from "../fragments";
 import {globalContainer} from "../../../core/di";
 import {ServerRehydrateService} from "../../../components/server/server-rehydrate-service";
@@ -165,52 +165,6 @@ describe('Fragment Component', () => {
 
             expect(testingLibrary
                 .getByText(dom.window.document.body, 'It was not possible to fetch fragment')).not.toBeNull();
-        });
-    });
-
-    describe('Factory', () => {
-        it('creates a Fragment', async () => {
-            const responseHtml = '<b>Hey</b>';
-
-            const fragmentResolverMock = {
-                resolve: jest.fn(() => Promise.resolve({
-                    html: responseHtml,
-                    dependencies: []
-                }))
-            };
-
-            const fragmentContentRenderMock = {
-                render: jest.fn(() => {
-                    const div = document.createElement('div');
-                    div.innerHTML = '<i>How</i>';
-                    return div;
-                })
-            };
-
-            const options = {url: 'http://localhost:3000/'};
-
-            globalContainer.register(FragmentResolver.InjectionToken, {useValue: fragmentResolverMock});
-            globalContainer.register(FragmentContentRender.InjectionToken, {useValue: fragmentContentRenderMock});
-            globalContainer.register(FragmentComponentFactory, FragmentComponentFactory);
-            const fragmentComponentFactory = globalContainer.resolve(FragmentComponentFactory);
-
-            const fragment = fragmentComponentFactory.createFragment({
-                selector: "my-fragment",
-                options
-            });
-
-            globalContainer.register(fragment, fragment);
-
-            const dom = configureJSDOM()
-
-            const factory = componentFactoryFor(fragment);
-            factory.registerComponent(dom.window as any, globalContainer);
-
-            dom.window.document.body.innerHTML = '<my-fragment></my-fragment>';
-
-            await new Promise(resolve => setImmediate(() => resolve()));
-
-            expect(testingLibrary.getByText(dom.window.document.body, 'How')).not.toBeNull();
         });
     });
 
