@@ -106,6 +106,8 @@ export const Prop = () => (target: Target, propertyKey: string): void => {
     propsMetadata.appendProps(target, propertyKey);
 }
 
+export const stateCopyKey = '__jig__state__';
+
 type RegisterProps<T extends RequiredComponentMethods> = {
     elementProps: Record<string, unknown>;
     componentInstance: T;
@@ -128,7 +130,6 @@ export const Component = <T extends RequiredComponentMethods>(selector: string, 
 
             public registerComponent(window: JigWindow, parentContainer: Container): void {
                 const REHYDRATE_CONTEXT_ATTRIBUTE_NAME = 'rehydrate-context-name';
-                const stateCopyKey = '__jig__state__';
 
                 const container = parentContainer.createChildContainer();
                 options.configureContainer && options.configureContainer(container);

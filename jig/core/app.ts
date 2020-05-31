@@ -1,4 +1,4 @@
-import {Container, globalContainer, Inject} from "./di";
+import {constructor, Container, globalContainer, Inject} from "./di";
 import {JigModule} from "./module";
 import {AnyComponent, Component, componentFactoryFor, JigWindow, lazyLoadComponent} from "../components/component";
 import {Renderable} from "../template/render";
@@ -11,7 +11,7 @@ export interface EntryPointOptions {
     bootstrap: AnyComponent;
     bundleName: string;
     errorHandlerComponent?: AnyComponent;
-    components?: AnyComponent[];
+    components?: constructor<unknown>[];
     modules?: JigModule[];
 }
 
@@ -73,7 +73,7 @@ export class JigApp {
         this.appendBundleFile(window, platform);
     }
 
-    private getComponents(): AnyComponent[] {
+    private getComponents(): constructor<unknown>[] {
         const optionsComponents = this.options.components || [];
         return [
             ...optionsComponents,

@@ -1,4 +1,4 @@
-import {JigWindow} from "components/component";
+import {JigWindow} from "../components/component";
 
 export const DocumentInjectionToken = "Document";
 export const WindowInjectionToken = "Window";

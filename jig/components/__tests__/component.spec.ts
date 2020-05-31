@@ -154,6 +154,49 @@ describe('Component Annotation', () => {
             expect(context.state).toEqual({name: 'World'});
         });
 
+        it('updates the state when it is a class instance', () => {
+            class Person {
+                name: string;
+
+                getName() {
+                    return this.name;
+                }
+
+                setName(name: string) {
+                    this.name = name
+                }
+            }
+
+            @Component('my-component')
+            class MyComponent {
+                @State()
+                private state = new Person();
+
+                render() {
+                    return html`Hello, ${this.state.getName()}!`
+                }
+            }
+
+            globalContainer.register(MyComponent, MyComponent);
+
+            const factory = componentFactoryFor(MyComponent);
+
+            const dom = configureJSDOM();
+
+            globalContainer.register(RehydrateService.InjectionToken, ServerRehydrateService);
+            factory.registerComponent(dom.window as any, globalContainer);
+
+            dom.window.document.body.innerHTML = '<my-component></my-component>';
+
+            (dom.window.document.querySelector('my-component') as any).componentInstance.state.setName('World');
+
+            expect(dom.serialize()).toContain('World');
+
+            const context = globalContainer.resolve<RehydrateService>(RehydrateService.InjectionToken)
+                .getContext<any>('0');
+            expect(context.state).toEqual({name: 'World'});
+        });
+
         it('updates the entire state', () => {
             @Component('my-component')
             class MyComponent {

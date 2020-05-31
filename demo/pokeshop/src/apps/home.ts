@@ -1,6 +1,6 @@
 import 'jigjs/core/register';
 import {JigApp} from "jigjs/core/app";
-import {FragmentComponent} from "jigjs/microfrontends/fragments/fragment-component";
+import {Fragment} from "jigjs/microfrontends/fragments/fragment-component";
 import {Component, html, Prop, RenderResult, State} from "jigjs/components/component";
 import {FragmentOptions} from "jigjs/microfrontends/fragments/fragments";
 import {Inject, Optional} from 'jigjs/core/di';
@@ -54,8 +54,8 @@ export class Index {
     }
 }
 
-@Component('cart-count-fragment')
-class CartCountFragment extends FragmentComponent {
+@Fragment('cart-count-fragment')
+class CartCountFragment {
     readonly options: FragmentOptions = {
         url: 'http://127.0.0.1:3001/cart',
         async: true
@@ -88,8 +88,8 @@ class ErrorHandler {
     }
 }
 
-@Component('catalog-fragment')
-class CatalogFragment extends FragmentComponent {
+@Fragment('catalog-fragment')
+class CatalogFragment {
     @Prop()
     private readonly page;
 
