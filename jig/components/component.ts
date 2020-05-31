@@ -10,7 +10,7 @@ export type JigWindow = Window & {
     HTMLElement: typeof HTMLElement;
 }
 
-interface RequiredComponentMethods {
+export interface RequiredComponentMethods {
     render(): Renderable;
 }
 
@@ -47,16 +47,26 @@ export type Factory = {
     componentSelector: string;
 };
 
-const componentFactoryMetadata = {
+export const componentFactoryMetadata = {
     createComponentFactory<T>(componentClass1: Constructor<T>, componentFactory: Factory): void {
         Reflect.defineMetadata("design:type", componentFactory, componentClass1, "componentFactory");
     },
+    forwardFactoryTo<ComponentType, SubjectType>(subject: Constructor<SubjectType>, component: Constructor<ComponentType>): void {
+        Reflect.defineMetadata("design:type", component, subject, "forwardFactory");
+    },
+    getForwardFactory<T>(subject: Constructor<unknown>): Constructor<T> {
+        return Reflect.getMetadata("design:type", subject, "forwardFactory")
+    },
     getComponentFactoryFor<T>(component: Constructor<T>): Factory {
-        return Reflect.getMetadata("design:type", component, "componentFactory");
+        const metadata = Reflect.getMetadata<Factory>("design:type", component, "componentFactory");
+        if (metadata) {
+            return metadata;
+        }
+        return this.getComponentFactoryFor(this.getForwardFactory(component));
     }
 }
 
-export const componentFactoryFor = <T extends RequiredComponentMethods>(component: Constructor<T>): Factory => {
+export const componentFactoryFor = <T>(component: Constructor<T>): Factory => {
     return componentFactoryMetadata.getComponentFactoryFor(component);
 }
 
@@ -84,6 +94,9 @@ export const propsMetadata = {
         const props: string[] = Reflect.getMetadata("design:type", target, "componentProperties") || [];
         Reflect.defineMetadata("design:type", [...props, propertyKey], target, "componentProperties");
     },
+    setProps(target: Target, props: string[]): void {
+        Reflect.defineMetadata("design:type", [...props], target, "componentProperties");
+    },
     getProps<T extends Target>(componentInstance: T): string[] {
         return Reflect.getMetadata("design:type", componentInstance, "componentProperties") || [];
     }
@@ -99,7 +112,12 @@ type RegisterProps<T extends RequiredComponentMethods> = {
     attributesElement: HTMLElement;
     ignorePropsChanged?: boolean;
 };
-export const Component = <T extends RequiredComponentMethods>(selector: string) =>
+
+export interface ComponentOptions<T> {
+    configureContainer?: (container: Container) => void;
+}
+
+export const Component = <T extends RequiredComponentMethods>(selector: string, options: ComponentOptions<T> = {}) =>
     (componentClass: Constructor<T>): void => {
         Injectable()(componentClass);
 
@@ -108,9 +126,12 @@ export const Component = <T extends RequiredComponentMethods>(selector: string) 
                 return selector;
             }
 
-            public registerComponent(window: JigWindow, container: Container): void {
+            public registerComponent(window: JigWindow, parentContainer: Container): void {
                 const REHYDRATE_CONTEXT_ATTRIBUTE_NAME = 'rehydrate-context-name';
                 const stateCopyKey = '__jig__state__';
+
+                const container = parentContainer.createChildContainer();
+                options.configureContainer && options.configureContainer(container);
 
                 window.customElements.define(selector, class extends window.HTMLElement {
                     private readonly componentInstance: T;

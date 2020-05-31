@@ -1,10 +1,12 @@
+import {JigWindow} from "components/component";
+
 export const DocumentInjectionToken = "Document";
 export const WindowInjectionToken = "Window";
 
 interface DOM {
     HTMLElement: { prototype: HTMLElement; new(): HTMLElement };
     document: any;
-    window: Window;
+    window: JigWindow;
     body: HTMLElement;
     head: HTMLHeadElement;
     requestAnimationFrame: (callback) => void;
