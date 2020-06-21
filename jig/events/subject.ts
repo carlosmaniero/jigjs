@@ -2,7 +2,7 @@ export interface Subscription {
     unsubscribe: () => void;
 }
 
-type Callback<T> = (value: T) => void;
+export type Callback<T> = (value: T) => void;
 
 export interface Subscriber<T> {
     subscribe: (callback: Callback<T>) => Subscription;
