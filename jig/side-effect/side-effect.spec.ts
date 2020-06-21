@@ -1,4 +1,4 @@
-import {sideEffect, subscribeToSideEffect} from "./side-effect";
+import {propagateSideEffects, sideEffect, subscribeToSideEffect} from "./side-effect";
 
 describe('side-effect', () => {
     describe('with classes', () => {
@@ -52,6 +52,87 @@ describe('side-effect', () => {
             expect(() => {
                 subscribeToSideEffect(instance, callback);
             }).toThrowError(new Error(`Cannot subscribe to changes. Is "SideEffectClass" decorated with @sideEffect()?`));
+        });
+    });
+
+    describe('deep side effects', () => {
+        it('propagates a change', () => {
+            @sideEffect()
+            class SideEffectChildClass {
+                public name = 'World';
+            }
+
+            @sideEffect()
+            class SideEffectChild2Class {
+                public name = 'World';
+            }
+
+            @sideEffect()
+            class SideEffectClass {
+                @propagateSideEffects()
+                public child = new SideEffectChildClass();
+
+                @propagateSideEffects()
+                public child2 = new SideEffectChild2Class();
+            }
+
+            const callback = jest.fn();
+            const instance = new SideEffectClass();
+
+            subscribeToSideEffect(instance, callback);
+            instance.child.name = 'Universe';
+
+            expect(callback).toBeCalledTimes(1);
+            expect(callback).toBeCalledWith(instance);
+
+            instance.child2.name = 'Universe';
+            expect(callback).toBeCalledTimes(2);
+        });
+
+        it('propagates when the subject is added after class initialization', () => {
+            @sideEffect()
+            class SideEffectChildClass {
+                public name = 'World';
+            }
+
+            @sideEffect()
+            class SideEffectClass {
+                @propagateSideEffects()
+                public child;
+            }
+
+            const callback = jest.fn();
+            const instance = new SideEffectClass();
+            instance.child = new SideEffectChildClass();
+
+            subscribeToSideEffect(instance, callback);
+            instance.child.name = 'Universe';
+
+            expect(callback).toBeCalledTimes(1);
+            expect(callback).toBeCalledWith(instance);
+        });
+
+        it('unsubscribes when the instance changes', () => {
+            @sideEffect()
+            class SideEffectChildClass {
+                public name = 'World';
+            }
+
+            @sideEffect()
+            class SideEffectClass {
+                @propagateSideEffects()
+                public child;
+            }
+
+            const callback = jest.fn();
+            const instance = new SideEffectClass();
+            const initialChild = instance.child = new SideEffectChildClass();
+            instance.child = new SideEffectChildClass();
+
+            subscribeToSideEffect(instance, callback);
+            initialChild.name = 'Universe';
+
+            expect(callback).not.toBeCalled();
         });
     });
 });
