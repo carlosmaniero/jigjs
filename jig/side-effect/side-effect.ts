@@ -1,6 +1,8 @@
 import {Callback, Subject, Subscription} from "../events/subject";
+import {constructor} from "../core/di";
 
-const subjectSymbol: unique symbol = Symbol('jig-side-effect-subscriber');
+const objectChangedSubjectSymbol: unique symbol = Symbol('jig-side-effect-object-change-subscriber');
+const objectCreatedSubjectSymbol: unique symbol = Symbol('jig-side-effect-object-created-subscriber');
 const propertiesToPropagateSymbol: unique symbol = Symbol('jig-side-effect-subscriber');
 
 const propagationMetadata = {
@@ -14,16 +16,36 @@ const propagationMetadata = {
     }
 }
 
-export const canSubscribeToSideEffects = <T extends object>(object: T): boolean => {
-    return subjectSymbol in object;
+const constructorSubjectMetadata = {
+    getConstructorSubjectFromClass<T extends object>(subjectClass: constructor<T>): Subject<T> {
+        return Reflect.getMetadata(objectCreatedSubjectSymbol, subjectClass);
+    },
+    defineConstructorSubject<T extends object>(subjectClass: constructor<T>, subject: Subject<T>) {
+        Reflect.defineMetadata(objectCreatedSubjectSymbol, subject, subjectClass);
+    }
 }
 
-export const subscribeToSideEffect = <T extends object>(object: T, callback: Callback<T>): Subscription => {
+export const canSubscribeToSideEffects = <T extends object>(object: T): boolean => {
+    return objectChangedSubjectSymbol in object;
+}
+
+export const subscribeToSideEffects = <T extends object>(object: T, callback: Callback<T>): Subscription => {
     if (!canSubscribeToSideEffects(object)) {
         throw new Error(`Cannot subscribe to changes. Is "${object.constructor.name}" decorated with @sideEffect()?`);
     }
 
-    return object[subjectSymbol].subscribe(callback);
+    return object[objectChangedSubjectSymbol].subscribe(callback);
+}
+
+export const subscribeToConstruction = <T extends object>(object: constructor<T>, callback: Callback<T>): Subscription => {
+    const constructorSubject = constructorSubjectMetadata.getConstructorSubjectFromClass(object);
+
+    if (!constructorSubject) {
+        throw new Error(`Cannot subscribe to construction. Is "${object.name}" decorated with @sideEffect()?`);
+    }
+
+    return constructorSubject
+        .subscribe(callback);
 }
 
 class SideEffectPropagation <T extends object> {
@@ -40,7 +62,7 @@ class SideEffectPropagation <T extends object> {
     setup(): void {
         this.propertiesToPropagate.forEach((property) => {
             const instanceNode: object = this.instance[property];
-            instanceNode && subscribeToSideEffect(instanceNode, () => {
+            instanceNode && subscribeToSideEffects(instanceNode, () => {
                 this.subject.publish(this.instance);
             });
         });
@@ -57,7 +79,7 @@ class SideEffectPropagation <T extends object> {
     }
 
     private subscribe(property: PropertyKey, value: any): void {
-        this.subscriptions[property] = subscribeToSideEffect(value, () => {
+        this.subscriptions[property] = subscribeToSideEffects(value, () => {
             this.subject.publish(this.instance);
         });
     }
@@ -73,27 +95,39 @@ class SideEffectPropagation <T extends object> {
     }
 }
 
-export const sideEffect = <T extends object>() => (subjectClass: T) => {
-    return new Proxy(subjectClass, {
+export const sideEffect = <T extends object>() => (subjectClass: constructor<T>) => {
+    const proxyConstructor = new Proxy(subjectClass, {
         construct(target: any, argArray: any, newTarget?: any): any {
             const instance = Reflect.construct(target, argArray, newTarget);
 
-            const subject = new Subject<T>();
-            instance[subjectSymbol] = subject;
+            const objectChangedSubject = new Subject<T>();
+            instance[objectChangedSubjectSymbol] = objectChangedSubject;
 
             const properties = propagationMetadata.getPropagationProperties(instance);
-            const sideEffectPropagation = new SideEffectPropagation(instance, properties, subject);
+            const sideEffectPropagation = new SideEffectPropagation(instance, properties, objectChangedSubject);
 
-            return new Proxy(instance, {
+            const proxyInstance = new Proxy(instance, {
                 set(target: any, property: PropertyKey, value: any, receiver: any): boolean {
                     sideEffectPropagation.configureProperty(property, value);
                     const didSet = Reflect.set(target, property, value, receiver);
-                    subject.publish(target);
+                    objectChangedSubject.publish(target);
                     return didSet;
                 }
             });
+
+            constructorSubjectMetadata.getConstructorSubjectFromClass(subjectClass)
+                .publish(proxyInstance);
+
+            return proxyInstance;
         }
     });
+
+    const subject: Subject<T> = new Subject();
+
+    constructorSubjectMetadata.defineConstructorSubject(subjectClass, subject);
+    constructorSubjectMetadata.defineConstructorSubject(proxyConstructor, subject);
+
+    return proxyConstructor;
 }
 
 export const propagateSideEffects = <T extends object>() => (subjectClass: T, property: PropertyKey): void => {

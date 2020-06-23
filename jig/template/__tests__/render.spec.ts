@@ -1,4 +1,4 @@
-import {html, render} from "../render";
+import {html, HTMLElementWithJigProperties, render} from "../render";
 
 describe('Render', () => {
     beforeEach(() => {
@@ -358,6 +358,48 @@ describe('Render', () => {
             const divElement = document.querySelector('div');
             expect((divElement as any).props.prop).toBe('Hi Socrates of Corinthians!');
             expect(divElement.getAttributeNames()).toEqual([]);
+        });
+    });
+
+    describe('connecting hooks', () => {
+        it('calls connect when the element is appended to the document', () => {
+            const element: HTMLElementWithJigProperties = document.createElement('div');
+            element.onConnect = jest.fn();
+            render(element)(document.body);
+
+            expect(element.onConnect).toBeCalled();
+        });
+
+        it('does calls connect when the element is appended to a non attached object to document', () => {
+            const element: HTMLElementWithJigProperties = document.createElement('div');
+            element.onConnect = jest.fn();
+
+            const bindElement = document.createElement('div');
+            render(element)(bindElement);
+
+            expect(element.onConnect).not.toBeCalled();
+        });
+
+        it('calls disconnect when the element is removed from the document', () => {
+            const element: HTMLElementWithJigProperties = document.createElement('div');
+            element.onDisconnect = jest.fn();
+            render(element)(document.body);
+            expect(element.onDisconnect).not.toBeCalled();
+            render(document.createElement('strong'))(document.body);
+
+            expect(element.onDisconnect).toBeCalled();
+        });
+
+        it('does calls disconnect when the element is removed from a non attached object to document', () => {
+            const bindElement = document.createElement('div');
+            const element: HTMLElementWithJigProperties = document.createElement('div');
+
+            element.onDisconnect = jest.fn();
+
+            render(element)(bindElement);
+            render(document.createElement('strong'))(bindElement);
+
+            expect(element.onDisconnect).not.toBeCalled();
         });
     });
 });

@@ -47,10 +47,13 @@ function cloneActualElementFromFragment(bindElement: Node & ParentNode, document
     return clone;
 }
 
-type HTMLElementWithJigProperties = HTMLElement & {
+export type HTMLElementWithJigProperties = HTMLElement & {
     shouldUpdate?: (to: HTMLElement) => boolean;
-    events: Record<string, (event: Event) => void>;
-    props: Record<string, unknown>;
+    onConnect?: () => void;
+    onDisconnect?: () => void;
+    events?: Record<string, (event: Event) => void>;
+    props?: Record<string, unknown>;
+    disconnectingFromDocument?: boolean;
 }
 
 const bindEvents = (from: HTMLElementWithJigProperties, to: HTMLElementWithJigProperties) => {
@@ -75,12 +78,34 @@ const bindProps = (from: HTMLElementWithJigProperties, to: HTMLElementWithJigPro
     from.props = to.props;
 }
 
+const attachedToDocument = (node: HTMLElementWithJigProperties): boolean => {
+    return node.ownerDocument.contains(node);
+}
+
 const applyToDom = (bindElement: Node & ParentNode, clone: Node & ParentNode): void => {
     bindElement.normalize();
     clone.normalize();
 
     morphdom(bindElement, clone, {
         childrenOnly: true,
+        onNodeAdded(node: HTMLElementWithJigProperties) {
+            if (attachedToDocument(node) && node.onConnect) {
+                node.onConnect();
+            }
+
+            return node;
+        },
+        onNodeDiscarded(node: HTMLElementWithJigProperties) {
+            if (node.disconnectingFromDocument && node.onDisconnect) {
+                node.onDisconnect();
+            }
+        },
+        onBeforeNodeDiscarded(node: HTMLElementWithJigProperties) {
+            if (attachedToDocument(node)) {
+                node.disconnectingFromDocument = true;
+            }
+            return true;
+        },
         onBeforeElUpdated: (from: HTMLElementWithJigProperties, to: HTMLElementWithJigProperties) => {
             bindProps(from, to);
             bindEvents(from, to);

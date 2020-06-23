@@ -1,4 +1,4 @@
-import {propagateSideEffects, sideEffect, subscribeToSideEffect} from "./side-effect";
+import {propagateSideEffects, sideEffect, subscribeToConstruction, subscribeToSideEffects} from "../side-effect";
 
 describe('side-effect', () => {
     describe('with classes', () => {
@@ -11,9 +11,10 @@ describe('side-effect', () => {
             const callback = jest.fn();
             const instance = new SideEffectClass();
 
-            subscribeToSideEffect(instance, callback);
+            subscribeToSideEffects(instance, callback);
 
             instance.name = 'Universe';
+
             expect(callback).toBeCalledWith(instance);
         });
 
@@ -34,7 +35,7 @@ describe('side-effect', () => {
             const callback = jest.fn();
             const instance = new SideEffectClass();
 
-            subscribeToSideEffect(instance, callback);
+            subscribeToSideEffects(instance, callback);
             instance.toUniverse();
 
             expect(callback).toBeCalledWith(instance);
@@ -50,7 +51,7 @@ describe('side-effect', () => {
             const instance = new SideEffectClass();
 
             expect(() => {
-                subscribeToSideEffect(instance, callback);
+                subscribeToSideEffects(instance, callback);
             }).toThrowError(new Error(`Cannot subscribe to changes. Is "SideEffectClass" decorated with @sideEffect()?`));
         });
     });
@@ -79,7 +80,7 @@ describe('side-effect', () => {
             const callback = jest.fn();
             const instance = new SideEffectClass();
 
-            subscribeToSideEffect(instance, callback);
+            subscribeToSideEffects(instance, callback);
             instance.child.name = 'Universe';
 
             expect(callback).toBeCalledTimes(1);
@@ -105,7 +106,7 @@ describe('side-effect', () => {
             const instance = new SideEffectClass();
             instance.child = new SideEffectChildClass();
 
-            subscribeToSideEffect(instance, callback);
+            subscribeToSideEffects(instance, callback);
             instance.child.name = 'Universe';
 
             expect(callback).toBeCalledTimes(1);
@@ -129,10 +130,51 @@ describe('side-effect', () => {
             const initialChild = instance.child = new SideEffectChildClass();
             instance.child = new SideEffectChildClass();
 
-            subscribeToSideEffect(instance, callback);
+            subscribeToSideEffects(instance, callback);
             initialChild.name = 'Universe';
 
             expect(callback).not.toBeCalled();
+        });
+    });
+
+    describe('listening to constructor events', () => {
+        it('listens when an object is created', () => {
+            @sideEffect()
+            class SideEffectClass {
+                public name = 'World';
+            }
+
+            const callback = jest.fn();
+            subscribeToConstruction(SideEffectClass, callback);
+
+            const instance = new SideEffectClass();
+            expect(callback).toBeCalledWith(instance);
+        });
+
+        it('subscribes to the non proxy class', () => {
+            class SideEffectClass {
+                public name = 'World';
+            }
+
+            const ProxyClass = sideEffect()(SideEffectClass);
+
+            const callback = jest.fn();
+            subscribeToConstruction(SideEffectClass, callback);
+
+            const instance = new ProxyClass();
+            expect(callback).toBeCalledWith(instance);
+        });
+
+        it('throws an exception when tries to subscribe to a non decorated class', () => {
+            class SideEffectClass {
+                public name = 'World';
+            }
+
+            const callback = jest.fn();
+
+            expect(() => {
+                subscribeToConstruction(SideEffectClass, callback);
+            }).toThrowError(new Error(`Cannot subscribe to construction. Is "SideEffectClass" decorated with @sideEffect()?`));
         });
     });
 });
