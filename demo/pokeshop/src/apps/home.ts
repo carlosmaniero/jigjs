@@ -10,9 +10,17 @@ import {DocumentInjectionToken} from "jigjs/core/dom";
 import {RouterOutlet} from "jigjs/router/router-outlet";
 import {routerModule} from "jigjs/router/module";
 import {RouterLink} from "jigjs/router/router-link";
-import {connectedCallback, html, pureComponent, renderComponent} from "jigjs/pure-components/pure-component";
+import {
+    allDisconnectedCallback,
+    connectedCallback,
+    disconnectedCallback,
+    html,
+    pureComponent,
+    renderComponent
+} from "jigjs/pure-components/pure-component";
 import {Subject} from "jigjs/events/subject";
 import {sideEffect, subscribeToSideEffects} from "jigjs/side-effect/side-effect";
+import Timeout = NodeJS.Timeout;
 
 
 @sideEffect()
@@ -69,69 +77,116 @@ class ToggleWatchButton {
 
         return html`${this.resume}`;
     }
+
+    markAsRunning() {
+        this.running = true;
+    }
 }
 
 @pureComponent()
-class CountWatch {
+class Counter {
     private counter = 0;
-
-    private readonly toggleWatchButton = new ToggleWatchButton();
-    private readonly restartButton = new ActionButton('restart');
-
     private interval: any;
 
-    @connectedCallback()
-    init() {
+    constructor() {
         this.startWatcher();
-
-        this.toggleWatchButton.pauseSubject.subscribe(() => {
-            this.pauseWatcher();
-        });
-
-        this.toggleWatchButton.resumeSubject.subscribe(() => {
-            this.startWatcher();
-        });
-
-        this.restartButton.clickSubject.subscribe(() => {
-            console.log('restarting', this);
-            this.restartWatcher();
-        });
     }
 
-    private pauseWatcher() {
-        clearInterval(this.interval);
+    render(): Renderable {
+        return html`<strong>total:</strong> ${this.counter}`;
+    }
+
+    public restartWatcher() {
+        this.counter = 0;
+        this.resumeWatcher();
+    }
+
+    @allDisconnectedCallback()
+    public pauseWatcher() {
+        console.log('stopping');
+        this.interval = clearInterval(this.interval);
+    }
+
+    public resumeWatcher() {
+        if (this.interval) {
+            return;
+        }
+        this.startWatcher();
     }
 
     private startWatcher() {
         this.interval = setInterval(() => {
-            console.log('upcount', this);
             this.counter++;
         }, 1000);
     }
+}
+
+@pureComponent()
+class CountWatch {
+    private readonly toggleWatchButton = new ToggleWatchButton();
+    private readonly restartButton = new ActionButton('restart');
+    private readonly counterComponent = new Counter();
+
+    constructor() {
+        this.toggleWatchButton.pauseSubject.subscribe(() => {
+            this.counterComponent.pauseWatcher();
+        });
+
+        this.toggleWatchButton.resumeSubject.subscribe(() => {
+            this.counterComponent.resumeWatcher();
+        });
+
+        this.restartButton.clickSubject.subscribe(() => {
+            this.restartWatcher();
+        });
+    }
 
     render() {
-        console.log('rendering');
         return html`
             ${this.restartButton}
-            total: ${this.counter}
+            ${this.counterComponent}
             ${this.toggleWatchButton}
         `;
+    }
 
+    @allDisconnectedCallback()
+    public x() {
+        console.log('asds');
     }
 
     private restartWatcher() {
-        this.pauseWatcher();
-        this.counter = 0;
-        this.startWatcher();
+        this.counterComponent.restartWatcher();
+        this.toggleWatchButton.markAsRunning();
     }
 }
 
 @pureComponent()
 class PureComponentTest {
-    private countWatch = new CountWatch();
+    private countWatchers = [];
+    private input = "";
 
     render() {
-        return html`It works! ${this.countWatch}`
+        return html`
+            <ul>${
+                this.countWatchers.map((watcher) => {
+                    return html`<li>${watcher}</li>`
+                })
+            }</ul>
+            
+            ${this.input}
+            
+            <input value="${this.input}" oninput="${(event) => {
+                this.input = event.target.value;    
+            }}">
+            
+            <button onclick="${() => {
+                this.countWatchers = [...this.countWatchers, new CountWatch()]    
+            }}">Add Watcher</button>
+            
+            <button onclick="${() => {
+            this.countWatchers = []
+        }}">Clean All</button>
+        `
     }
 }
 

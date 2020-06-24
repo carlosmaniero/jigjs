@@ -103,6 +103,9 @@ const applyToDom = (bindElement: Node & ParentNode, clone: Node & ParentNode): v
         onBeforeNodeDiscarded(node: HTMLElementWithJigProperties) {
             if (attachedToDocument(node)) {
                 node.disconnectingFromDocument = true;
+                node.querySelectorAll('*').forEach((el: HTMLElementWithJigProperties) => {
+                    el.disconnectingFromDocument = true;
+                });
             }
             return true;
         },

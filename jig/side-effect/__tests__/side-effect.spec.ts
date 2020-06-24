@@ -1,4 +1,5 @@
 import {propagateSideEffects, sideEffect, subscribeToConstruction, subscribeToSideEffects} from "../side-effect";
+import {waitForPromises} from "../../testing/wait-for-promises";
 
 describe('side-effect', () => {
     describe('with classes', () => {
@@ -177,4 +178,31 @@ describe('side-effect', () => {
             }).toThrowError(new Error(`Cannot subscribe to construction. Is "SideEffectClass" decorated with @sideEffect()?`));
         });
     });
+
+    describe('dealing with asynchronicity in constructors', () => {
+        it('handles', async () => {
+            @sideEffect()
+            class SideEffectClass {
+                private name = 'World';
+
+                constructor() {
+                    setImmediate(() => {
+                        this.updateNameTooUniverse();
+                    })
+                }
+
+                private updateNameTooUniverse() {
+                    this.name = 'Universe';
+                }
+            }
+
+            const callback = jest.fn();
+            const instance = new SideEffectClass();
+            subscribeToSideEffects(instance, callback);
+
+            await waitForPromises();
+
+            expect(callback).toBeCalledWith(instance);
+        })
+    })
 });

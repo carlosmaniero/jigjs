@@ -103,22 +103,32 @@ export const sideEffect = <T extends object>() => (subjectClass: constructor<T>)
             const objectChangedSubject = new Subject<T>();
             instance[objectChangedSubjectSymbol] = objectChangedSubject;
 
-            const properties = propagationMetadata.getPropagationProperties(instance);
-            const sideEffectPropagation = new SideEffectPropagation(instance, properties, objectChangedSubject);
+            const propagationProperties = propagationMetadata.getPropagationProperties(instance);
+            const instanceProperties = new Set([...Object.keys(instance), ...propagationProperties]);
+            const sideEffectPropagation = new SideEffectPropagation(instance, propagationProperties, objectChangedSubject);
+            const originalObjectSymbol = Symbol('original-object');
 
-            const proxyInstance = new Proxy(instance, {
-                set(target: any, property: PropertyKey, value: any, receiver: any): boolean {
-                    sideEffectPropagation.configureProperty(property, value);
-                    const didSet = Reflect.set(target, property, value, receiver);
-                    objectChangedSubject.publish(target);
-                    return didSet;
-                }
-            });
+            instance[originalObjectSymbol] = {};
+
+            for (const property of instanceProperties) {
+                instance[originalObjectSymbol][property] = instance[property];
+
+                Object.defineProperty(instance, property, {
+                    get(): unknown {
+                        return instance[originalObjectSymbol][property]
+                    },
+                    set(value: unknown) {
+                        sideEffectPropagation.configureProperty(property, value);
+                        instance[originalObjectSymbol][property] = value;
+                        objectChangedSubject.publish(instance);
+                    }
+                })
+            }
 
             constructorSubjectMetadata.getConstructorSubjectFromClass(subjectClass)
-                .publish(proxyInstance);
+                .publish(instance);
 
-            return proxyInstance;
+            return instance;
         }
     });
 

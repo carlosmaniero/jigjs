@@ -390,7 +390,19 @@ describe('Render', () => {
             expect(element.onDisconnect).toBeCalled();
         });
 
-        it('does calls disconnect when the element is removed from a non attached object to document', () => {
+        it('calls disconnect when a parent element is removed', () => {
+            const parentElement = document.createElement('div');
+            const element: HTMLElementWithJigProperties = document.createElement('div');
+            element.onDisconnect = jest.fn();
+            parentElement.appendChild(element);
+            render(parentElement)(document.body);
+            expect(element.onDisconnect).not.toBeCalled();
+            render(document.createElement('strong'))(document.body);
+
+            expect(element.onDisconnect).toBeCalled();
+        });
+
+        it('does not calls disconnect when the element is removed from a non attached object to document', () => {
             const bindElement = document.createElement('div');
             const element: HTMLElementWithJigProperties = document.createElement('div');
 

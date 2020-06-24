@@ -20,6 +20,7 @@ function getMinimizer() {
         new TerserPlugin({
             parallel: true,
             terserOptions: {
+                keep_classnames: true,
                 ecma: 6,
             },
         })
