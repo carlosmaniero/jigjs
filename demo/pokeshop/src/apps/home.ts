@@ -19,11 +19,11 @@ import {
     renderComponent
 } from "jigjs/pure-components/pure-component";
 import {Subject} from "jigjs/events/subject";
-import {sideEffect, subscribeToSideEffects} from "jigjs/side-effect/side-effect";
+import {observable, subscribeToSideEffects} from "jigjs/side-effect/observable";
 import Timeout = NodeJS.Timeout;
 
 
-@sideEffect()
+@observable()
 class TestClass {
     count = 0
 

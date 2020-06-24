@@ -66,7 +66,6 @@ module.exports = {
         process: false,
         child_process: 'empty',
         jsdom: 'empty',
-        setImmediate: 'empty',
         'mutationobserver-shim': 'empty',
     }
 };

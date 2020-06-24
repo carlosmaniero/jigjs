@@ -95,7 +95,7 @@ class SideEffectPropagation <T extends object> {
     }
 }
 
-export const sideEffect = <T extends object>() => (subjectClass: constructor<T>) => {
+export const observable = <T extends object>() => (subjectClass: constructor<T>) => {
     const proxyConstructor = new Proxy(subjectClass, {
         construct(target: any, argArray: any, newTarget?: any): any {
             const instance = Reflect.construct(target, argArray, newTarget);

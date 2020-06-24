@@ -9,7 +9,7 @@ import {
 } from "../pure-component";
 import {configureJSDOM, DOM} from "../../core/dom";
 import {Renderable} from "../../template/render";
-import {propagateSideEffects, sideEffect} from "../../side-effect/side-effect";
+import {propagateSideEffects, observable} from "../../side-effect/observable";
 import {waitForPromises} from "../../testing/wait-for-promises";
 
 @pureComponent()
@@ -302,7 +302,7 @@ describe('@pureComponent', () => {
     });
 
     describe('when propagate changes', () => {
-        @sideEffect()
+        @observable()
         class Counter {
             private count = 0;
 

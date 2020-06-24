@@ -1,10 +1,10 @@
-import {propagateSideEffects, sideEffect, subscribeToConstruction, subscribeToSideEffects} from "../side-effect";
+import {propagateSideEffects, observable, subscribeToConstruction, subscribeToSideEffects} from "side-effect/observable";
 import {waitForPromises} from "../../testing/wait-for-promises";
 
 describe('side-effect', () => {
     describe('with classes', () => {
         it('listen to a side effect caused by a attribute change', () => {
-            @sideEffect()
+            @observable()
             class SideEffectClass {
                 public name = 'World';
             }
@@ -20,7 +20,7 @@ describe('side-effect', () => {
         });
 
         it('listen to a side effect caused by a method change', () => {
-            @sideEffect()
+            @observable()
             class SideEffectClass {
                 private name = 'World';
 
@@ -59,17 +59,17 @@ describe('side-effect', () => {
 
     describe('deep side effects', () => {
         it('propagates a change', () => {
-            @sideEffect()
+            @observable()
             class SideEffectChildClass {
                 public name = 'World';
             }
 
-            @sideEffect()
+            @observable()
             class SideEffectChild2Class {
                 public name = 'World';
             }
 
-            @sideEffect()
+            @observable()
             class SideEffectClass {
                 @propagateSideEffects()
                 public child = new SideEffectChildClass();
@@ -92,12 +92,12 @@ describe('side-effect', () => {
         });
 
         it('propagates when the subject is added after class initialization', () => {
-            @sideEffect()
+            @observable()
             class SideEffectChildClass {
                 public name = 'World';
             }
 
-            @sideEffect()
+            @observable()
             class SideEffectClass {
                 @propagateSideEffects()
                 public child;
@@ -115,12 +115,12 @@ describe('side-effect', () => {
         });
 
         it('unsubscribes when the instance changes', () => {
-            @sideEffect()
+            @observable()
             class SideEffectChildClass {
                 public name = 'World';
             }
 
-            @sideEffect()
+            @observable()
             class SideEffectClass {
                 @propagateSideEffects()
                 public child;
@@ -140,7 +140,7 @@ describe('side-effect', () => {
 
     describe('listening to constructor events', () => {
         it('listens when an object is created', () => {
-            @sideEffect()
+            @observable()
             class SideEffectClass {
                 public name = 'World';
             }
@@ -157,7 +157,7 @@ describe('side-effect', () => {
                 public name = 'World';
             }
 
-            const ProxyClass = sideEffect()(SideEffectClass);
+            const ProxyClass = observable()(SideEffectClass);
 
             const callback = jest.fn();
             subscribeToConstruction(SideEffectClass, callback);
@@ -181,7 +181,7 @@ describe('side-effect', () => {
 
     describe('dealing with asynchronicity in constructors', () => {
         it('handles', async () => {
-            @sideEffect()
+            @observable()
             class SideEffectClass {
                 private name = 'World';
 

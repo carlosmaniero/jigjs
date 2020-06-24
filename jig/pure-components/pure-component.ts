@@ -1,5 +1,5 @@
 import {html as templateHtml, render as templateRender, Renderable} from "../template/render";
-import {sideEffect, subscribeToConstruction, subscribeToSideEffects} from "../side-effect/side-effect";
+import {observable, subscribeToConstruction, subscribeToSideEffects} from "../side-effect/observable";
 import {Subscription} from "../events/subject";
 
 const elementRenderControlSymbol = Symbol('element-render-control-symbol');
@@ -52,13 +52,14 @@ class RenderRacing {
 
         this.willRender = true;
 
-        setTimeout(() => {
+        setImmediate(() => {
             if (!this.isElementControlledByThisInstance(element, componentInstance)) {
                 return;
             }
             this.willRender = false;
+            console.log(componentInstance);
             templateRender(componentInstance.render())(element);
-        }, 0);
+        });
     }
 
     private isElementControlledByThisInstance(element: HTMLElement, componentInstance: RenderableComponent) {
@@ -232,7 +233,7 @@ class ComponentLifecycle <T extends RenderableComponent> {
 
 export const pureComponent = <T extends RenderableComponent>() => (componentClass: Constructor<T>): void => {
     componentReflection.markAsComponent(componentClass);
-    const componentClassWithSideEffects = sideEffect()(componentClass);
+    const componentClassWithSideEffects = observable()(componentClass);
 
     subscribeToConstruction(componentClassWithSideEffects, (instance: T) => {
         instance[componentLifecycleSymbol] =
