@@ -10,17 +10,9 @@ import {DocumentInjectionToken} from "jigjs/core/dom";
 import {RouterOutlet} from "jigjs/router/router-outlet";
 import {routerModule} from "jigjs/router/module";
 import {RouterLink} from "jigjs/router/router-link";
-import {
-    allDisconnectedCallback,
-    connectedCallback,
-    disconnectedCallback,
-    html,
-    pureComponent,
-    renderComponent
-} from "jigjs/pure-components/pure-component";
+import {allDisconnectedCallback, html, pureComponent, renderComponent} from "jigjs/pure-components/pure-component";
 import {Subject} from "jigjs/events/subject";
-import {observable, subscribeToSideEffects} from "jigjs/side-effect/observable";
-import Timeout = NodeJS.Timeout;
+import {observable, watch} from "jigjs/side-effect/observable";
 
 
 @observable()
@@ -52,6 +44,8 @@ class ToggleWatchButton {
 
     public readonly pauseSubject: Subject<void>;
     public readonly resumeSubject: Subject<void>;
+
+    @watch()
     public running = true;
 
     constructor() {
@@ -85,7 +79,8 @@ class ToggleWatchButton {
 
 @pureComponent()
 class Counter {
-    private counter = 0;
+    @watch()
+    private number = 0;
     private interval: any;
 
     constructor() {
@@ -93,11 +88,11 @@ class Counter {
     }
 
     render(): Renderable {
-        return html`<strong>total:</strong> ${this.counter}`;
+        return html`<strong>total:</strong> ${this.number}`;
     }
 
     public restartWatcher() {
-        this.counter = 0;
+        this.number = 0;
         this.resumeWatcher();
     }
 
@@ -116,7 +111,7 @@ class Counter {
 
     private startWatcher() {
         this.interval = setInterval(() => {
-            this.counter++;
+            this.number++;
         }, 1000);
     }
 }
@@ -162,7 +157,9 @@ class CountWatch {
 
 @pureComponent()
 class PureComponentTest {
+    @watch()
     private countWatchers = [];
+    @watch()
     private input = "";
 
     render() {

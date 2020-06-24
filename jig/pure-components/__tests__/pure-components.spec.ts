@@ -9,12 +9,16 @@ import {
 } from "../pure-component";
 import {configureJSDOM, DOM} from "../../core/dom";
 import {Renderable} from "../../template/render";
-import {propagateSideEffects, observable} from "../../side-effect/observable";
+import {propagateSideEffects, observable, watch} from "../../side-effect/observable";
 import {waitForPromises} from "../../testing/wait-for-promises";
 
 @pureComponent()
 class ParentComponent {
-    constructor(public childComponent: RenderableComponent) {
+    @watch()
+    public childComponent: RenderableComponent;
+
+    constructor(childComponent: RenderableComponent) {
+        this.childComponent = childComponent;
     }
 
     render(): Renderable {
@@ -24,7 +28,11 @@ class ParentComponent {
 
 @pureComponent()
 class ParentComponentList {
-    constructor(public childComponents: RenderableComponent[]) {
+    @watch()
+    public childComponents: RenderableComponent[];
+
+    constructor(childComponents: RenderableComponent[]) {
+        this.childComponents = childComponents;
     }
 
     render(): Renderable {
@@ -34,7 +42,11 @@ class ParentComponentList {
 
 @pureComponent()
 class ChildComponent {
-    constructor(public say: string) {
+    @watch()
+    public say: string;
+
+    constructor(say: string) {
+        this.say = say;
     }
 
     render(): Renderable {
@@ -139,7 +151,11 @@ describe('@pureComponent', () => {
     describe('when component state change', () => {
         @pureComponent()
         class CounterComponent {
-            constructor(private count: number) {
+            @watch()
+            private count: number;
+
+            constructor(count: number) {
+                this.count = count;
             }
 
             render(): Renderable {
@@ -304,6 +320,7 @@ describe('@pureComponent', () => {
     describe('when propagate changes', () => {
         @observable()
         class Counter {
+            @watch()
             private count = 0;
 
             increase(): void {
@@ -350,7 +367,9 @@ describe('@pureComponent', () => {
 
             @pureComponent()
             class MyComponent {
+                @watch()
                 public x = 1;
+
                 render(): Renderable {
                     renderStub();
                     return html`${this.x}`;

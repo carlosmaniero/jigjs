@@ -4,6 +4,7 @@ import {constructor} from "../core/di";
 const objectChangedSubjectSymbol: unique symbol = Symbol('jig-side-effect-object-change-subscriber');
 const objectCreatedSubjectSymbol: unique symbol = Symbol('jig-side-effect-object-created-subscriber');
 const propertiesToPropagateSymbol: unique symbol = Symbol('jig-side-effect-subscriber');
+const propertiesToWatch: unique symbol = Symbol('jig-side-watched-properties');
 
 const propagationMetadata = {
     addPropagationProperty<T extends object>(subjectClass: T, property: PropertyKey): void {
@@ -15,6 +16,17 @@ const propagationMetadata = {
         return Reflect.getMetadata(propertiesToPropagateSymbol, instance) || [];
     }
 }
+
+const watchMetadata = {
+    addWatchProperty<T extends object>(subjectClass: T, property: PropertyKey): void {
+        const properties = this.getWatchedProperties(subjectClass);
+
+        Reflect.defineMetadata(propertiesToWatch, [...properties, property], subjectClass)
+    },
+    getWatchedProperties<T extends object>(instance: T): (keyof T)[] {
+        return Reflect.getMetadata(propertiesToWatch, instance) || [];
+    }
+};
 
 const constructorSubjectMetadata = {
     getConstructorSubjectFromClass<T extends object>(subjectClass: constructor<T>): Subject<T> {
@@ -104,13 +116,12 @@ export const observable = <T extends object>() => (subjectClass: constructor<T>)
             instance[objectChangedSubjectSymbol] = objectChangedSubject;
 
             const propagationProperties = propagationMetadata.getPropagationProperties(instance);
-            const instanceProperties = new Set([...Object.keys(instance), ...propagationProperties]);
             const sideEffectPropagation = new SideEffectPropagation(instance, propagationProperties, objectChangedSubject);
             const originalObjectSymbol = Symbol('original-object');
 
             instance[originalObjectSymbol] = {};
 
-            for (const property of instanceProperties) {
+            for (const property of watchMetadata.getWatchedProperties(instance)) {
                 instance[originalObjectSymbol][property] = instance[property];
 
                 Object.defineProperty(instance, property, {
@@ -140,6 +151,11 @@ export const observable = <T extends object>() => (subjectClass: constructor<T>)
     return proxyConstructor;
 }
 
+export const watch = <T extends object>() => (subjectClass: T, property: PropertyKey): void => {
+    watchMetadata.addWatchProperty(subjectClass, property);
+}
+
 export const propagateSideEffects = <T extends object>() => (subjectClass: T, property: PropertyKey): void => {
+    watch()(subjectClass, property);
     propagationMetadata.addPropagationProperty(subjectClass, property);
 }

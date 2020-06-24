@@ -1,11 +1,19 @@
-import {propagateSideEffects, observable, subscribeToConstruction, subscribeToSideEffects} from "side-effect/observable";
+import {
+    propagateSideEffects,
+    observable,
+    subscribeToConstruction,
+    subscribeToSideEffects,
+    watch
+} from "../observable";
 import {waitForPromises} from "../../testing/wait-for-promises";
+
 
 describe('side-effect', () => {
     describe('with classes', () => {
         it('listen to a side effect caused by a attribute change', () => {
             @observable()
             class SideEffectClass {
+                @watch()
                 public name = 'World';
             }
 
@@ -19,16 +27,33 @@ describe('side-effect', () => {
             expect(callback).toBeCalledWith(instance);
         });
 
+        it('does not listen to a side effect caused for a non watched field', () => {
+            @observable()
+            class SideEffectClass {
+                public name = 'World';
+            }
+
+            const callback = jest.fn();
+            const instance = new SideEffectClass();
+
+            subscribeToSideEffects(instance, callback);
+
+            instance.name = 'Universe';
+
+            expect(callback).not.toBeCalled();
+        });
+
         it('listen to a side effect caused by a method change', () => {
             @observable()
             class SideEffectClass {
+                @watch()
                 private name = 'World';
 
-                toUniverse() {
+                toUniverse(): void {
                     this.name = 'Universe';
                 }
 
-                getName() {
+                getName(): string {
                     return this.name;
                 }
             }
@@ -61,11 +86,13 @@ describe('side-effect', () => {
         it('propagates a change', () => {
             @observable()
             class SideEffectChildClass {
+                @watch()
                 public name = 'World';
             }
 
             @observable()
             class SideEffectChild2Class {
+                @watch()
                 public name = 'World';
             }
 
@@ -94,6 +121,7 @@ describe('side-effect', () => {
         it('propagates when the subject is added after class initialization', () => {
             @observable()
             class SideEffectChildClass {
+                @watch()
                 public name = 'World';
             }
 
@@ -117,6 +145,7 @@ describe('side-effect', () => {
         it('unsubscribes when the instance changes', () => {
             @observable()
             class SideEffectChildClass {
+                @watch()
                 public name = 'World';
             }
 
@@ -142,6 +171,7 @@ describe('side-effect', () => {
         it('listens when an object is created', () => {
             @observable()
             class SideEffectClass {
+                @watch()
                 public name = 'World';
             }
 
@@ -154,6 +184,7 @@ describe('side-effect', () => {
 
         it('subscribes to the non proxy class', () => {
             class SideEffectClass {
+                @watch()
                 public name = 'World';
             }
 
@@ -168,6 +199,7 @@ describe('side-effect', () => {
 
         it('throws an exception when tries to subscribe to a non decorated class', () => {
             class SideEffectClass {
+                @watch()
                 public name = 'World';
             }
 
@@ -183,6 +215,7 @@ describe('side-effect', () => {
         it('handles', async () => {
             @observable()
             class SideEffectClass {
+                @watch()
                 private name = 'World';
 
                 constructor() {
@@ -191,7 +224,7 @@ describe('side-effect', () => {
                     })
                 }
 
-                private updateNameTooUniverse() {
+                private updateNameTooUniverse(): void {
                     this.name = 'Universe';
                 }
             }

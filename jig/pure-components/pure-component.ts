@@ -57,7 +57,6 @@ class RenderRacing {
                 return;
             }
             this.willRender = false;
-            console.log(componentInstance);
             templateRender(componentInstance.render())(element);
         });
     }
