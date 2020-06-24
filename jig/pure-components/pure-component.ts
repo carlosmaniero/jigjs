@@ -34,17 +34,52 @@ const componentReflection = {
     }
 }
 
+const elementRenderControlFromElement = (element: HTMLElement): ComponentRenderControl => {
+    return element[elementRenderControlSymbol];
+}
+
+const setElementRenderControl = (componentElement: HTMLElement, componentRenderControl: ComponentRenderControl): void => {
+    componentElement[elementRenderControlSymbol] = componentRenderControl;
+}
+
+class RenderRacing {
+    private willRender = false;
+
+    render(componentInstance: RenderableComponent, element: HTMLElement): void {
+        if (this.willRender) {
+            return;
+        }
+
+        this.willRender = true;
+
+        setTimeout(() => {
+            if (!this.isElementControlledByThisInstance(element, componentInstance)) {
+                return;
+            }
+            this.willRender = false;
+            templateRender(componentInstance.render())(element);
+        }, 0);
+    }
+
+    private isElementControlledByThisInstance(element: HTMLElement, componentInstance: RenderableComponent) {
+        return elementRenderControlFromElement(element).componentInstance === componentInstance;
+    }
+}
+
 class ComponentRenderControl {
     private subscription: Subscription;
+    private renderRace: RenderRacing;
 
     constructor(
-        private componentInstance: RenderableComponent,
+        public readonly componentInstance: RenderableComponent,
         private element: HTMLElement
-    ) {}
+    ) {
+        this.renderRace = new RenderRacing();
+    }
 
     subscribe(): void {
         this.subscription = subscribeToSideEffects(this.componentInstance, () => {
-            templateRender(this.componentInstance.render())(this.element);
+            this.renderRace.render(this.componentInstance, this.element);
         });
     }
 
@@ -64,12 +99,12 @@ export const renderComponent = (element: HTMLElement, component: RenderableCompo
     const componentRenderControl = new ComponentRenderControl(component, componentElement);
     componentRenderControl.subscribe();
 
-    componentElement[elementRenderControlSymbol] = componentRenderControl;
+    setElementRenderControl(componentElement, componentRenderControl);
     componentElement['shouldUpdate'] = (to): boolean => {
         const newComponentRenderControl: ComponentRenderControl = to[elementRenderControlSymbol];
 
         componentRenderControl.unsubscribe();
-        componentElement[elementRenderControlSymbol] = newComponentRenderControl;
+        setElementRenderControl(componentElement, newComponentRenderControl);
 
         newComponentRenderControl.updateElement(componentElement);
         return true;
@@ -199,7 +234,7 @@ export const pureComponent = <T extends RenderableComponent>() => (componentClas
     componentReflection.markAsComponent(componentClass);
     const componentClassWithSideEffects = sideEffect()(componentClass);
 
-    subscribeToConstruction(componentClass, (instance) => {
+    subscribeToConstruction(componentClassWithSideEffects, (instance: T) => {
         instance[componentLifecycleSymbol] =
             new ComponentLifecycle(instance, componentReflection.getComponentConfiguration(instance));
     });

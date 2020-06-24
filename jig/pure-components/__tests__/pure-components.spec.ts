@@ -7,9 +7,10 @@ import {
     renderComponent,
     RenderableComponent
 } from "../pure-component";
-import {configureJSDOM} from "../../core/dom";
+import {configureJSDOM, DOM} from "../../core/dom";
 import {Renderable} from "../../template/render";
 import {propagateSideEffects, sideEffect} from "../../side-effect/side-effect";
+import {waitForPromises} from "../../testing/wait-for-promises";
 
 @pureComponent()
 class ParentComponent {
@@ -31,9 +32,19 @@ class ParentComponentList {
     }
 }
 
-function renderTestComponent(parent: ParentComponentList) {
+@pureComponent()
+class ChildComponent {
+    constructor(public say: string) {
+    }
+
+    render(): Renderable {
+        return html`${this.say}`;
+    }
+}
+
+const renderTestComponent = (component: RenderableComponent): DOM => {
     const dom = configureJSDOM();
-    renderComponent(dom.body, parent);
+    renderComponent(dom.body, component);
     return dom;
 }
 
@@ -55,16 +66,6 @@ describe('@pureComponent', () => {
     });
 
     describe('rendering child components', () => {
-        @pureComponent()
-        class ChildComponent {
-            constructor(public say: string) {
-            }
-
-            render(): Renderable {
-                return html`${this.say}`;
-            }
-        }
-
         it('renders a child', () => {
             const component = new ParentComponent(new ChildComponent('Hello!'));
             const dom = configureJSDOM();
@@ -87,7 +88,7 @@ describe('@pureComponent', () => {
             expect(dom.body.textContent).toContain('child say: Hello!Hi!');
         });
 
-        it('updates child render', () => {
+        it('updates child render', async () => {
             const childComponent = new ChildComponent('not expected string');
             const component = new ParentComponent(childComponent);
             const dom = configureJSDOM();
@@ -96,10 +97,12 @@ describe('@pureComponent', () => {
 
             childComponent.say = 'Hi!';
 
+            await waitForPromises();
+
             expect(dom.body.textContent).toContain('child say: Hi!');
         });
 
-        it('updates child render', () => {
+        it('does not renders a killed reference', async () => {
             const childComponent = new ChildComponent('not expected string');
             const component = new ParentComponent(childComponent);
             const dom = configureJSDOM();
@@ -109,10 +112,12 @@ describe('@pureComponent', () => {
             component.childComponent = new ChildComponent('Hi!');
             childComponent.say = 'Killed reference!';
 
+            await waitForPromises();
+
             expect(dom.body.textContent).toContain('child say: Hi!');
         });
 
-        it('updates new child render after a state change ', () => {
+        it('updates new child render after a state change ', async () => {
             const childComponent = new ChildComponent('not expected string of old child');
             const component = new ParentComponent(childComponent);
             const dom = configureJSDOM();
@@ -124,6 +129,8 @@ describe('@pureComponent', () => {
             newChild.say = 'Hi!';
 
             childComponent.say = 'Killed reference!';
+
+            await waitForPromises();
 
             expect(dom.body.textContent).toContain('child say: Hi!');
         });
@@ -155,7 +162,7 @@ describe('@pureComponent', () => {
             expect(dom.body.textContent).toContain('total: 0');
         });
 
-        it('renders a new value when the value changes', () => {
+        it('renders a new value when the value changes', async () => {
             const component = new CounterComponent(0);
             const dom = configureJSDOM();
 
@@ -166,6 +173,8 @@ describe('@pureComponent', () => {
             component.increase();
             component.increase();
             component.increase();
+
+            await waitForPromises();
             expect(dom.body.textContent).toContain('total: 4');
         });
     });
@@ -200,7 +209,7 @@ describe('@pureComponent', () => {
         });
 
         describe('@disconnectedCallback', () => {
-            it('calls the disconnect callback', () => {
+            it('calls the disconnect callback', async () => {
                 const stub = jest.fn();
                 @pureComponent()
                 class ChildComponent {
@@ -226,10 +235,12 @@ describe('@pureComponent', () => {
 
                 parent.childComponent = null;
 
+                await waitForPromises();
+
                 expect(stub).toBeCalledTimes(2);
             });
 
-            it('does not calls disconnect when there are no changes', () => {
+            it('does not calls disconnect when there are no changes', async () => {
                 const stub = jest.fn();
                 @pureComponent()
                 class ChildComponent {
@@ -248,14 +259,16 @@ describe('@pureComponent', () => {
                 renderTestComponent(parent);
 
                 parent.childComponents = [component];
+                await waitForPromises();
                 expect(stub).toBeCalledTimes(1);
                 parent.childComponents = [component, component];
+                await waitForPromises();
                 expect(stub).toBeCalledTimes(1);
             });
         });
 
         describe('@allDisconnectedCallback', () => {
-            it('calls all disconnected after there are no component references', () => {
+            it('calls all disconnected after there are no component references', async () => {
                 const stub = jest.fn();
 
                 @pureComponent()
@@ -276,11 +289,13 @@ describe('@pureComponent', () => {
                 renderTestComponent(parent);
 
                 expect(stub).not.toBeCalled();
+
                 parent.childComponents = [child];
-
+                await waitForPromises();
                 expect(stub).not.toBeCalled();
-                parent.childComponents = [];
 
+                parent.childComponents = [];
+                await waitForPromises();
                 expect(stub).toBeCalled();
             });
         });
@@ -316,7 +331,7 @@ describe('@pureComponent', () => {
             }
         }
 
-        it('renders a new value when the value changes', () => {
+        it('renders a new value when the value changes', async () => {
             const counter = new Counter();
             const component = new CounterComponent(counter);
             const dom = configureJSDOM();
@@ -324,7 +339,38 @@ describe('@pureComponent', () => {
             renderComponent(dom.body, component);
             expect(dom.body.textContent).toContain('total: 0');
             counter.increase()
+            await waitForPromises();
             expect(dom.body.textContent).toContain('total: 1');
         });
     });
-})
+
+    describe('render optimization', () => {
+        it('delays rendering to prevent multiple render calls', async () => {
+            const renderStub = jest.fn();
+
+            @pureComponent()
+            class MyComponent {
+                public x = 1;
+                render(): Renderable {
+                    renderStub();
+                    return html`${this.x}`;
+                }
+            }
+
+            const component = new MyComponent();
+
+            const dom = renderTestComponent(component);
+
+            expect(renderStub).toBeCalledTimes(1);
+
+            component.x++;
+            component.x++;
+            component.x++;
+
+            await waitForPromises();
+
+            expect(renderStub).toBeCalledTimes(2);
+            expect(dom.body.textContent).toContain('4');
+        });
+    })
+});

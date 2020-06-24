@@ -3,7 +3,7 @@ import {JigWindow} from "../components/component";
 export const DocumentInjectionToken = "Document";
 export const WindowInjectionToken = "Window";
 
-interface DOM {
+export interface DOM {
     HTMLElement: { prototype: HTMLElement; new(): HTMLElement };
     document: any;
     window: JigWindow;

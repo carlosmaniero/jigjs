@@ -1,7 +1,7 @@
 import 'jigjs/core/register';
 import {JigApp} from "jigjs/core/app";
 import {Fragment} from "jigjs/microfrontends/fragments/fragment-component";
-import {Component, html, Prop, RenderResult, State} from "jigjs/components/component";
+import {Component, Prop, RenderResult, State} from "jigjs/components/component";
 import {FragmentOptions} from "jigjs/microfrontends/fragments/fragments";
 import {Inject, Optional} from 'jigjs/core/di';
 import {Response, Routes} from "jigjs/router/router";
@@ -10,6 +10,130 @@ import {DocumentInjectionToken} from "jigjs/core/dom";
 import {RouterOutlet} from "jigjs/router/router-outlet";
 import {routerModule} from "jigjs/router/module";
 import {RouterLink} from "jigjs/router/router-link";
+import {connectedCallback, html, pureComponent, renderComponent} from "jigjs/pure-components/pure-component";
+import {Subject} from "jigjs/events/subject";
+import {sideEffect, subscribeToSideEffects} from "jigjs/side-effect/side-effect";
+
+
+@sideEffect()
+class TestClass {
+    count = 0
+
+    increase() {
+        this.count++;
+    }
+}
+
+@pureComponent()
+class ActionButton {
+    clickSubject: Subject<void>;
+
+    constructor(private readonly label: string) {
+        this.clickSubject = new Subject();
+    }
+
+    render() {
+        return html`<button onclick="${() => this.clickSubject.publish()}">${this.label}</button>`
+    }
+}
+
+@pureComponent()
+class ToggleWatchButton {
+    private readonly pause = new ActionButton('pause');
+    private readonly resume = new ActionButton('resume');
+
+    public readonly pauseSubject: Subject<void>;
+    public readonly resumeSubject: Subject<void>;
+    public running = true;
+
+    constructor() {
+        this.pause = new ActionButton('pause');
+        this.resume = new ActionButton('resume');
+
+        this.pauseSubject = this.pause.clickSubject;
+        this.resumeSubject = this.resume.clickSubject;
+
+        this.pauseSubject.subscribe(() => {
+            this.running = false;
+        });
+
+        this.resumeSubject.subscribe(() => {
+            this.running = true;
+        });
+    }
+
+    render() {
+        if (this.running) {
+            return html`${this.pause}`;
+        }
+
+        return html`${this.resume}`;
+    }
+}
+
+@pureComponent()
+class CountWatch {
+    private counter = 0;
+
+    private readonly toggleWatchButton = new ToggleWatchButton();
+    private readonly restartButton = new ActionButton('restart');
+
+    private interval: any;
+
+    @connectedCallback()
+    init() {
+        this.startWatcher();
+
+        this.toggleWatchButton.pauseSubject.subscribe(() => {
+            this.pauseWatcher();
+        });
+
+        this.toggleWatchButton.resumeSubject.subscribe(() => {
+            this.startWatcher();
+        });
+
+        this.restartButton.clickSubject.subscribe(() => {
+            console.log('restarting', this);
+            this.restartWatcher();
+        });
+    }
+
+    private pauseWatcher() {
+        clearInterval(this.interval);
+    }
+
+    private startWatcher() {
+        this.interval = setInterval(() => {
+            console.log('upcount', this);
+            this.counter++;
+        }, 1000);
+    }
+
+    render() {
+        console.log('rendering');
+        return html`
+            ${this.restartButton}
+            total: ${this.counter}
+            ${this.toggleWatchButton}
+        `;
+
+    }
+
+    private restartWatcher() {
+        this.pauseWatcher();
+        this.counter = 0;
+        this.startWatcher();
+    }
+}
+
+@pureComponent()
+class PureComponentTest {
+    private countWatch = new CountWatch();
+
+    render() {
+        return html`It works! ${this.countWatch}`
+    }
+}
 
 @Component('simple-test')
 class SimpleTest {
@@ -17,7 +141,11 @@ class SimpleTest {
     private readonly x;
 
     render() {
-        return html`HI ${this.x}`;
+        const div = document.createElement('div');
+        setTimeout(() => {
+            renderComponent(div, new PureComponentTest());
+        }, 200);
+        return div;
     }
 }
 
@@ -43,9 +171,7 @@ export class Index {
     render(): RenderResult {
         const nextPage = (this.page ? parseInt(this.page) : 1) + 1;
         return html`
-            ${this.page} ${this.state.page}
-            ${this.renderCatalog()}
-            <router-link name="catalog:page" @params="${{page: nextPage}}" @children="${[html`Next!`]}"></router-link>
+            <simple-test></simple-test>
         `;
     }
 
@@ -127,7 +253,8 @@ export default new JigApp({
         CartCountFragment,
         CatalogFragment,
         Index,
-        RouterLink
+        RouterLink,
+        SimpleTest
     ],
     modules: [
         routerModule(new Routes([

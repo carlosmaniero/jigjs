@@ -2,7 +2,7 @@
   "scripts": {
     "start": "ts-node src/server.ts",
     "build": "jigjs-build",
-    "dev": "npm run build && npm start",
+    "dev": "DEV=true npm run build && npm start",
     "test": "jest --no-cache"
   },
   "dependencies": {
