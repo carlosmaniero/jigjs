@@ -155,7 +155,7 @@ export const watch = <T extends object>() => (subjectClass: T, property: Propert
     watchMetadata.addWatchProperty(subjectClass, property);
 }
 
-export const propagateSideEffects = <T extends object>() => (subjectClass: T, property: PropertyKey): void => {
+export const propagate = <T extends object>() => (subjectClass: T, property: PropertyKey): void => {
     watch()(subjectClass, property);
     propagationMetadata.addPropagationProperty(subjectClass, property);
 }

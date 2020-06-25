@@ -9,7 +9,7 @@ import {
 } from "../pure-component";
 import {configureJSDOM, DOM} from "../../core/dom";
 import {render, Renderable} from "../../template/render";
-import {propagateSideEffects, observable, watch} from "../../side-effect/observable";
+import {propagate, observable, watch} from "../../side-effect/observable";
 import {waitForPromises} from "../../testing/wait-for-promises";
 
 @pureComponent()
@@ -426,7 +426,7 @@ describe('@pureComponent', () => {
 
         @pureComponent()
         class CounterComponent {
-            @propagateSideEffects()
+            @propagate()
             private readonly counter: Counter;
 
             constructor(counter: Counter) {

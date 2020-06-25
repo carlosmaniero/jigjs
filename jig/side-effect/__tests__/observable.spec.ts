@@ -1,5 +1,5 @@
 import {
-    propagateSideEffects,
+    propagate,
     observable,
     subscribeToConstruction,
     subscribeToSideEffects,
@@ -98,10 +98,10 @@ describe('side-effect', () => {
 
             @observable()
             class SideEffectClass {
-                @propagateSideEffects()
+                @propagate()
                 public child = new SideEffectChildClass();
 
-                @propagateSideEffects()
+                @propagate()
                 public child2 = new SideEffectChild2Class();
             }
 
@@ -127,7 +127,7 @@ describe('side-effect', () => {
 
             @observable()
             class SideEffectClass {
-                @propagateSideEffects()
+                @propagate()
                 public child;
             }
 
@@ -151,7 +151,7 @@ describe('side-effect', () => {
 
             @observable()
             class SideEffectClass {
-                @propagateSideEffects()
+                @propagate()
                 public child;
             }
 
