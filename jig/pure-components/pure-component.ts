@@ -113,10 +113,10 @@ export const renderComponent = (element: HTMLElement, component: RenderableCompo
     templateRender(component.render())(componentElement);
 
     componentElement['onDisconnect'] = (): void => {
-        componentLifecycle.disconnectedCallback();
+        componentLifecycle.disconnectedCallbackNode(componentElement);
     };
     componentElement['onConnect'] = (): void => {
-        componentLifecycle.connectedCallback();
+        componentLifecycle.connectedCallbackNode(componentElement);
     }
 
     templateRender(componentElement)(element);
@@ -158,26 +158,37 @@ type Constructor<T> = {
 }
 
 class ComponentConfiguration {
-    private readonly connectedCallbackMethods: PropertyKey[] = [];
+    private readonly connectedCallbackNodeMethods: PropertyKey[] = [];
+    private readonly disconnectedNodeCallbackMethods: PropertyKey[] = [];
     private readonly disconnectedCallbackMethods: PropertyKey[] = [];
-    private readonly allDisconnectedCallbackMethods: PropertyKey[] = [];
+    private readonly connectedCallbackMethods: PropertyKey[] = [];
+
+    addConnectedNodeMethodName(methodName: PropertyKey): void {
+        this.connectedCallbackNodeMethods.push(methodName);
+    }
 
     addConnectedMethodName(methodName: PropertyKey): void {
         this.connectedCallbackMethods.push(methodName);
+    }
+
+    addDisconnectedNodeMethodName(methodName: PropertyKey): void {
+        this.disconnectedNodeCallbackMethods.push(methodName);
     }
 
     addDisconnectedMethodName(methodName: PropertyKey): void {
         this.disconnectedCallbackMethods.push(methodName);
     }
 
-    addAllDisconnectedMethodName(methodName: PropertyKey): void {
-        this.allDisconnectedCallbackMethods.push(methodName);
+    connectedCallbackNode(component: object, element: HTMLElement): void {
+        this.connectedCallbackNodeMethods.forEach((methodName) => {
+            component[methodName](element);
+        })
     }
 
-    connectedCallback(component: object): void {
-        this.connectedCallbackMethods.forEach((methodName) => {
-            component[methodName]();
-        })
+    disconnectedNodeCallback(component: object, element: HTMLElement): void {
+        this.disconnectedNodeCallbackMethods.forEach((methodName) => {
+            component[methodName](element);
+        });
     }
 
     disconnectedCallback(component: object): void {
@@ -186,11 +197,16 @@ class ComponentConfiguration {
         });
     }
 
-    allDisconnectedCallback(component: object): void {
-        this.allDisconnectedCallbackMethods.forEach((methodName) => {
+    connectedCallback(component: object): void {
+        this.connectedCallbackMethods.forEach((methodName) => {
             component[methodName]();
         });
     }
+}
+
+export const connectedCallbackNode = <T extends object>() => (componentClass: T, methodName: PropertyKey): void => {
+    componentReflection.getComponentConfiguration(componentClass)
+        .addConnectedNodeMethodName(methodName);
 }
 
 export const connectedCallback = <T extends object>() => (componentClass: T, methodName: PropertyKey): void => {
@@ -199,14 +215,14 @@ export const connectedCallback = <T extends object>() => (componentClass: T, met
 }
 
 
+export const disconnectedCallbackNode = <T extends object>() => (componentClass: T, methodName: PropertyKey): void => {
+    componentReflection.getComponentConfiguration(componentClass)
+        .addDisconnectedNodeMethodName(methodName);
+}
+
 export const disconnectedCallback = <T extends object>() => (componentClass: T, methodName: PropertyKey): void => {
     componentReflection.getComponentConfiguration(componentClass)
         .addDisconnectedMethodName(methodName);
-}
-
-export const allDisconnectedCallback = <T extends object>() => (componentClass: T, methodName: PropertyKey): void => {
-    componentReflection.getComponentConfiguration(componentClass)
-        .addAllDisconnectedMethodName(methodName);
 }
 
 class ComponentLifecycle <T extends RenderableComponent> {
@@ -215,17 +231,21 @@ class ComponentLifecycle <T extends RenderableComponent> {
         private readonly instance: T, private readonly componentConfiguration: ComponentConfiguration) {
     }
 
-    connectedCallback(): void {
+    connectedCallbackNode(element: HTMLElement): void {
         this.connectedCount++;
-        this.componentConfiguration.connectedCallback(this.instance);
+        if (this.connectedCount === 1) {
+            this.componentConfiguration.connectedCallback(this.instance);
+        }
+
+        this.componentConfiguration.connectedCallbackNode(this.instance, element);
     }
 
-    disconnectedCallback(): void {
+    disconnectedCallbackNode(element: HTMLElement): void {
         this.connectedCount--;
-        this.componentConfiguration.disconnectedCallback(this.instance);
+        this.componentConfiguration.disconnectedNodeCallback(this.instance, element);
 
         if (this.connectedCount === 0) {
-            this.componentConfiguration.allDisconnectedCallback(this.instance);
+            this.componentConfiguration.disconnectedCallback(this.instance);
         }
     }
 }

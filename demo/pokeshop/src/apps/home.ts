@@ -10,7 +10,7 @@ import {DocumentInjectionToken} from "jigjs/core/dom";
 import {RouterOutlet} from "jigjs/router/router-outlet";
 import {routerModule} from "jigjs/router/module";
 import {RouterLink} from "jigjs/router/router-link";
-import {allDisconnectedCallback, html, pureComponent, renderComponent} from "jigjs/pure-components/pure-component";
+import {disconnectedCallback, html, pureComponent, renderComponent} from "jigjs/pure-components/pure-component";
 import {Subject} from "jigjs/events/subject";
 import {observable, watch} from "jigjs/side-effect/observable";
 
@@ -96,9 +96,8 @@ class Counter {
         this.resumeWatcher();
     }
 
-    @allDisconnectedCallback()
+    @disconnectedCallback()
     public pauseWatcher() {
-        console.log('stopping');
         this.interval = clearInterval(this.interval);
     }
 
@@ -144,7 +143,7 @@ class CountWatch {
         `;
     }
 
-    @allDisconnectedCallback()
+    @disconnectedCallback()
     public x() {
         console.log('asds');
     }

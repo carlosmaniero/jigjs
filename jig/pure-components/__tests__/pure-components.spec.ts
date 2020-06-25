@@ -1,14 +1,14 @@
 import {
-    allDisconnectedCallback,
-    connectedCallback,
     disconnectedCallback,
+    connectedCallbackNode,
+    disconnectedCallbackNode,
     html,
     pureComponent,
     renderComponent,
-    RenderableComponent
+    RenderableComponent, connectedCallback
 } from "../pure-component";
 import {configureJSDOM, DOM} from "../../core/dom";
-import {Renderable} from "../../template/render";
+import {render, Renderable} from "../../template/render";
 import {propagateSideEffects, observable, watch} from "../../side-effect/observable";
 import {waitForPromises} from "../../testing/wait-for-promises";
 
@@ -197,7 +197,7 @@ describe('@pureComponent', () => {
 
     describe('event hooks', () => {
         describe('@connectedCallback', () => {
-            it('calls the connected callback event', () => {
+            it('calls the connected callback event once', () => {
                 const stub = jest.fn();
                 @pureComponent()
                 class HelloWorldComponent {
@@ -209,8 +209,39 @@ describe('@pureComponent', () => {
                     onConnect(): void {
                         stub();
                     }
+                }
 
-                    @connectedCallback()
+                const component = new HelloWorldComponent();
+                const dom = configureJSDOM();
+
+                const div1 = dom.document.createElement('div');
+                const div2 = dom.document.createElement('div');
+
+                dom.body.appendChild(div1);
+                dom.body.appendChild(div2);
+
+                renderComponent(div1, component);
+                renderComponent(div2, component);
+
+                expect(stub).toBeCalledTimes(1);
+            });
+        });
+
+        describe('@connectedCallback', () => {
+            it('calls the connected callback event', () => {
+                const stub = jest.fn();
+                @pureComponent()
+                class HelloWorldComponent {
+                    render(): Renderable {
+                        return html`Hello, World!`;
+                    }
+
+                    @connectedCallbackNode()
+                    onConnect(): void {
+                        stub();
+                    }
+
+                    @connectedCallbackNode()
                     onConnect2(): void {
                         stub();
                     }
@@ -218,13 +249,47 @@ describe('@pureComponent', () => {
 
                 const component = new HelloWorldComponent();
                 const dom = configureJSDOM();
+
+                const div1 = dom.document.createElement('div');
+                dom.body.appendChild(div1);
+
+                const div2 = dom.document.createElement('div');
+                dom.body.appendChild(div2);
+
+                renderComponent(div1, component);
+                renderComponent(div2, component);
+
+                expect(stub).toBeCalledTimes(4);
+            });
+
+            it('receives the component node', () => {
+                const stub = jest.fn();
+                @pureComponent()
+                class HelloWorldComponent {
+                    render(): Renderable {
+                        return html`Hello, World!`;
+                    }
+
+                    @connectedCallbackNode()
+                    onConnect(node: HTMLElement): void {
+                        stub(node);
+                    }
+                }
+
+                const component = new HelloWorldComponent();
+                const dom = configureJSDOM();
+
                 renderComponent(dom.body, component);
 
-                expect(stub).toBeCalledTimes(2);
+                const callElement = stub.mock.calls[0][0];
+
+                expect(callElement.textContent).toContain('Hello, World!');
+                expect(callElement.parentElement).toBe(dom.body);
+                expect(callElement.tagName).toBe('HELLOWORLDCOMPONENT');
             });
         });
 
-        describe('@disconnectedCallback', () => {
+        describe('@disconnectedCallbackNode', () => {
             it('calls the disconnect callback', async () => {
                 const stub = jest.fn();
                 @pureComponent()
@@ -233,12 +298,12 @@ describe('@pureComponent', () => {
                         return html`Hello, World!`;
                     }
 
-                    @disconnectedCallback()
+                    @disconnectedCallbackNode()
                     private onDisconnect(): void {
                         stub();
                     }
 
-                    @disconnectedCallback()
+                    @disconnectedCallbackNode()
                         private onDisconnect2(): void {
                         stub();
                     }
@@ -256,6 +321,33 @@ describe('@pureComponent', () => {
                 expect(stub).toBeCalledTimes(2);
             });
 
+            it('receives the component node', () => {
+                const stub = jest.fn();
+                @pureComponent()
+                class HelloWorldComponent {
+                    render(): Renderable {
+                        return html`Hello, World!`;
+                    }
+
+                    @disconnectedCallbackNode()
+                    onDisconnect(node: HTMLElement): void {
+                        stub(node);
+                    }
+                }
+
+                const component = new HelloWorldComponent();
+                const dom = configureJSDOM();
+
+                renderComponent(dom.body, component);
+                render(document.createElement('strong'))(dom.body);
+
+                const callElement = stub.mock.calls[0][0];
+
+                expect(callElement.textContent).toContain('Hello, World!');
+                expect(callElement.parentElement).toBe(null);
+                expect(callElement.tagName).toBe('HELLOWORLDCOMPONENT');
+            });
+
             it('does not calls disconnect when there are no changes', async () => {
                 const stub = jest.fn();
                 @pureComponent()
@@ -264,7 +356,7 @@ describe('@pureComponent', () => {
                         return html`Hello, World!`;
                     }
 
-                    @disconnectedCallback()
+                    @disconnectedCallbackNode()
                     private onDisconnect(): void {
                         stub();
                     }
@@ -283,7 +375,7 @@ describe('@pureComponent', () => {
             });
         });
 
-        describe('@allDisconnectedCallback', () => {
+        describe('@disconnectCallback', () => {
             it('calls all disconnected after there are no component references', async () => {
                 const stub = jest.fn();
 
@@ -293,7 +385,7 @@ describe('@pureComponent', () => {
                         return html`Hello, World!`;
                     }
 
-                    @allDisconnectedCallback()
+                    @disconnectedCallback()
                     private onDisconnect(): void {
                         stub();
                     }
