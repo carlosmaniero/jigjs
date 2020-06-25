@@ -52,7 +52,7 @@ class RenderRacing {
 
         this.willRender = true;
 
-        setImmediate(() => {
+        Promise.resolve().then(() => {
             if (!this.isElementControlledByThisInstance(element, componentInstance)) {
                 return;
             }
