@@ -1,10 +1,4 @@
-import {
-    propagate,
-    observable,
-    subscribeToConstruction,
-    subscribeToSideEffects,
-    watch
-} from "../observable";
+import {observable, propagate, subscribeToConstruction, subscribeToSideEffects, waitUntil, watch} from "../observable";
 import {waitForPromises} from "../../testing/wait-for-promises";
 
 
@@ -237,5 +231,55 @@ describe('side-effect', () => {
 
             expect(callback).toBeCalledWith(instance);
         })
-    })
+    });
+
+    describe('waiting for a side effect', () => {
+        it('waits for a side effect until the given condition is true', async () => {
+            @observable()
+            class SideEffectClass {
+                @watch()
+                public name = 'World';
+            }
+
+            const stub = jest.fn();
+
+            const sideEffectClass = new SideEffectClass();
+
+            waitUntil(sideEffectClass, (obj) => obj.name === 'Universe')
+                .then(stub);
+
+            await waitForPromises();
+            expect(stub).not.toBeCalled();
+
+            sideEffectClass.name = 'Solar System';
+
+            await waitForPromises();
+            expect(stub).not.toBeCalled();
+
+            sideEffectClass.name = 'Universe';
+
+            await waitForPromises();
+            expect(stub).toBeCalled();
+        });
+
+        it('does not calls guard after it returns as resolved', async () => {
+            @observable()
+            class SideEffectClass {
+                @watch()
+                public name = 'World';
+            }
+
+            const stub = jest.fn(() => true);
+
+            const sideEffectClass = new SideEffectClass();
+
+            waitUntil(sideEffectClass, stub);
+
+            sideEffectClass.name = 'Solar System';
+            sideEffectClass.name = 'Universe';
+
+            await waitForPromises();
+            expect(stub).toBeCalledTimes(1);
+        });
+    });
 });

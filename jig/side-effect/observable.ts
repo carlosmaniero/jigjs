@@ -60,6 +60,17 @@ export const subscribeToConstruction = <T extends object>(object: constructor<T>
         .subscribe(callback);
 }
 
+export const waitUntil = <T extends object>(object: T, guard: (object: T) => boolean): Promise<void> => {
+    return new Promise<void>((resolve) => {
+        const subscription = subscribeToSideEffects(object, () => {
+            if (guard(object)) {
+                resolve();
+                subscription.unsubscribe();
+            }
+        });
+    });
+}
+
 class SideEffectPropagation <T extends object> {
     private subscriptions = {}
 
