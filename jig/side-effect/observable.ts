@@ -41,7 +41,7 @@ export const canSubscribeToSideEffects = <T extends object>(object: T): boolean 
     return objectChangedSubjectSymbol in object;
 }
 
-export const subscribeToSideEffects = <T extends object>(object: T, callback: Callback<T>): Subscription => {
+export const observe = <T extends object>(object: T, callback: Callback<T>): Subscription => {
     if (!canSubscribeToSideEffects(object)) {
         throw new Error(`Cannot subscribe to changes. Is "${object.constructor.name}" decorated with @sideEffect()?`);
     }
@@ -49,7 +49,7 @@ export const subscribeToSideEffects = <T extends object>(object: T, callback: Ca
     return object[objectChangedSubjectSymbol].subscribe(callback);
 }
 
-export const subscribeToConstruction = <T extends object>(object: constructor<T>, callback: Callback<T>): Subscription => {
+export const onConstruct = <T extends object>(object: constructor<T>, callback: Callback<T>): Subscription => {
     const constructorSubject = constructorSubjectMetadata.getConstructorSubjectFromClass(object);
 
     if (!constructorSubject) {
@@ -62,7 +62,7 @@ export const subscribeToConstruction = <T extends object>(object: constructor<T>
 
 export const waitUntil = <T extends object>(object: T, guard: (object: T) => boolean): Promise<void> => {
     return new Promise<void>((resolve) => {
-        const subscription = subscribeToSideEffects(object, () => {
+        const subscription = observe(object, () => {
             if (guard(object)) {
                 resolve();
                 subscription.unsubscribe();
@@ -85,7 +85,7 @@ class SideEffectPropagation <T extends object> {
     setup(): void {
         this.propertiesToPropagate.forEach((property) => {
             const instanceNode: object = this.instance[property];
-            instanceNode && subscribeToSideEffects(instanceNode, () => {
+            instanceNode && observe(instanceNode, () => {
                 this.subject.publish(this.instance);
             });
         });
@@ -102,7 +102,7 @@ class SideEffectPropagation <T extends object> {
     }
 
     private subscribe(property: PropertyKey, value: any): void {
-        this.subscriptions[property] = subscribeToSideEffects(value, () => {
+        this.subscriptions[property] = observe(value, () => {
             this.subject.publish(this.instance);
         });
     }
@@ -162,11 +162,11 @@ export const observable = <T extends object>() => (subjectClass: constructor<T>)
     return proxyConstructor;
 }
 
-export const watch = <T extends object>() => (subjectClass: T, property: PropertyKey): void => {
+export const observing = <T extends object>() => (subjectClass: T, property: PropertyKey): void => {
     watchMetadata.addWatchProperty(subjectClass, property);
 }
 
 export const propagate = <T extends object>() => (subjectClass: T, property: PropertyKey): void => {
-    watch()(subjectClass, property);
+    observing()(subjectClass, property);
     propagationMetadata.addPropagationProperty(subjectClass, property);
 }

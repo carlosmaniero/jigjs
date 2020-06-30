@@ -12,7 +12,7 @@ import {routerModule} from "jigjs/router/module";
 import {RouterLink} from "jigjs/router/router-link";
 import {disconnectedCallback, html, pureComponent, renderComponent} from "jigjs/pure-components/pure-component";
 import {Subject} from "jigjs/events/subject";
-import {observable, watch} from "jigjs/side-effect/observable";
+import {observable, observing} from "jigjs/side-effect/observable";
 
 
 @observable()
@@ -45,7 +45,7 @@ class ToggleWatchButton {
     public readonly pauseSubject: Subject<void>;
     public readonly resumeSubject: Subject<void>;
 
-    @watch()
+    @observing()
     public running = true;
 
     constructor() {
@@ -79,7 +79,7 @@ class ToggleWatchButton {
 
 @pureComponent()
 class Counter {
-    @watch()
+    @observing()
     private number = 0;
     private interval: any;
 
@@ -156,9 +156,9 @@ class CountWatch {
 
 @pureComponent()
 class PureComponentTest {
-    @watch()
+    @observing()
     private countWatchers = [];
-    @watch()
+    @observing()
     private input = "";
 
     render() {

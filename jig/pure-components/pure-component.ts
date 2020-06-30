@@ -1,5 +1,5 @@
 import {html as templateHtml, render as templateRender, Renderable} from "../template/render";
-import {observable, subscribeToConstruction, subscribeToSideEffects} from "../side-effect/observable";
+import {observable, onConstruct, observe} from "../side-effect/observable";
 import {Subscription} from "../events/subject";
 
 const elementRenderControlSymbol = Symbol('element-render-control-symbol');
@@ -61,7 +61,7 @@ class RenderRacing {
         });
     }
 
-    private isElementControlledByThisInstance(element: HTMLElement, componentInstance: RenderableComponent) {
+    private isElementControlledByThisInstance(element: HTMLElement, componentInstance: RenderableComponent): boolean {
         return elementRenderControlFromElement(element).componentInstance === componentInstance;
     }
 }
@@ -78,7 +78,7 @@ class ComponentRenderControl {
     }
 
     subscribe(): void {
-        this.subscription = subscribeToSideEffects(this.componentInstance, () => {
+        this.subscription = observe(this.componentInstance, () => {
             this.renderRace.render(this.componentInstance, this.element);
         });
     }
@@ -254,7 +254,7 @@ export const pureComponent = <T extends RenderableComponent>() => (componentClas
     componentReflection.markAsComponent(componentClass);
     const componentClassWithSideEffects = observable()(componentClass);
 
-    subscribeToConstruction(componentClassWithSideEffects, (instance: T) => {
+    onConstruct(componentClassWithSideEffects, (instance: T) => {
         instance[componentLifecycleSymbol] =
             new ComponentLifecycle(instance, componentReflection.getComponentConfiguration(instance));
     });

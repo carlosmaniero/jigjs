@@ -1,6 +1,6 @@
 import {History} from '../history'
 import {configureJSDOM} from "../../core/dom";
-import {subscribeToSideEffects} from "../../side-effect/observable";
+import {observe} from "../../side-effect/observable";
 import waitForExpect from "wait-for-expect";
 
 describe('history', () => {
@@ -15,7 +15,7 @@ describe('history', () => {
         const history = new History(dom.window);
         const stub = jest.fn();
 
-        subscribeToSideEffects(history, stub);
+        observe(history, stub);
 
         history.push('/hello/world');
 

@@ -1,8 +1,8 @@
-import {observable, watch} from "../side-effect/observable";
+import {observable, observing} from "../side-effect/observable";
 
 @observable()
 export class History {
-    @watch()
+    @observing()
     private currentUrl;
 
     constructor(private readonly window) {

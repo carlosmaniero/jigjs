@@ -9,12 +9,12 @@ import {
 } from "../pure-component";
 import {configureJSDOM, DOM} from "../../core/dom";
 import {render, Renderable} from "../../template/render";
-import {propagate, observable, watch} from "../../side-effect/observable";
+import {propagate, observable, observing} from "../../side-effect/observable";
 import {waitForPromises} from "../../testing/wait-for-promises";
 
 @pureComponent()
 class ParentComponent {
-    @watch()
+    @observing()
     public childComponent: RenderableComponent;
 
     constructor(childComponent: RenderableComponent) {
@@ -28,7 +28,7 @@ class ParentComponent {
 
 @pureComponent()
 class ParentComponentList {
-    @watch()
+    @observing()
     public childComponents: RenderableComponent[];
 
     constructor(childComponents: RenderableComponent[]) {
@@ -42,7 +42,7 @@ class ParentComponentList {
 
 @pureComponent()
 class ChildComponent {
-    @watch()
+    @observing()
     public say: string;
 
     constructor(say: string) {
@@ -151,7 +151,7 @@ describe('@pureComponent', () => {
     describe('when component state change', () => {
         @pureComponent()
         class CounterComponent {
-            @watch()
+            @observing()
             private count: number;
 
             constructor(count: number) {
@@ -412,7 +412,7 @@ describe('@pureComponent', () => {
     describe('when propagate changes', () => {
         @observable()
         class Counter {
-            @watch()
+            @observing()
             private count = 0;
 
             increase(): void {
@@ -459,7 +459,7 @@ describe('@pureComponent', () => {
 
             @pureComponent()
             class MyComponent {
-                @watch()
+                @observing()
                 public x = 1;
 
                 render(): Renderable {
