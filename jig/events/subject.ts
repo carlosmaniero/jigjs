@@ -31,4 +31,8 @@ export class Subject<T> implements Subscriber<T>, Publisher<T> {
             }
         }
     }
+
+    subscribersCount(): number {
+        return this.callbacks.length;
+    }
 }

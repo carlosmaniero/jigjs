@@ -1,5 +1,6 @@
-import {observable, propagate, onConstruct, observe, waitUntil, observing} from "../observable";
+import {observable, observe, observing, onConstruct, propagate, subscribersCount, waitUntil} from "../observable";
 import {waitForPromises} from "../../testing/wait-for-promises";
+import {describe} from "@jest/globals";
 
 
 describe('side-effect', () => {
@@ -76,6 +77,27 @@ describe('side-effect', () => {
         });
     });
 
+    describe('count subscribers', () => {
+        it('counts subscribers', () => {
+            @observable()
+            class SideEffectClass {
+                @observing()
+                public name = 'World';
+            }
+
+            const instance = new SideEffectClass();
+
+            observe(instance, jest.fn());
+            const subs = observe(instance, jest.fn());
+
+            expect(subscribersCount(instance)).toBe(2);
+
+            subs.unsubscribe();
+
+            expect(subscribersCount(instance)).toBe(1);
+        });
+    });
+    
     describe('deep side effects', () => {
         it('propagates a change', () => {
             @observable()
@@ -159,6 +181,43 @@ describe('side-effect', () => {
 
             expect(callback).not.toBeCalled();
         });
+
+        it('subscribes into child side effect only after subscription', () => {
+            @observable()
+            class SideEffectChildClass {
+                @observing()
+                public name = 'World';
+            }
+
+            @observable()
+            class SideEffectClass {
+                @propagate()
+                public child = new SideEffectChildClass();
+            }
+
+            const instance = new SideEffectClass();
+            expect(subscribersCount(instance.child)).toBe(0);
+        });
+
+        it('unsubscribes from child when unsubscribe from parent', () => {
+            @observable()
+            class SideEffectChildClass {
+                @observing()
+                public name = 'World';
+            }
+
+            @observable()
+            class SideEffectClass {
+                @propagate()
+                public child = new SideEffectChildClass();
+            }
+
+            const instance = new SideEffectClass();
+
+            observe(instance, jest.fn()).unsubscribe();
+
+            expect(subscribersCount(instance.child)).toBe(0);
+        });
     });
 
     describe('listening to constructor events', () => {
@@ -206,7 +265,7 @@ describe('side-effect', () => {
     });
 
     describe('dealing with asynchronicity in constructors', () => {
-        it('handles', async () => {
+        it('handles side effects caused by async functions into constructor', async () => {
             @observable()
             class SideEffectClass {
                 @observing()
@@ -230,7 +289,7 @@ describe('side-effect', () => {
             await waitForPromises();
 
             expect(callback).toBeCalledWith(instance);
-        })
+        });
     });
 
     describe('waiting for a side effect', () => {

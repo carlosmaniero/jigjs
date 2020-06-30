@@ -4,6 +4,7 @@ import {constructor} from "../core/di";
 const objectChangedSubjectSymbol: unique symbol = Symbol('jig-side-effect-object-change-subscriber');
 const objectCreatedSubjectSymbol: unique symbol = Symbol('jig-side-effect-object-created-subscriber');
 const propertiesToPropagateSymbol: unique symbol = Symbol('jig-side-effect-subscriber');
+const instanceSideEffectPropagationSymbol: unique symbol = Symbol('jig-side-effect-propagation');
 const propertiesToWatch: unique symbol = Symbol('jig-side-watched-properties');
 
 const propagationMetadata = {
@@ -46,7 +47,17 @@ export const observe = <T extends object>(object: T, callback: Callback<T>): Sub
         throw new Error(`Cannot subscribe to changes. Is "${object.constructor.name}" decorated with @sideEffect()?`);
     }
 
-    return object[objectChangedSubjectSymbol].subscribe(callback);
+    const subscription = object[objectChangedSubjectSymbol].subscribe(callback);
+
+    const sideEffectPropagation: SideEffectPropagation<T> = object[instanceSideEffectPropagationSymbol];
+    sideEffectPropagation.setup();
+
+    return {
+        unsubscribe() {
+            subscription.unsubscribe();
+            sideEffectPropagation.afterUnsubscribe();
+        }
+    };
 }
 
 export const onConstruct = <T extends object>(object: constructor<T>, callback: Callback<T>): Subscription => {
@@ -71,6 +82,9 @@ export const waitUntil = <T extends object>(object: T, guard: (object: T) => boo
     });
 }
 
+export const subscribersCount = <T extends object>(instance: T): number =>
+    instance[objectChangedSubjectSymbol].subscribersCount();
+
 class SideEffectPropagation <T extends object> {
     private subscriptions = {}
 
@@ -83,12 +97,11 @@ class SideEffectPropagation <T extends object> {
     }
 
     setup(): void {
-        this.propertiesToPropagate.forEach((property) => {
-            const instanceNode: object = this.instance[property];
-            instanceNode && observe(instanceNode, () => {
-                this.subject.publish(this.instance);
+        if (subscribersCount(this.instance) === 1) {
+            this.propertiesToPropagate.forEach((property) => {
+                this.configureProperty(property, this.instance[property]);
             });
-        });
+        }
     }
 
     configureProperty(property: PropertyKey, value: any): void {
@@ -96,9 +109,21 @@ class SideEffectPropagation <T extends object> {
             return;
         }
 
+        if (subscribersCount(this.instance) === 0) {
+            return;
+        }
+
         this.unsubscribe(property);
 
         value && this.subscribe(property, value);
+    }
+
+    afterUnsubscribe(): void {
+        if (subscribersCount(this.instance) === 0) {
+            Object.values(this.subscriptions).forEach((subscription: Subscription) => {
+                subscription.unsubscribe();
+            })
+        }
     }
 
     private subscribe(property: PropertyKey, value: any): void {
@@ -130,6 +155,7 @@ export const observable = <T extends object>() => (subjectClass: constructor<T>)
             const sideEffectPropagation = new SideEffectPropagation(instance, propagationProperties, objectChangedSubject);
             const originalObjectSymbol = Symbol('original-object');
 
+            instance[instanceSideEffectPropagationSymbol] = sideEffectPropagation;
             instance[originalObjectSymbol] = {};
 
             for (const property of watchMetadata.getWatchedProperties(instance)) {
