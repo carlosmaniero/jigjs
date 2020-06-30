@@ -454,20 +454,52 @@ describe('@pureComponent', () => {
     });
 
     describe('render optimization', () => {
-        it('delays rendering to prevent multiple render calls', async () => {
-            const renderStub = jest.fn();
+        let renderStub;
 
-            @pureComponent()
-            class MyComponent {
-                @observing()
-                public x = 1;
+        beforeEach(() => {
+            renderStub = jest.fn();
+        });
 
-                render(): Renderable {
-                    renderStub();
-                    return html`${this.x}`;
-                }
+        @pureComponent()
+        class MyComponent {
+            @observing()
+            public x = 1;
+
+            render(): Renderable {
+                renderStub();
+                return html`${this.x}`;
             }
+        }
 
+        it('does not renders after disconnect', async () => {
+            const component = new MyComponent();
+
+            const dom = renderTestComponent(component);
+            render(dom.document.createElement('strong'))(dom.document.body);
+            expect(renderStub).toBeCalledTimes(1);
+
+            component.x++;
+
+            await waitForPromises();
+
+            expect(renderStub).toBeCalledTimes(1);
+        });
+
+        it('subscribes again when reconnect', async () => {
+            const component = new MyComponent();
+
+            const dom = renderTestComponent(component);
+            render(dom.document.createElement('strong'))(dom.document.body);
+            renderComponent(dom.document.body, component);
+
+            component.x++;
+
+            await waitForPromises();
+
+            expect(dom.body.textContent).toContain('2');
+        });
+
+        it('delays rendering to prevent multiple render calls', async () => {
             const component = new MyComponent();
 
             const dom = renderTestComponent(component);

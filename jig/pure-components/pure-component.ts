@@ -113,6 +113,7 @@ export const renderComponent = (element: HTMLElement, component: RenderableCompo
     templateRender(component.render())(componentElement);
 
     componentElement['onDisconnect'] = (): void => {
+        elementRenderControlFromElement(componentElement).unsubscribe();
         componentLifecycle.disconnectedCallbackNode(componentElement);
     };
     componentElement['onConnect'] = (): void => {
