@@ -1,11 +1,12 @@
 import {observable, observing} from "../side-effect/observable";
+import {JigWindow} from "../types";
 
 @observable()
 export class History {
     @observing()
     private currentUrl;
 
-    constructor(private readonly window) {
+    constructor(private readonly window: JigWindow) {
         this.updateCurrentUrl();
 
         this.window.history.replaceState(undefined, '', this.getWindowCurrentUrl());

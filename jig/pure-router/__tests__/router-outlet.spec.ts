@@ -6,6 +6,7 @@ import {html, pureComponent, renderComponent} from "../../pure-components/pure-c
 import {waitForPromises} from "../../testing/wait-for-promises";
 import {waitUntil} from "../../side-effect/observable";
 import {render} from "../../template/render";
+import {RouterModule} from "../module";
 
 const controlledPromise = () => {
     let resolver;
@@ -35,7 +36,7 @@ describe('Router outlet', () => {
     it('returns nothing given no route matches', async () => {
         const dom = configureJSDOM(undefined, 'http://jig/home')
 
-        const routerOutlet = new RouterOutlet(new History(dom.window), new Routes([
+        const routerModule = new RouterModule(dom.window, new Routes([
             {
                 path: '/',
                 name: 'home',
@@ -45,13 +46,13 @@ describe('Router outlet', () => {
             }
         ]));
 
-        renderComponent(dom.body, routerOutlet);
+        renderComponent(dom.body, routerModule.routerOutlet);
 
         expect(dom.body.querySelector('routeroutlet').innerHTML).toBe('');
 
         await waitForPromises();
 
-        expect(routerOutlet.isResolved()).toBeTruthy();
+        expect(routerModule.routerOutlet.isResolved()).toBeTruthy();
     });
 
     it('returns the render result', async () => {
@@ -253,5 +254,42 @@ describe('Router outlet', () => {
 
             expect(renderStub).toBeCalledTimes(1);
         });
-    })
+    });
+
+    describe('unhandled errors', () => {
+        it('marks router outlet with error when handler promise is rejected', async () => {
+            jest.spyOn(console, 'error').mockImplementation(() => { return; });
+
+            const dom = configureJSDOM(undefined, 'http://jig/home')
+            const promise = controlledPromise();
+
+            const history = new History(dom.window);
+            const routerOutlet = new RouterOutlet(history, new Routes([
+                {
+                    path: '/home',
+                    name: 'home',
+                    handler(params, render): Promise<void> {
+                        render(new HelloComponent('world'));
+                        return promise.promise;
+                    }
+                },
+                {
+                    path: '/success',
+                    name: 'success',
+                    handler(params, render): void {
+                        render(new HelloComponent('world'));
+                    }
+                }
+            ]));
+
+            renderComponent(dom.body, routerOutlet);
+            promise.rejecter(new Error('my error'));
+            await waitForPromises();
+            expect(routerOutlet.isResolvedWithUnhandledError()).toBeTruthy();
+
+            history.push('/success');
+            promise.resolver();
+            expect(routerOutlet.isResolvedWithUnhandledError()).toBeFalsy();
+        });
+    });
 });

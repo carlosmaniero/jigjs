@@ -15,6 +15,10 @@ import {Subscription} from "../events/subject";
 export class RouterOutlet {
     @observing()
     private routeComponent: RenderableComponent;
+
+    @observing()
+    private hasUnhandledError = false;
+
     @observing()
     private resolved = true;
     private currentProcess = 0;
@@ -31,6 +35,10 @@ export class RouterOutlet {
         return this.resolved;
     }
 
+    isResolvedWithUnhandledError(): boolean {
+        return this.hasUnhandledError;
+    }
+
     @connectedCallback()
     private watchHistory(): void {
         this.historySubscription = observe(this.history, () => {
@@ -40,6 +48,7 @@ export class RouterOutlet {
 
     @connectedCallback()
     private processRouteHandlingForCurrentUrl(): void {
+        this.hasUnhandledError = false;
         const process = this.startProcess();
         const handlerFor = this.routes.handlerFor(this.history.getCurrentUrl());
 
@@ -48,7 +57,11 @@ export class RouterOutlet {
         }
 
         this.controlRouteChange(handlerFor, process)
-            .catch(console.error);
+            .catch((e) => {
+                console.error(e);
+                this.resolved = true;
+                this.hasUnhandledError = true;
+            });
     }
 
     @disconnectedCallback()

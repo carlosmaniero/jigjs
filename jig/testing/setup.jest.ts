@@ -6,14 +6,9 @@ declare let global: any
 
 global.beforeEach(() => {
     jest.restoreAllMocks();
-    jest.spyOn(console, 'error');
     globalContainer.reset();
 
     register();
 });
 
-global.afterEach(() => {
-    expect(console.error).not.toBeCalled();
-});
-
-global.fixedAssertions = 1;
+global.fixedAssertions = 0;

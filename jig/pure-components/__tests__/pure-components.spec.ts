@@ -22,7 +22,7 @@ class ParentComponent {
     }
 
     render(): Renderable {
-        return html`child say: ${this.childComponent}`;
+        return html`child say: <strong>${this.childComponent}</strong>`;
     }
 }
 
