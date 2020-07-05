@@ -47,7 +47,7 @@ greater.updateName('Earth'); // does not prints anything
 npm install -g jigjs 
 ```
 
-## First component
+## Components
 
 A component is a small UI peace that manage its own state. Whenever the class fields
 decorated with `@overserving` changes the component is re-rendered.
@@ -58,7 +58,7 @@ import {observing} from "jigjs/reactive";
 
 @component()
 export class CounterComponent {
-    @observing
+    @observing()
     private number: number;
 
     constructor(initialCount = 0) {
