@@ -1,15 +1,16 @@
 import {
-    disconnectedCallback,
+    connectedCallback,
     connectedCallbackNode,
+    disconnectedCallback,
     disconnectedCallbackNode,
     html,
     pureComponent,
-    renderComponent,
-    RenderableComponent, connectedCallback
+    RenderableComponent,
+    renderComponent
 } from "../pure-component";
 import {configureJSDOM, DOM} from "../../core/dom";
 import {render, Renderable} from "../../template/render";
-import {propagate, observable, observing} from "../../side-effect/observable";
+import {observable, observing, propagate, subscribersCount} from "../../side-effect/observable";
 import {waitForPromises} from "../../testing/wait-for-promises";
 
 @pureComponent()
@@ -75,6 +76,22 @@ describe('@pureComponent', () => {
         renderComponent(dom.body, component);
 
         expect(dom.body.textContent).toContain('Hello, World!');
+    });
+
+    it('has only one subscriber when render', () => {
+        @pureComponent()
+        class HelloWorldComponent {
+            render(): Renderable {
+                return html`Hello, World!`;
+            }
+        }
+
+        const component = new HelloWorldComponent();
+        const dom = configureJSDOM();
+
+        renderComponent(dom.body, component);
+
+        expect(subscribersCount(component)).toBe(1);
     });
 
     describe('rendering child components', () => {
@@ -515,5 +532,52 @@ describe('@pureComponent', () => {
             expect(renderStub).toBeCalledTimes(2);
             expect(dom.body.textContent).toContain('4');
         });
-    })
+    });
+
+    describe('rehydrating', () => {
+        let stub;
+
+        @pureComponent()
+        class HelloWorldComponent {
+            @observing()
+            public name = `World`;
+
+            render(): Renderable {
+                return html`Hello, ${this.name}!`;
+            }
+
+            @connectedCallback()
+            onConnect(): void {
+                stub();
+            }
+        }
+
+        beforeEach(() => {
+            stub = jest.fn();
+        });
+
+        it('calls connect callback when rehydrate', () => {
+            const component = new HelloWorldComponent();
+            const dom = configureJSDOM();
+            dom.body.innerHTML = "<helloworldcomponent>Hello, World!</helloworldcomponent>";
+
+            renderComponent(dom.body, component);
+
+            expect(stub).toBeCalledTimes(1);
+        });
+
+        it('updates the content', async () => {
+            const component = new HelloWorldComponent();
+            const dom = configureJSDOM();
+            dom.body.innerHTML = "<helloworldcomponent>Hello, World!</helloworldcomponent>";
+
+            renderComponent(dom.body, component);
+
+            component.name = 'Universe';
+
+            await waitForPromises();
+
+            expect(dom.body.textContent).toContain('Universe');
+        });
+    });
 });

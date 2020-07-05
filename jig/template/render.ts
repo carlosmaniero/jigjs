@@ -51,9 +51,11 @@ export type HTMLElementWithJigProperties = HTMLElement & {
     shouldUpdate?: (to: HTMLElement) => boolean;
     onConnect?: () => void;
     onDisconnect?: () => void;
+    bindPreExisting?: (from: HTMLElement) => void;
     events?: Record<string, (event: Event) => void>;
     props?: Record<string, unknown>;
     disconnectingFromDocument?: boolean;
+    alreadyConnected?: boolean;
 }
 
 const bindEvents = (from: HTMLElementWithJigProperties, to: HTMLElementWithJigProperties) => {
@@ -82,6 +84,22 @@ const attachedToDocument = (node: HTMLElementWithJigProperties): boolean => {
     return node.ownerDocument.contains(node);
 }
 
+function connectPreExisting(from: HTMLElementWithJigProperties, to: HTMLElementWithJigProperties) {
+    if (!attachedToDocument(from) || from.alreadyConnected) {
+        return;
+    }
+
+    from.alreadyConnected = true;
+
+    if (to.onConnect) {
+        to.onConnect();
+    }
+
+    if (to.bindPreExisting) {
+        to.bindPreExisting(from);
+    }
+}
+
 const applyToDom = (bindElement: Node & ParentNode, clone: Node & ParentNode): void => {
     bindElement.normalize();
     clone.normalize();
@@ -91,6 +109,7 @@ const applyToDom = (bindElement: Node & ParentNode, clone: Node & ParentNode): v
         onNodeAdded(node: HTMLElementWithJigProperties) {
             if (attachedToDocument(node) && node.onConnect) {
                 node.onConnect();
+                node.alreadyConnected = true;
             }
 
             return node;
@@ -112,6 +131,7 @@ const applyToDom = (bindElement: Node & ParentNode, clone: Node & ParentNode): v
         onBeforeElUpdated: (from: HTMLElementWithJigProperties, to: HTMLElementWithJigProperties) => {
             bindProps(from, to);
             bindEvents(from, to);
+            connectPreExisting(from, to);
 
             if (from.shouldUpdate) {
                 return from.shouldUpdate(to);

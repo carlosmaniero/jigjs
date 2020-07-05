@@ -1,5 +1,5 @@
 import {html as templateHtml, render as templateRender, Renderable} from "../template/render";
-import {observable, onConstruct, observe} from "../side-effect/observable";
+import {observable, observe, onConstruct} from "../side-effect/observable";
 import {Subscription} from "../events/subject";
 
 const elementRenderControlSymbol = Symbol('element-render-control-symbol');
@@ -84,7 +84,8 @@ class ComponentRenderControl {
     }
 
     unsubscribe(): void {
-        this.subscription.unsubscribe();
+        this.subscription && this.subscription.unsubscribe();
+        this.subscription = undefined;
     }
 
     updateElement(element: HTMLElement): void {
@@ -97,50 +98,53 @@ export const renderComponent = (element: HTMLElement, component: RenderableCompo
     const componentLifecycle = getComponentLifecycle(component);
 
     const componentRenderControl = new ComponentRenderControl(component, componentElement);
-    componentRenderControl.subscribe();
+
+    componentElement['bindPreExisting'] = (from): void => {
+        setElementRenderControl(from, componentRenderControl);
+        componentRenderControl.updateElement(from);
+    }
 
     setElementRenderControl(componentElement, componentRenderControl);
     componentElement['shouldUpdate'] = (to): boolean => {
         const newComponentRenderControl: ComponentRenderControl = to[elementRenderControlSymbol];
 
-        componentRenderControl.unsubscribe();
+        elementRenderControlFromElement(componentElement).unsubscribe();
         setElementRenderControl(componentElement, newComponentRenderControl);
 
         newComponentRenderControl.updateElement(componentElement);
+        newComponentRenderControl.subscribe();
         return true;
 
     };
-    templateRender(component.render())(componentElement);
-
     componentElement['onDisconnect'] = (): void => {
         elementRenderControlFromElement(componentElement).unsubscribe();
         componentLifecycle.disconnectedCallbackNode(componentElement);
     };
     componentElement['onConnect'] = (): void => {
+        componentRenderControl.subscribe();
         componentLifecycle.connectedCallbackNode(componentElement);
     }
 
+    templateRender(component.render())(componentElement);
     templateRender(componentElement)(element);
 }
 
-const renderComponentOrValue = (value: object | object[] | RenderableComponent): Renderable | Renderable[]  => {
-    if (Array.isArray(value)) {
-        return value.map(renderComponentOrValue) as Renderable[];
+const renderComponentOrValue = (valueOrComponent: object | object[] | RenderableComponent): Renderable | Renderable[] => {
+    if (Array.isArray(valueOrComponent)) {
+        return valueOrComponent.map(renderComponentOrValue) as Renderable[];
     }
 
-    if (componentReflection.isComponent(value)) {
-        const component = value;
-
+    if (componentReflection.isComponent(valueOrComponent)) {
         return {
             renderAt(document): DocumentFragment {
                 const fragment = document.createDocumentFragment();
-                renderComponent(fragment, component);
+                renderComponent(fragment, valueOrComponent);
                 return fragment;
             }
         };
     }
 
-    return value as Renderable;
+    return valueOrComponent as Renderable;
 }
 
 export const html = (template: TemplateStringsArray, ...values: unknown[]): Renderable => {
