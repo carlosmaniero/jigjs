@@ -1,7 +1,11 @@
 import {html, HTMLElementWithJigProperties, render} from "../render";
+import {configureJSDOM} from "../../core/dom";
 
 describe('Render', () => {
+    let document;
+
     beforeEach(() => {
+        document = configureJSDOM().document;
         document.body.innerHTML = '';
     });
 

@@ -9,7 +9,7 @@ import {
     renderComponent
 } from "../pure-component";
 import {configureJSDOM, DOM} from "../../core/dom";
-import {render, Renderable} from "../../template/render";
+import {HTMLElementWithJigProperties, render, Renderable} from "../../template/render";
 import {observable, observing, propagate, subscribersCount} from "../../reactive";
 import {waitForPromises} from "../../testing/wait-for-promises";
 
@@ -288,7 +288,7 @@ describe('@pureComponent', () => {
                     }
 
                     @connectedCallbackNode()
-                    onConnect(node: HTMLElement): void {
+                    onConnect(node: HTMLElementWithJigProperties): void {
                         stub(node);
                     }
                 }
@@ -347,7 +347,7 @@ describe('@pureComponent', () => {
                     }
 
                     @disconnectedCallbackNode()
-                    onDisconnect(node: HTMLElement): void {
+                    onDisconnect(node: HTMLElementWithJigProperties): void {
                         stub(node);
                     }
                 }
@@ -356,7 +356,7 @@ describe('@pureComponent', () => {
                 const dom = configureJSDOM();
 
                 renderComponent(dom.body, component);
-                render(document.createElement('strong'))(dom.body);
+                render(dom.document.createElement('strong'))(dom.body);
 
                 const callElement = stub.mock.calls[0][0];
 

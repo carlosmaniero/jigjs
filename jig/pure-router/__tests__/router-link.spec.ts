@@ -135,58 +135,64 @@ describe('router link', () => {
         });
 
         describe('special clicking', () => {
-            const dom = configureJSDOM(undefined, 'http://jigjs.com/');
+            let dom;
+            let module;
+            let routerLink;
 
-            const module = new RouterModule(dom.window, new Routes([
-                {
-                    path: '/home',
-                    name: 'index',
-                    handler: jest.fn()
-                },
-                {
-                    path: '/hello/:name',
-                    name: 'hello',
-                    handler: jest.fn()
-                }
-            ]));
+            beforeEach(() => {
+                dom = configureJSDOM(undefined, 'http://jigjs.com/');
 
-            const routerLink = module.linkFactory.createLink(
-                new Route('hello', {name: 'world'}),
-                new RouteLinkElement(html`<span>Hello!</span>`, {class: 'link-address'})
-            );
+                module = new RouterModule(dom.window, new Routes([
+                    {
+                        path: '/home',
+                        name: 'index',
+                        handler: jest.fn()
+                    },
+                    {
+                        path: '/#:name',
+                        name: 'hello',
+                        handler: jest.fn()
+                    }
+                ]));
 
-            renderComponent(dom.body, routerLink);
+                routerLink = module.linkFactory.createLink(
+                    new Route('hello', {name: 'world'}),
+                    new RouteLinkElement(html`<span>Hello!</span>`, {class: 'link-address'})
+                );
 
-            it('does nothing when use meta button', async () => {
+                renderComponent(dom.body, routerLink);
+            });
+
+            it('does nothing when use meta button', () => {
                 dom.body.querySelector('a').dispatchEvent(new dom.window.MouseEvent('click', {
                     metaKey: true
                 }));
 
-                expect(module.history.getCurrentUrl()).not.toBe('/hello/world');
+                expect(module.history.getCurrentUrl()).toBe('/');
             });
 
-            it('does nothing when use shif button', async () => {
+            it('does nothing when use shif button', () => {
                 dom.body.querySelector('a').dispatchEvent(new dom.window.MouseEvent('click', {
                     shiftKey: true
                 }));
 
-                expect(module.history.getCurrentUrl()).not.toBe('/hello/world');
+                expect(module.history.getCurrentUrl()).toBe('/');
             });
 
-            it('does nothing when use alt button', async () => {
+            it('does nothing when use alt button', () => {
                 dom.body.querySelector('a').dispatchEvent(new dom.window.MouseEvent('click', {
                     altKey: true
                 }));
 
-                expect(module.history.getCurrentUrl()).not.toBe('/hello/world');
+                expect(module.history.getCurrentUrl()).toBe('/');
             });
 
-            it('does nothing when use control button', async () => {
+            it('does nothing when use control button', () => {
                 dom.body.querySelector('a').dispatchEvent(new dom.window.MouseEvent('click', {
                     ctrlKey: true
                 }));
 
-                expect(module.history.getCurrentUrl()).not.toBe('/hello/world');
+                expect(module.history.getCurrentUrl()).toBe('/');
             });
         });
     });

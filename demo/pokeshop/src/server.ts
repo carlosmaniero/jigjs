@@ -1,4 +1,3 @@
-import 'jigjs/core/register';
 import {Server} from "jigjs/pure-server/server";
 import {ServerSideRendering} from "jigjs/pure-server/ssr";
 import {appFactory} from "./app";

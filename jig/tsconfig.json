@@ -20,6 +20,7 @@
     "./cli/new-project/template"
   ],
   "include": [
-    "./**/*.ts"
+    "./**/*.ts",
+    "./**/*.spec.ts"
   ]
 }

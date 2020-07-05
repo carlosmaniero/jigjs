@@ -1,5 +1,5 @@
 import {Callback, Subject, Subscription} from "../events/subject";
-import {constructor} from "../core/di";
+import {Constructor} from "../types";
 
 const objectChangedSubjectSymbol: unique symbol = Symbol('jig-side-effect-object-change-subscriber');
 const objectCreatedSubjectSymbol: unique symbol = Symbol('jig-side-effect-object-created-subscriber');
@@ -30,10 +30,10 @@ const watchMetadata = {
 };
 
 const constructorSubjectMetadata = {
-    getConstructorSubjectFromClass<T extends object>(subjectClass: constructor<T>): Subject<T> {
+    getConstructorSubjectFromClass<T extends object>(subjectClass: Constructor<T>): Subject<T> {
         return Reflect.getMetadata(objectCreatedSubjectSymbol, subjectClass);
     },
-    defineConstructorSubject<T extends object>(subjectClass: constructor<T>, subject: Subject<T>) {
+    defineConstructorSubject<T extends object>(subjectClass: Constructor<T>, subject: Subject<T>) {
         Reflect.defineMetadata(objectCreatedSubjectSymbol, subject, subjectClass);
     }
 }
@@ -60,7 +60,7 @@ export const observe = <T extends object>(object: T, callback: Callback<T>): Sub
     };
 }
 
-export const onConstruct = <T extends object>(object: constructor<T>, callback: Callback<T>): Subscription => {
+export const onConstruct = <T extends object>(object: Constructor<T>, callback: Callback<T>): Subscription => {
     const constructorSubject = constructorSubjectMetadata.getConstructorSubjectFromClass(object);
 
     if (!constructorSubject) {
@@ -143,7 +143,7 @@ class SideEffectPropagation <T extends object> {
     }
 }
 
-export const observable = <T extends object>() => (subjectClass: constructor<T>) => {
+export const observable = <T extends object>() => (subjectClass: Constructor<T>) => {
     const proxyConstructor = new Proxy(subjectClass, {
         construct(target: any, argArray: any, newTarget?: any): any {
             const instance = Reflect.construct(target, argArray, newTarget);

@@ -1,4 +1,4 @@
-import 'jigjs/core/register';
+import '@abraham/reflection';
 import {Renderable} from "jigjs/template/render";
 import {disconnectedCallback, html, pureComponent} from "jigjs/pure-components/pure-component";
 import {Subject} from "jigjs/events/subject";

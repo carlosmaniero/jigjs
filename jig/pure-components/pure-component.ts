@@ -1,6 +1,7 @@
 import {html as templateHtml, render as templateRender, Renderable} from "../template/render";
 import {observable, observe, onConstruct} from "../reactive";
 import {Subscription} from "../events/subject";
+import {Constructor} from "../types";
 
 const elementRenderControlSymbol = Symbol('element-render-control-symbol');
 const componentLifecycleSymbol = Symbol('component-lifecycle-symbol');
@@ -156,10 +157,6 @@ export const html = (template: TemplateStringsArray, ...values: unknown[]): Rend
 
 export interface RenderableComponent {
     render(): Renderable;
-}
-
-type Constructor<T> = {
-    new(...args: unknown[]): T;
 }
 
 class ComponentConfiguration {
