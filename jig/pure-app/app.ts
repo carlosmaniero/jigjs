@@ -1,7 +1,7 @@
 import {RouterModule} from "../pure-router/module";
 import {connectedCallback, html, pureComponent} from "../pure-components/pure-component";
 import {Renderable} from "../template/render";
-import {propagate} from "../side-effect/observable";
+import {propagate} from "../reactive";
 
 @pureComponent()
 export class App {

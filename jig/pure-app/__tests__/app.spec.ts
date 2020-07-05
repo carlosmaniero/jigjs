@@ -4,7 +4,7 @@ import {configureJSDOM} from "../../core/dom";
 import {Routes} from "../../pure-router/routes";
 import {html, pureComponent, renderComponent} from "../../pure-components/pure-component";
 import {Renderable} from "../../template/render";
-import {waitUntil} from "../../side-effect/observable";
+import {waitUntil} from "../../reactive";
 
 describe('App', () => {
     @pureComponent()

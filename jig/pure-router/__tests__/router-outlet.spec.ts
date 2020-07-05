@@ -4,7 +4,7 @@ import {configureJSDOM} from "../../core/dom";
 import {Routes} from "../routes";
 import {html, pureComponent, renderComponent} from "../../pure-components/pure-component";
 import {waitForPromises} from "../../testing/wait-for-promises";
-import {waitUntil} from "../../side-effect/observable";
+import {waitUntil} from "../../reactive";
 import {render} from "../../template/render";
 import {RouterModule} from "../module";
 

@@ -2,7 +2,7 @@ import {App} from "../pure-app/app";
 import {JigWindow} from "../types";
 import {configureJSDOM} from "../core/dom";
 import {renderComponent} from "../pure-components/pure-component";
-import {waitUntil} from "../side-effect/observable";
+import {waitUntil} from "../reactive";
 import {Response} from "./response";
 import {render} from "../template/render";
 

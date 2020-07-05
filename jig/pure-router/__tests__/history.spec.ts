@@ -1,6 +1,6 @@
 import {History} from '../history'
 import {configureJSDOM} from "../../core/dom";
-import {observe} from "../../side-effect/observable";
+import {observe} from "../../reactive";
 import waitForExpect from "wait-for-expect";
 
 describe('history', () => {

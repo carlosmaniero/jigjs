@@ -1,5 +1,5 @@
 import {html as templateHtml, render as templateRender, Renderable} from "../template/render";
-import {observable, observe, onConstruct} from "../side-effect/observable";
+import {observable, observe, onConstruct} from "../reactive";
 import {Subscription} from "../events/subject";
 
 const elementRenderControlSymbol = Symbol('element-render-control-symbol');

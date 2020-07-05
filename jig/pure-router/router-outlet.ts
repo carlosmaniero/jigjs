@@ -8,7 +8,7 @@ import {
     RenderableComponent
 } from "../pure-components/pure-component";
 import {Renderable} from "../template/render";
-import {observe, observing} from "../side-effect/observable";
+import {observe, observing} from "../reactive";
 import {Subscription} from "../events/subject";
 
 @pureComponent()

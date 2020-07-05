@@ -1,4 +1,4 @@
-import {observable, observe, observing, onConstruct, propagate, subscribersCount, waitUntil} from "../observable";
+import {observable, observe, observing, onConstruct, propagate, subscribersCount, waitUntil} from "../";
 import {waitForPromises} from "../../testing/wait-for-promises";
 import {describe} from "@jest/globals";
 

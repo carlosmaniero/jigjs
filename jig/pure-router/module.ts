@@ -2,7 +2,7 @@ import {History} from "./history";
 import {JigWindow} from "../types";
 import {RouterOutlet} from "./router-outlet";
 import {Routes} from "./routes";
-import {observable, propagate} from "../side-effect/observable";
+import {observable, propagate} from "../reactive";
 import {RouterLinkFactory} from "./router-link";
 import {Navigation} from "./navigation";
 

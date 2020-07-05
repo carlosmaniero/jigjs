@@ -10,7 +10,7 @@ import {
 } from "../pure-component";
 import {configureJSDOM, DOM} from "../../core/dom";
 import {render, Renderable} from "../../template/render";
-import {observable, observing, propagate, subscribersCount} from "../../side-effect/observable";
+import {observable, observing, propagate, subscribersCount} from "../../reactive";
 import {waitForPromises} from "../../testing/wait-for-promises";
 
 @pureComponent()

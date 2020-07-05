@@ -1,4 +1,4 @@
-import {observable, observing} from "../side-effect/observable";
+import {observable, observing} from "../reactive";
 import {JigWindow} from "../types";
 
 @observable()

@@ -2,12 +2,12 @@ import 'jigjs/core/register';
 import {Renderable} from "jigjs/template/render";
 import {disconnectedCallback, html, pureComponent} from "jigjs/pure-components/pure-component";
 import {Subject} from "jigjs/events/subject";
-import {observable, observing} from "jigjs/side-effect/observable";
 import {AppFactory} from "jigjs/pure-server/ssr";
 import {Routes} from "jigjs/pure-router/routes";
 import {App} from "jigjs/pure-app/app";
 import {RouterModule} from "jigjs/pure-router/module";
 import {Route, RouteLinkElement, RouterLink, RouterLinkFactory} from "jigjs/pure-router/router-link";
+import {observable, observing} from "jigjs/reactive";
 
 
 @observable()
