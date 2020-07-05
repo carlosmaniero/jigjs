@@ -181,6 +181,21 @@ describe('Render', () => {
 
             expect(element.className).toBe('initial middle center final-4');
         });
+
+        it('fills object attribute', () => {
+            const attrs = {
+                class: 'hi',
+                id: 'my-id'
+            };
+
+            render(html`<div ${attrs}></div>`)(document.body);
+
+            const element = document.body.querySelector('div');
+
+            expect(element.className).toBe('hi');
+            expect(element.id).toBe('my-id');
+            expect(element.getAttributeNames()).toHaveLength(2);
+        });
     });
 
     describe('handling events', () => {

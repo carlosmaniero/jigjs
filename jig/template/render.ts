@@ -14,15 +14,15 @@ export interface HtmlTemplate {
 
 export type Renderable = HtmlTemplate | ChildNode | DocumentFragment;
 
-const placeHolderRegex = /(__render_placeholder_)(\d+)(_render_placeholder__)/g;
-const customPropertySyntaxSugarAttributeRegex = /([/@](\w+)[ ]*[=])/g;
+const placeHolderRegex = (): RegExp => /(__render_placeholder_)(\d+)(_render_placeholder__)/g;
+const customPropertySyntaxSugarAttributeRegex = (): RegExp => /([/@](\w+)[ ]*[=])/g;
 const customPropertySyntaxSugarAttributeGroup = '$2';
 const customPropertyAttributePrefix = 'jig-custom-property-';
 
 const isCustomProperty = (attributeName: string) => attributeName.startsWith(customPropertyAttributePrefix);
 const isElement = (element: Node): element is HTMLElement => element.nodeType === NODES.ELEMENT_NODE;
 const isTextNode = (element: Node) => element.nodeType === NODES.TEXT_NODE;
-const isPlaceHolder = (value: string): boolean => placeHolderRegex.test(value);
+const isPlaceHolder = (value: string): boolean => placeHolderRegex().test(value);
 
 export const createTemplateElement = (document: Document): HTMLTemplateElement => {
     return document.createElementNS('http://www.w3.org/1999/xhtml', 'template') as HTMLTemplateElement;
@@ -163,7 +163,7 @@ const getPlaceHolderIndex = (placeholder: string): number[] => {
     if (!isPlaceHolder(placeholder)) {
         return null;
     }
-    return placeholder.match(placeHolderRegex)
+    return placeholder.match(placeHolderRegex())
         .map((mathPlaceholder) =>
             parseInt(mathPlaceholder.match(/(__render_placeholder_)(\d+)(_render_placeholder__)/)[2]));
 }
@@ -324,13 +324,31 @@ const commonAttributeHandler = {
     isHandlerOf(element: HTMLElement, attributeName: string): boolean {
         return hasPlaceHolder(element.getAttribute(attributeName));
     }
-
 }
 
+const attributeMapHandler = {
+    handle(props: AttributeHandlerProps): void {
+        props.element.removeAttribute(props.attributeName);
+
+        getPlaceHolderIndex(props.attributeName).forEach(placeholderIndex => {
+            const attributeMap = props.values[placeholderIndex] as Record<string, string>;
+            for (const attributeName in attributeMap) {
+                if (!attributeMap.hasOwnProperty(attributeName)) {
+                    return;
+                }
+                props.element.setAttribute(attributeName, attributeMap[attributeName]);
+            }
+        })
+    },
+    isHandlerOf(element: HTMLElement, attributeName: string): boolean {
+        return isPlaceHolder(attributeName);
+    }
+};
 const attributeHandlers: AttributeHandler[] = [
     customPropertyHandler,
     eventAttributeHandler,
-    commonAttributeHandler
+    commonAttributeHandler,
+    attributeMapHandler,
 ]
 
 const fillAttributes = (element: DocumentFragment | ChildNode, values: unknown[]) => {
@@ -360,7 +378,7 @@ const fillPlaceholders = (content: DocumentFragment, values: unknown[]): void =>
 }
 
 const replaceCustomPropsSyntaxSugar = (partialTemplate: string): string => {
-    return partialTemplate.replace(customPropertySyntaxSugarAttributeRegex, `${customPropertyAttributePrefix + customPropertySyntaxSugarAttributeGroup}=`);
+    return partialTemplate.replace(customPropertySyntaxSugarAttributeRegex(), `${customPropertyAttributePrefix + customPropertySyntaxSugarAttributeGroup}=`);
 }
 
 const createTemplateWithPlaceholders = (template: TemplateStringsArray, values: unknown[]) => {
