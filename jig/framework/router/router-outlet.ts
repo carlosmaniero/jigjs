@@ -1,17 +1,11 @@
 import {MatchedRouterHandler, Routes} from "./routes";
 import {History} from "./history";
-import {
-    connectedCallback,
-    disconnectedCallback,
-    html,
-    pureComponent,
-    RenderableComponent
-} from "../../pure-components/pure-component";
+import {component, connectedCallback, disconnectedCallback, html, RenderableComponent} from "../../components";
 import {Renderable} from "../../template/render";
 import {observe, observing} from "../../reactive";
 import {Subscription} from "../../events/subject";
 
-@pureComponent()
+@component()
 export class RouterOutlet {
     @observing()
     private routeComponent: RenderableComponent;

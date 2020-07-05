@@ -1,9 +1,9 @@
 import {RouterModule} from "../router/module";
-import {connectedCallback, html, pureComponent} from "../../pure-components/pure-component";
+import {component, connectedCallback, html} from "../../components";
 import {Renderable} from "../../template/render";
 import {propagate} from "../../reactive";
 
-@pureComponent()
+@component()
 export class App {
     @propagate()
     private readonly routerModule: RouterModule;

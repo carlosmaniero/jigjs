@@ -252,7 +252,7 @@ class ComponentLifecycle <T extends RenderableComponent> {
     }
 }
 
-export const pureComponent = <T extends RenderableComponent>() => (componentClass: Constructor<T>): void => {
+export const component = <T extends RenderableComponent>() => (componentClass: Constructor<T>): void => {
     componentReflection.markAsComponent(componentClass);
     const componentClassWithSideEffects = observable()(componentClass);
 

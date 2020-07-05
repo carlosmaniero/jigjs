@@ -1,4 +1,4 @@
-import {RenderableComponent} from "../../pure-components/pure-component";
+import {RenderableComponent} from "../../components";
 import RouteMatcher from "route-parser";
 
 export type RouterRender = (component: RenderableComponent) => void;

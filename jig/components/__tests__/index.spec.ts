@@ -1,19 +1,19 @@
 import {
+    component,
     connectedCallback,
     connectedCallbackNode,
     disconnectedCallback,
     disconnectedCallbackNode,
     html,
-    pureComponent,
     RenderableComponent,
     renderComponent
-} from "../pure-component";
+} from "../";
 import {configureJSDOM, DOM} from "../../core/dom";
 import {HTMLElementWithJigProperties, render, Renderable} from "../../template/render";
 import {observable, observing, propagate, subscribersCount} from "../../reactive";
 import {waitForPromises} from "../../testing/wait-for-promises";
 
-@pureComponent()
+@component()
 class ParentComponent {
     @observing()
     public childComponent: RenderableComponent;
@@ -27,7 +27,7 @@ class ParentComponent {
     }
 }
 
-@pureComponent()
+@component()
 class ParentComponentList {
     @observing()
     public childComponents: RenderableComponent[];
@@ -41,7 +41,7 @@ class ParentComponentList {
     }
 }
 
-@pureComponent()
+@component()
 class ChildComponent {
     @observing()
     public say: string;
@@ -63,35 +63,35 @@ const renderTestComponent = (component: RenderableComponent): DOM => {
 
 describe('@pureComponent', () => {
     it('renders a simple component', () => {
-        @pureComponent()
+        @component()
         class HelloWorldComponent {
             render(): Renderable {
                 return html`Hello, World!`;
             }
         }
 
-        const component = new HelloWorldComponent();
+        const helloWorldComponent = new HelloWorldComponent();
         const dom = configureJSDOM();
 
-        renderComponent(dom.body, component);
+        renderComponent(dom.body, helloWorldComponent);
 
         expect(dom.body.textContent).toContain('Hello, World!');
     });
 
     it('has only one subscriber when render', () => {
-        @pureComponent()
+        @component()
         class HelloWorldComponent {
             render(): Renderable {
                 return html`Hello, World!`;
             }
         }
 
-        const component = new HelloWorldComponent();
+        const helloWorldComponent = new HelloWorldComponent();
         const dom = configureJSDOM();
 
-        renderComponent(dom.body, component);
+        renderComponent(dom.body, helloWorldComponent);
 
-        expect(subscribersCount(component)).toBe(1);
+        expect(subscribersCount(helloWorldComponent)).toBe(1);
     });
 
     describe('rendering child components', () => {
@@ -166,7 +166,7 @@ describe('@pureComponent', () => {
     })
 
     describe('when component state change', () => {
-        @pureComponent()
+        @component()
         class CounterComponent {
             @observing()
             private count: number;
@@ -216,7 +216,8 @@ describe('@pureComponent', () => {
         describe('@connectedCallback', () => {
             it('calls the connected callback event once', () => {
                 const stub = jest.fn();
-                @pureComponent()
+
+                @component()
                 class HelloWorldComponent {
                     render(): Renderable {
                         return html`Hello, World!`;
@@ -228,7 +229,7 @@ describe('@pureComponent', () => {
                     }
                 }
 
-                const component = new HelloWorldComponent();
+                const helloWorldComponent = new HelloWorldComponent();
                 const dom = configureJSDOM();
 
                 const div1 = dom.document.createElement('div');
@@ -237,8 +238,8 @@ describe('@pureComponent', () => {
                 dom.body.appendChild(div1);
                 dom.body.appendChild(div2);
 
-                renderComponent(div1, component);
-                renderComponent(div2, component);
+                renderComponent(div1, helloWorldComponent);
+                renderComponent(div2, helloWorldComponent);
 
                 expect(stub).toBeCalledTimes(1);
             });
@@ -247,7 +248,8 @@ describe('@pureComponent', () => {
         describe('@connectedCallback', () => {
             it('calls the connected callback event', () => {
                 const stub = jest.fn();
-                @pureComponent()
+
+                @component()
                 class HelloWorldComponent {
                     render(): Renderable {
                         return html`Hello, World!`;
@@ -264,7 +266,7 @@ describe('@pureComponent', () => {
                     }
                 }
 
-                const component = new HelloWorldComponent();
+                const helloWorldComponent = new HelloWorldComponent();
                 const dom = configureJSDOM();
 
                 const div1 = dom.document.createElement('div');
@@ -273,15 +275,16 @@ describe('@pureComponent', () => {
                 const div2 = dom.document.createElement('div');
                 dom.body.appendChild(div2);
 
-                renderComponent(div1, component);
-                renderComponent(div2, component);
+                renderComponent(div1, helloWorldComponent);
+                renderComponent(div2, helloWorldComponent);
 
                 expect(stub).toBeCalledTimes(4);
             });
 
             it('receives the component node', () => {
                 const stub = jest.fn();
-                @pureComponent()
+
+                @component()
                 class HelloWorldComponent {
                     render(): Renderable {
                         return html`Hello, World!`;
@@ -293,10 +296,10 @@ describe('@pureComponent', () => {
                     }
                 }
 
-                const component = new HelloWorldComponent();
+                const helloWorldComponent = new HelloWorldComponent();
                 const dom = configureJSDOM();
 
-                renderComponent(dom.body, component);
+                renderComponent(dom.body, helloWorldComponent);
 
                 const callElement = stub.mock.calls[0][0];
 
@@ -309,7 +312,8 @@ describe('@pureComponent', () => {
         describe('@disconnectedCallbackNode', () => {
             it('calls the disconnect callback', async () => {
                 const stub = jest.fn();
-                @pureComponent()
+
+                @component()
                 class ChildComponent {
                     render(): Renderable {
                         return html`Hello, World!`;
@@ -321,13 +325,13 @@ describe('@pureComponent', () => {
                     }
 
                     @disconnectedCallbackNode()
-                        private onDisconnect2(): void {
+                    private onDisconnect2(): void {
                         stub();
                     }
                 }
 
-                const component = new ChildComponent();
-                const parent = new ParentComponent(component);
+                const childComponent = new ChildComponent();
+                const parent = new ParentComponent(childComponent);
                 const dom = configureJSDOM();
                 renderComponent(dom.body, parent);
 
@@ -340,7 +344,8 @@ describe('@pureComponent', () => {
 
             it('receives the component node', () => {
                 const stub = jest.fn();
-                @pureComponent()
+
+                @component()
                 class HelloWorldComponent {
                     render(): Renderable {
                         return html`Hello, World!`;
@@ -352,10 +357,10 @@ describe('@pureComponent', () => {
                     }
                 }
 
-                const component = new HelloWorldComponent();
+                const helloWorldComponent = new HelloWorldComponent();
                 const dom = configureJSDOM();
 
-                renderComponent(dom.body, component);
+                renderComponent(dom.body, helloWorldComponent);
                 render(dom.document.createElement('strong'))(dom.body);
 
                 const callElement = stub.mock.calls[0][0];
@@ -367,7 +372,8 @@ describe('@pureComponent', () => {
 
             it('does not calls disconnect when there are no changes', async () => {
                 const stub = jest.fn();
-                @pureComponent()
+
+                @component()
                 class ChildComponent {
                     render(): Renderable {
                         return html`Hello, World!`;
@@ -379,14 +385,14 @@ describe('@pureComponent', () => {
                     }
                 }
 
-                const component = new ChildComponent();
-                const parent = new ParentComponentList([component, component]);
+                const childComponent = new ChildComponent();
+                const parent = new ParentComponentList([childComponent, childComponent]);
                 renderTestComponent(parent);
 
-                parent.childComponents = [component];
+                parent.childComponents = [childComponent];
                 await waitForPromises();
                 expect(stub).toBeCalledTimes(1);
-                parent.childComponents = [component, component];
+                parent.childComponents = [childComponent, childComponent];
                 await waitForPromises();
                 expect(stub).toBeCalledTimes(1);
             });
@@ -396,7 +402,7 @@ describe('@pureComponent', () => {
             it('calls all disconnected after there are no component references', async () => {
                 const stub = jest.fn();
 
-                @pureComponent()
+                @component()
                 class ChildComponent {
                     render(): Renderable {
                         return html`Hello, World!`;
@@ -441,7 +447,7 @@ describe('@pureComponent', () => {
             }
         }
 
-        @pureComponent()
+        @component()
         class CounterComponent {
             @propagate()
             private readonly counter: Counter;
@@ -477,7 +483,7 @@ describe('@pureComponent', () => {
             renderStub = jest.fn();
         });
 
-        @pureComponent()
+        @component()
         class MyComponent {
             @observing()
             public x = 1;
@@ -537,7 +543,7 @@ describe('@pureComponent', () => {
     describe('rehydrating', () => {
         let stub;
 
-        @pureComponent()
+        @component()
         class HelloWorldComponent {
             @observing()
             public name = `World`;

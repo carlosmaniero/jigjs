@@ -2,12 +2,12 @@ import {App} from "../app";
 import {RouterModule} from "../../router/module";
 import {configureJSDOM} from "../../../core/dom";
 import {Routes} from "../../router/routes";
-import {html, pureComponent, renderComponent} from "../../../pure-components/pure-component";
+import {component, html, renderComponent} from "../../../components";
 import {Renderable} from "../../../template/render";
 import {waitUntil} from "../../../reactive";
 
 describe('App', () => {
-    @pureComponent()
+    @component()
     class HomeComponent {
         render(): Renderable {
             return html`Hello, world!`;

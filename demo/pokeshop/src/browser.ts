@@ -1,4 +1,4 @@
-import {renderComponent} from "jigjs/pure-components/pure-component";
+import {renderComponent} from "jigjs/pure-components";
 import {appFactory} from "./app";
 
 (window as any).onload = () => {

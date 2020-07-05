@@ -1,6 +1,6 @@
 import '@abraham/reflection';
 import {Renderable} from "jigjs/template/render";
-import {disconnectedCallback, html, pureComponent} from "jigjs/pure-components/pure-component";
+import {disconnectedCallback, html, pureComponent} from "jigjs/pure-components";
 import {Subject} from "jigjs/events/subject";
 import {observable, observing} from "jigjs/reactive";
 import {Route, RouteLinkElement, RouterLink, RouterLinkFactory} from "jigjs/framework/router/router-link";

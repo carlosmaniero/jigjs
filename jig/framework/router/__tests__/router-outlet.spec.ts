@@ -2,7 +2,7 @@ import {RouterOutlet} from "../router-outlet";
 import {History} from "../history";
 import {configureJSDOM} from "../../../core/dom";
 import {Routes} from "../routes";
-import {html, pureComponent, renderComponent} from "../../../pure-components/pure-component";
+import {component, html, renderComponent} from "../../../components";
 import {waitForPromises} from "../../../testing/wait-for-promises";
 import {waitUntil} from "../../../reactive";
 import {render} from "../../../template/render";
@@ -23,7 +23,7 @@ const controlledPromise = () => {
 }
 
 describe('Router outlet', () => {
-    @pureComponent()
+    @component()
     class HelloComponent {
         constructor(private readonly name: string) {
         }

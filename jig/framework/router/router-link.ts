@@ -1,4 +1,4 @@
-import {html, pureComponent, RenderableComponent} from "../../pure-components/pure-component";
+import {component, html, RenderableComponent} from "../../components";
 import {Renderable} from "../../template/render";
 import {Navigation} from "./navigation";
 import {observing} from "../../reactive";
@@ -28,7 +28,7 @@ export class RouteLinkElement {
     }
 }
 
-@pureComponent()
+@component()
 export class RouterLink {
     @observing()
     private linkElement: RouteLinkElement;

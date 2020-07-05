@@ -1,5 +1,5 @@
 import {AppFactory, ServerSideRendering} from "../ssr";
-import {disconnectedCallback, html, pureComponent} from "../../../pure-components/pure-component";
+import {component, disconnectedCallback, html} from "../../../components";
 import {Routes} from "../../router/routes";
 import {App} from "../../app/app";
 import {RouterModule} from "../../router/module";
@@ -11,7 +11,7 @@ import request from "supertest";
 describe('server integration', () => {
     it('renders a component', async () => {
         const appFactory: AppFactory = (window) => {
-            @pureComponent()
+            @component()
             class Component {
                 render() {
                     return html`Hello, World!`;
@@ -41,7 +41,7 @@ describe('server integration', () => {
     it('disconnects components after resolve', async () => {
         const disconnectStub = jest.fn();
         const appFactory: AppFactory = (window) => {
-            @pureComponent()
+            @component()
             class Component {
                 render() {
                     return html`Hello, World!`;
@@ -75,7 +75,7 @@ describe('server integration', () => {
 
     it('renders a async component', async () => {
         const appFactory: AppFactory = (window) => {
-            @pureComponent()
+            @component()
             class Component {
                 render() {
                     return html`Hello, World!`;
