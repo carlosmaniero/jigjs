@@ -1,10 +1,6 @@
-import 'jigjs/core/register';
-import {JigBrowser} from "jigjs/browser/browser";
-import {browserFragmentModule} from "jigjs/microfrontends/fragments/browser/module";
-import {browserComponentModule} from "jigjs/components/browser/module";
+import {renderComponent} from "jigjs/pure-components/pure-component";
+import {appFactory} from "./app";
 
-
-export default new JigBrowser([
-    browserComponentModule(),
-    browserFragmentModule()
-]);
+(window as any).onload = () => {
+    renderComponent(document.querySelector('#root'), appFactory(window))
+}

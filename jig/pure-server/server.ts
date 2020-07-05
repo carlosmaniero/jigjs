@@ -6,6 +6,7 @@ export class Server {
     public readonly app: Express;
     constructor(private readonly ssr: ServerSideRendering) {
         this.app = express();
+        this.app.use(express.static(process.cwd() + '/dist'));
         this.app.get('*', async (req, res) => {
             const responseBody = await ssr.renderRouteAsString(req.url);
             res.statusCode = responseBody.status;
