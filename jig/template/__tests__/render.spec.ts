@@ -302,7 +302,7 @@ describe('Render', () => {
             `)(document.body);
 
             const buttonElement = document.querySelector('button');
-            expect((buttonElement as any).props.prop).toBe('cool!');
+            expect((buttonElement as HTMLElementWithJigProperties).props.prop).toBe('cool!');
         });
 
         it('prevents to rerender given a should render function', () => {
@@ -316,7 +316,7 @@ describe('Render', () => {
 
             const shouldUpdateMock = jest.fn().mockImplementation(() => false);
 
-            (div as any).shouldUpdate = shouldUpdateMock;
+            (div as HTMLElementWithJigProperties).shouldUpdate = shouldUpdateMock;
 
             render(html`
                 <div>
@@ -344,10 +344,10 @@ describe('Render', () => {
                     @props3="${props3}"></div>
             `)(document.body);
 
-            const divElement = document.querySelector('div');
-            expect((divElement as any).props.props1).toBe(props1);
-            expect((divElement as any).props.props2).toBe(props2);
-            expect((divElement as any).props.props3).toBe(props3);
+            const divElement: HTMLElementWithJigProperties = document.querySelector('div');
+            expect(divElement.props.props1).toBe(props1);
+            expect(divElement.props.props2).toBe(props2);
+            expect(divElement.props.props3).toBe(props3);
             expect(divElement.getAttributeNames()).toEqual([]);
         });
 
@@ -358,9 +358,9 @@ describe('Render', () => {
                     @props2="Hi"></div>
             `)(document.body);
 
-            const divElement = document.querySelector('div');
-            expect((divElement as any).props.props1).toBe('1');
-            expect((divElement as any).props.props2).toBe('Hi');
+            const divElement: HTMLElementWithJigProperties = document.querySelector('div');
+            expect(divElement.props.props1).toBe('1');
+            expect(divElement.props.props2).toBe('Hi');
             expect(divElement.getAttributeNames()).toEqual([]);
         });
 
@@ -370,8 +370,8 @@ describe('Render', () => {
 
             render(html`<div @prop="Hi ${prop} of ${greatestTeamInTheWorld}!"></div>`)(document.body);
 
-            const divElement = document.querySelector('div');
-            expect((divElement as any).props.prop).toBe('Hi Socrates of Corinthians!');
+            const divElement: HTMLElementWithJigProperties = document.querySelector('div');
+            expect(divElement.props.prop).toBe('Hi Socrates of Corinthians!');
             expect(divElement.getAttributeNames()).toEqual([]);
         });
     });

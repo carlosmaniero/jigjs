@@ -19,24 +19,25 @@ const customPropertySyntaxSugarAttributeRegex = (): RegExp => /([/@](\w+)[ ]*[=]
 const customPropertySyntaxSugarAttributeGroup = '$2';
 const customPropertyAttributePrefix = 'jig-custom-property-';
 
-const isCustomProperty = (attributeName: string) => attributeName.startsWith(customPropertyAttributePrefix);
+const isCustomProperty = (attributeName: string): boolean => attributeName.startsWith(customPropertyAttributePrefix);
 const isElement = (element: Node): element is HTMLElement => element.nodeType === NODES.ELEMENT_NODE;
-const isTextNode = (element: Node) => element.nodeType === NODES.TEXT_NODE;
+const isTextNode = (element: Node): boolean => element.nodeType === NODES.TEXT_NODE;
 const isPlaceHolder = (value: string): boolean => placeHolderRegex().test(value);
+const isHtmlTemplate = (value: unknown): value is HtmlTemplate => typeof value === 'object' && 'renderAt' in value;
 
 export const createTemplateElement = (document: Document): HTMLTemplateElement => {
     return document.createElementNS('http://www.w3.org/1999/xhtml', 'template') as HTMLTemplateElement;
 }
 
-function cloneActualElementFromFragment(bindElement: Node & ParentNode, documentFragment: DocumentFragment) {
+const cloneActualElementFromFragment = (bindElement: Node & ParentNode, documentFragment: DocumentFragment): Node & ParentNode => {
     const cloneTemplate = createTemplateElement(bindElement.ownerDocument);
     const tagName = (bindElement as HTMLElement).tagName;
 
-    let clone = cloneTemplate.content;
+    let clone: Node & ParentNode = cloneTemplate.content;
 
     if (tagName && tagName !== 'BODY') {
         cloneTemplate.innerHTML = `<${tagName}></${tagName}>`;
-        clone = cloneTemplate.content.childNodes[0] as any;
+        clone = cloneTemplate.content.childNodes[0] as HTMLElement;
     }
 
     const content = documentFragment;
@@ -58,7 +59,7 @@ export type HTMLElementWithJigProperties = HTMLElement & {
     alreadyConnected?: boolean;
 }
 
-const bindEvents = (from: HTMLElementWithJigProperties, to: HTMLElementWithJigProperties) => {
+const bindEvents = (from: HTMLElementWithJigProperties, to: HTMLElementWithJigProperties): void => {
     const events = to.events;
     if (events) {
         const fromEvents = from.events || {};
@@ -84,7 +85,7 @@ const attachedToDocument = (node: HTMLElementWithJigProperties): boolean => {
     return node.ownerDocument.contains(node);
 }
 
-function connectPreExisting(from: HTMLElementWithJigProperties, to: HTMLElementWithJigProperties) {
+const connectPreExisting = (from: HTMLElementWithJigProperties, to: HTMLElementWithJigProperties): void => {
     if (!attachedToDocument(from) || from.alreadyConnected) {
         return;
     }
@@ -177,8 +178,8 @@ const createElementChildNodesForValue = (document, value: unknown): ChildNode[] 
         return value.flatMap((val) => createElementChildNodesForValue(document, val));
     }
 
-    if (typeof value === 'object' && 'renderAt' in value) {
-        return Array.from((value as any).renderAt(document).childNodes);
+    if (isHtmlTemplate(value)) {
+        return Array.from(value.renderAt(document).childNodes);
     }
 
     return [document.createTextNode(value.toString())];
@@ -220,7 +221,7 @@ const fillChildNodesContentPlaceholder = (content: DocumentFragment | ChildNode,
 
 interface AttributeHandlerProps {
     attributeName: string;
-    element: HTMLElement;
+    element: HTMLElementWithJigProperties;
     values: unknown[];
 }
 
@@ -235,7 +236,7 @@ const customPropertyHandler: AttributeHandler = {
         const originalAttribute = element.getAttribute(attributeName);
         const propsKey = attributeName.replace(customPropertyAttributePrefix, '');
 
-        (element as any).props = (element as any).props || {};
+        element.props = element.props || {};
 
         const placeHolderIndexes = getPlaceHolderIndex(originalAttribute) || [];
 
@@ -246,9 +247,9 @@ const customPropertyHandler: AttributeHandler = {
 
 
             if (originalAttribute === placeholder) {
-                (element as any).props[propsKey] = value;
+                element.props[propsKey] = value;
             } else {
-                (element as any).props[propsKey] =
+                element.props[propsKey] =
                     originalAttribute.replace(placeholder, value as string);
             }
 
@@ -265,7 +266,7 @@ const customPropertyHandler: AttributeHandler = {
             attributeToAdd = attributeToAdd.replace(placeholder, value as string)
         });
 
-        (element as any).props[propsKey] = attributeToAdd;
+        element.props[propsKey] = attributeToAdd;
         element.removeAttribute(attributeName);
     },
     isHandlerOf(element: HTMLElement, attributeName: string): boolean {
@@ -279,14 +280,14 @@ const eventAttributeHandler = {
         const originalAttribute = element.getAttribute(attributeName);
         const placeHolderIndex = getPlaceHolderIndex(originalAttribute)[0];
         const placeholder = createPlaceholderForIndex(placeHolderIndex);
-        const value = values[placeHolderIndex];
+        const value = values[placeHolderIndex] as (event: Event) => void;
 
         this.validate(originalAttribute, placeholder, attributeName, value);
 
         const event = attributeName.replace('on', '') as keyof HTMLElementEventMap;
 
-        (element as any).events = (element as any).events || {};
-        (element as any).events[event] = value;
+        element.events = element.events || {};
+        element.events[event] = value;
 
         element.addEventListener(event, value as () => void);
         element.removeAttribute(attributeName);
@@ -351,7 +352,7 @@ const attributeHandlers: AttributeHandler[] = [
     attributeMapHandler,
 ]
 
-const fillAttributes = (element: DocumentFragment | ChildNode, values: unknown[]) => {
+const fillAttributes = (element: DocumentFragment | ChildNode, values: unknown[]): void => {
     if (isElement(element)) {
         const attributes = element.getAttributeNames();
 
@@ -381,7 +382,7 @@ const replaceCustomPropsSyntaxSugar = (partialTemplate: string): string => {
     return partialTemplate.replace(customPropertySyntaxSugarAttributeRegex(), `${customPropertyAttributePrefix + customPropertySyntaxSugarAttributeGroup}=`);
 }
 
-const createTemplateWithPlaceholders = (template: TemplateStringsArray, values: unknown[]) => {
+const createTemplateWithPlaceholders = (template: TemplateStringsArray, values: unknown[]): string => {
     return template.map(
         (partialTemplate, index) => {
             const valuePlaceholder = index >= values.length ? '' : createPlaceholderForIndex(index);
