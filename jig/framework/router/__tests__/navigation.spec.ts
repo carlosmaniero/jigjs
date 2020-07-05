@@ -1,4 +1,4 @@
-import {configureJSDOM} from "../../core/dom";
+import {configureJSDOM} from "../../../core/dom";
 import {History} from "../history";
 import {Routes} from "../routes";
 import {Navigation} from "../navigation";

@@ -1,10 +1,10 @@
-import {App} from "../pure-app/app";
-import {JigWindow} from "../types";
-import {configureJSDOM} from "../core/dom";
-import {renderComponent} from "../pure-components/pure-component";
-import {waitUntil} from "../reactive";
+import {App} from "../app/app";
+import {JigWindow} from "../../types";
+import {configureJSDOM} from "../../core/dom";
+import {renderComponent} from "../../pure-components/pure-component";
+import {waitUntil} from "../../reactive";
 import {Response} from "./response";
-import {render} from "../template/render";
+import {render} from "../../template/render";
 
 export type AppFactory = (app: JigWindow) => App
 

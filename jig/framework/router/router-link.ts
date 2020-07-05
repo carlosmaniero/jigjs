@@ -1,7 +1,7 @@
-import {html, pureComponent, RenderableComponent} from "../pure-components/pure-component";
-import {Renderable} from "../template/render";
+import {html, pureComponent, RenderableComponent} from "../../pure-components/pure-component";
+import {Renderable} from "../../template/render";
 import {Navigation} from "./navigation";
-import {observing} from "../reactive";
+import {observing} from "../../reactive";
 import {Routes} from "./routes";
 
 export class Route {

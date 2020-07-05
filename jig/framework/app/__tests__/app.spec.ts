@@ -1,10 +1,10 @@
 import {App} from "../app";
-import {RouterModule} from "../../pure-router/module";
-import {configureJSDOM} from "../../core/dom";
-import {Routes} from "../../pure-router/routes";
-import {html, pureComponent, renderComponent} from "../../pure-components/pure-component";
-import {Renderable} from "../../template/render";
-import {waitUntil} from "../../reactive";
+import {RouterModule} from "../../router/module";
+import {configureJSDOM} from "../../../core/dom";
+import {Routes} from "../../router/routes";
+import {html, pureComponent, renderComponent} from "../../../pure-components/pure-component";
+import {Renderable} from "../../../template/render";
+import {waitUntil} from "../../../reactive";
 
 describe('App', () => {
     @pureComponent()

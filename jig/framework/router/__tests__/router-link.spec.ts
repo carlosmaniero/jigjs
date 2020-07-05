@@ -1,9 +1,9 @@
 import {RouterModule} from "../module";
-import {configureJSDOM} from "../../core/dom";
+import {configureJSDOM} from "../../../core/dom";
 import {Routes} from "../routes";
 import {Route, RouteLinkElement} from "../router-link";
-import {html, renderComponent} from "../../pure-components/pure-component";
-import {waitForPromises} from "../../testing/wait-for-promises";
+import {html, renderComponent} from "../../../pure-components/pure-component";
+import {waitForPromises} from "../../../testing/wait-for-promises";
 
 describe('router link', () => {
     describe('rendering the content', () => {

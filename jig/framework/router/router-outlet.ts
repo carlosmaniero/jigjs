@@ -6,10 +6,10 @@ import {
     html,
     pureComponent,
     RenderableComponent
-} from "../pure-components/pure-component";
-import {Renderable} from "../template/render";
-import {observe, observing} from "../reactive";
-import {Subscription} from "../events/subject";
+} from "../../pure-components/pure-component";
+import {Renderable} from "../../template/render";
+import {observe, observing} from "../../reactive";
+import {Subscription} from "../../events/subject";
 
 @pureComponent()
 export class RouterOutlet {

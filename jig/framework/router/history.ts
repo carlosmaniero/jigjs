@@ -1,5 +1,5 @@
-import {observable, observing} from "../reactive";
-import {JigWindow} from "../types";
+import {observable, observing} from "../../reactive";
+import {JigWindow} from "../../types";
 
 @observable()
 export class History {

@@ -1,10 +1,10 @@
-import {AppFactory, ServerSideRendering} from "../../pure-server/ssr";
-import {disconnectedCallback, html, pureComponent} from "../../pure-components/pure-component";
-import {Routes} from "../../pure-router/routes";
-import {App} from "../../pure-app/app";
-import {RouterModule} from "../../pure-router/module";
+import {AppFactory, ServerSideRendering} from "../ssr";
+import {disconnectedCallback, html, pureComponent} from "../../../pure-components/pure-component";
+import {Routes} from "../../router/routes";
+import {App} from "../../app/app";
+import {RouterModule} from "../../router/module";
 import {Server} from "../server";
-import {waitForPromises} from "../../testing/wait-for-promises";
+import {waitForPromises} from "../../../testing/wait-for-promises";
 import request from "supertest";
 
 

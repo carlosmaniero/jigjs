@@ -1,10 +1,10 @@
-import {App} from "../../pure-app/app";
-import {RouterModule} from "../../pure-router/module";
-import {Routes} from "../../pure-router/routes";
-import {html, pureComponent} from "../../pure-components/pure-component";
-import {waitForPromises} from "../../testing/wait-for-promises";
-import {Renderable} from "../../template/render";
-import {ServerSideRendering} from "../../pure-server/ssr";
+import {App} from "../../app/app";
+import {RouterModule} from "../../router/module";
+import {Routes} from "../../router/routes";
+import {html, pureComponent} from "../../../pure-components/pure-component";
+import {waitForPromises} from "../../../testing/wait-for-promises";
+import {Renderable} from "../../../template/render";
+import {ServerSideRendering} from "../ssr";
 import {JSDOM} from "jsdom";
 import {Response} from "../response";
 
