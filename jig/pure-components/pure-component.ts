@@ -94,7 +94,7 @@ class ComponentRenderControl {
 }
 
 export const renderComponent = (element: HTMLElement, component: RenderableComponent): void => {
-    const componentElement = document.createElement(component.constructor.name);
+    const componentElement = element.ownerDocument.createElement(component.constructor.name);
     const componentLifecycle = getComponentLifecycle(component);
 
     const componentRenderControl = new ComponentRenderControl(component, componentElement);

@@ -72,6 +72,66 @@ describe('Router', () => {
 
             routes.handlerFor('/hello/world').resolve(renderFn);
             routes.handlerFor('/hello/?name=world').resolve(renderFn);
+
+            expect(app1).toBeCalledWith({name: 'world'}, renderFn);
+            expect(app2).toBeCalledWith({name: 'world'}, renderFn);
+        });
+    });
+
+    describe('reversing', () => {
+        it('reverses for a name', () => {
+            const routes = new Routes([
+                {
+                    path: '/',
+                    name: 'index',
+                    handler: jest.fn()
+                },
+                {
+                    path: '/hello/:name',
+                    name: 'hello',
+                    handler: jest.fn()
+                },
+                {
+                    path: '/hello/?name=:name',
+                    name: 'hello:with:query',
+                    handler: jest.fn()
+                }
+            ]);
+
+            expect(routes.reverse('index')).toBe('/');
+            expect(routes.reverse('hello', {"name": 'world'})).toBe('/hello/world');
+            expect(routes.reverse('hello:with:query', {name: 'world'})).toBe('/hello/?name=world');
+        });
+
+        it('throws an exception given no route with the given name', () => {
+            const routes = new Routes([
+                {
+                    path: '/',
+                    name: 'index',
+                    handler: jest.fn()
+                },
+                {
+                    path: '/',
+                    name: 'page',
+                    handler: jest.fn()
+                }
+            ]);
+
+            expect(() => routes.reverse('home'))
+                .toThrowError(new Error('There are no route named "home".'));
+        });
+
+        it('throws an exception given the router can`t be resolved with the given params', () => {
+            const routes = new Routes([
+                {
+                    path: '/hello/:name',
+                    name: 'hello',
+                    handler: jest.fn()
+                },
+            ]);
+
+            expect(() => routes.reverse('hello', {nome: 'world'}))
+                .toThrowError(new Error(`It is not possible to revert "/hello/:name" using '{"nome":"world"}'.`));
         });
     });
 });

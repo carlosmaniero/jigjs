@@ -7,6 +7,7 @@ import {AppFactory} from "jigjs/pure-server/ssr";
 import {Routes} from "jigjs/pure-router/routes";
 import {App} from "jigjs/pure-app/app";
 import {RouterModule} from "jigjs/pure-router/module";
+import {Route, RouteLinkElement, RouterLink, RouterLinkFactory} from "jigjs/pure-router/router-link";
 
 
 @observable()
@@ -179,14 +180,36 @@ class PureComponentTest {
     }
 }
 
-export const appFactory: AppFactory = (window) => {
-    const routes = new Routes([{
-        path: '/',
-        name: 'home',
-        handler(params, render) {
-            render(new PureComponentTest())
-        }
-    }]);
+@pureComponent()
+class Home {
+    private readonly pureLink: RouterLink;
 
-    return new App(new RouterModule(window, routes))
+    constructor(linkFactory: RouterLinkFactory) {
+        this.pureLink = linkFactory.createLink(new Route('pure'), new RouteLinkElement('click me'));
+    }
+
+    render() {
+        return html`${this.pureLink}`;
+    }
+}
+
+export const appFactory: AppFactory = (window) => {
+    const routerModule = new RouterModule(window, new Routes([
+        {
+            path: '/pure',
+            name: 'pure',
+            handler(params, render) {
+                render(new PureComponentTest())
+            }
+        },
+        {
+            path: '/',
+            name: 'home',
+            handler(params, render) {
+                render(new Home(routerModule.linkFactory))
+            }
+        }
+    ]));
+
+    return new App(routerModule)
 }

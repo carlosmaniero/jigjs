@@ -34,4 +34,20 @@ export class Routes {
 
         return null;
     }
+
+    reverse(name: string, params: Record<string, string> = {}): string {
+        for (const routerHandler of this.routerHandlers) {
+            if (routerHandler.name === name) {
+                const reversed = new RouteMatcher(routerHandler.path).reverse(params);
+
+                if (!reversed) {
+                    throw new Error(`It is not possible to revert "${routerHandler.path}" using '${JSON.stringify(params)}'.`);
+                }
+
+                return reversed;
+            }
+        }
+
+        throw new Error(`There are no route named "${name}".`);
+    }
 }

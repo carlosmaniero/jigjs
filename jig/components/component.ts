@@ -8,7 +8,7 @@ export const html = templateHtml;
 export type RenderResult = Renderable;
 export type JigWindow = Window & {
     HTMLElement: typeof HTMLElement;
-}
+} & any;
 
 export interface RequiredComponentMethods {
     render(): Renderable;
@@ -189,7 +189,7 @@ export const Component = <T extends RequiredComponentMethods>(selector: string, 
                             initialProps: this.getInitialProps({
                                 elementProps: this.props,
                                 componentInstance: this.componentInstance,
-                                attributesElement: this,
+                                attributesElement: this as any,
                                 ignorePropsChanged: true,
                             }),
                             propsKeys: propsMetadata.getProps(this.componentInstance),
@@ -231,7 +231,7 @@ export const Component = <T extends RequiredComponentMethods>(selector: string, 
                     }
 
                     private updateRenderable(renderable: Renderable): void {
-                        render(renderable)(this);
+                        render(renderable)(this as any);
                     }
 
                     private setupRehydrateContext(): void {
