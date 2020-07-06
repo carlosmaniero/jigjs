@@ -29,7 +29,8 @@ describe('server integration', () => {
             return new App(new RouterModule(window, routes))
         }
 
-        const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'))
+        const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'));
+        server.configure();
 
         const response = await request(server.app)
             .get('/my-route')
@@ -64,7 +65,8 @@ describe('server integration', () => {
             return new App(new RouterModule(window, routes))
         }
 
-        const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'))
+        const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'));
+        server.configure();
 
         await request(server.app)
             .get('/my-route')
@@ -94,7 +96,8 @@ describe('server integration', () => {
             return new App(new RouterModule(window, routes))
         }
 
-        const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'))
+        const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'));
+        server.configure();
 
         const response = await request(server.app)
             .get('/my-route')
@@ -117,7 +120,8 @@ describe('server integration', () => {
             return new App(new RouterModule(window, routes))
         }
 
-        const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'))
+        const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'));
+        server.configure();
 
         await request(server.app)
             .get('/my-route')

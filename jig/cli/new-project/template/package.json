@@ -3,18 +3,22 @@
   "scripts": {
     "start": "ts-node src/server.ts",
     "build": "jigjs-build",
-    "dev": "npm run build && npm start",
+    "dev": "DEV=true npm run build && npm start",
     "test": "jest --no-cache"
   },
   "dependencies": {
     "jigjs": "^{{jigjs-version}}",
-    "ts-node": "^8.10.1",
     "express": "^4.17.1",
     "ts-loader": "^7.0.1",
-    "typescript": "^3.8.3",
-    "tslib": "^2.0.0"
+    "ts-node": "^8.10.1",
+    "tslib": "^2.0.0",
+    "typescript": "^3.8.3"
   },
   "devDependencies": {
+    "@testing-library/dom": "^7.20.0",
+    "@testing-library/jest-dom": "^5.11.0",
+    "@types/jest": "^26.0.3",
+    "jest-environment-jsdom-sixteen": "^1.0.3",
     "webpack": "^4.43.0",
     "webpack-bundle-analyzer": "^3.7.0"
   }

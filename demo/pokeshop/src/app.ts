@@ -1,6 +1,6 @@
 import '@abraham/reflection';
 import {Renderable} from "jigjs/template/render";
-import {disconnectedCallback, html, pureComponent} from "jigjs/pure-components";
+import {disconnectedCallback, html, component} from "jigjs/components";
 import {Subject} from "jigjs/events/subject";
 import {observable, observing} from "jigjs/reactive";
 import {Route, RouteLinkElement, RouterLink, RouterLinkFactory} from "jigjs/framework/router/router-link";
@@ -19,7 +19,7 @@ class TestClass {
     }
 }
 
-@pureComponent()
+@component()
 class ActionButton {
     clickSubject: Subject<void>;
 
@@ -32,7 +32,7 @@ class ActionButton {
     }
 }
 
-@pureComponent()
+@component()
 class ToggleWatchButton {
     public readonly pauseSubject: Subject<void>;
     public readonly resumeSubject: Subject<void>;
@@ -70,7 +70,7 @@ class ToggleWatchButton {
     }
 }
 
-@pureComponent()
+@component()
 class Counter {
     @observing()
     private number = 0;
@@ -108,7 +108,7 @@ class Counter {
     }
 }
 
-@pureComponent()
+@component()
 class CountWatch {
     private readonly toggleWatchButton = new ToggleWatchButton();
     private readonly restartButton = new ActionButton('restart');
@@ -147,7 +147,7 @@ class CountWatch {
     }
 }
 
-@pureComponent()
+@component()
 class PureComponentTest {
     @observing()
     private countWatchers = [];
@@ -180,7 +180,7 @@ class PureComponentTest {
     }
 }
 
-@pureComponent()
+@component()
 class Home {
     private readonly pureLink: RouterLink;
 
