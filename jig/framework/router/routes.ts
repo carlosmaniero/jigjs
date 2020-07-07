@@ -1,5 +1,6 @@
 import {RenderableComponent} from "../../components";
 import RouteMatcher from "route-parser";
+import {TransferState} from "../transfer-state";
 
 export type RouterRender = (component: RenderableComponent) => void;
 
@@ -7,15 +8,15 @@ export type RouterRender = (component: RenderableComponent) => void;
 export interface RouterHandler<T extends object> {
     path: string;
     name: string;
-    handler: (params: T, render: RouterRender) => Promise<void> | void;
+    handler: (params: T, render: RouterRender, transferState: TransferState) => Promise<void> | void;
 }
 
 export class MatchedRouterHandler<T extends object> {
     constructor(public readonly routerHandler: RouterHandler<T>, public readonly params: T) {
     }
 
-    resolve(renderFn: RouterRender): Promise<void> | void {
-        return this.routerHandler.handler(this.params, renderFn);
+    resolve(renderFn: RouterRender, transferState: TransferState): Promise<void> | void {
+        return this.routerHandler.handler(this.params, renderFn, transferState);
     }
 }
 

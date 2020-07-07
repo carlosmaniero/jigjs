@@ -1,6 +1,7 @@
 import {Routes} from "../routes";
+import {TransferState} from "../../transfer-state";
 
-describe('Router', () => {
+describe('Routes', () => {
     it('returns null given no router definition', () => {
         expect(new Routes([]).handlerFor('/')).toBe(null);
     });
@@ -44,9 +45,10 @@ describe('Router', () => {
             ]);
 
             const renderFn = jest.fn();
-            routes.handlerFor('/').resolve(renderFn);
+            const transferState = new TransferState();
+            routes.handlerFor('/').resolve(renderFn, transferState);
 
-            expect(stubIndex).toBeCalledWith({}, renderFn);
+            expect(stubIndex).toBeCalledWith({}, renderFn, transferState);
         });
     });
 
@@ -70,11 +72,12 @@ describe('Router', () => {
                 }
             ]);
 
-            routes.handlerFor('/hello/world').resolve(renderFn);
-            routes.handlerFor('/hello/?name=world').resolve(renderFn);
+            const transferState = new TransferState();
+            routes.handlerFor('/hello/world').resolve(renderFn, transferState);
+            routes.handlerFor('/hello/?name=world').resolve(renderFn, transferState);
 
-            expect(app1).toBeCalledWith({name: 'world'}, renderFn);
-            expect(app2).toBeCalledWith({name: 'world'}, renderFn);
+            expect(app1).toBeCalledWith({name: 'world'}, renderFn, transferState);
+            expect(app2).toBeCalledWith({name: 'world'}, renderFn, transferState);
         });
     });
 

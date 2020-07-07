@@ -1,7 +1,7 @@
-import {AppFactory, ServerSideRendering} from "../ssr";
+import {ServerSideRendering} from "../ssr";
 import {component, disconnectedCallback, html} from "../../../components";
 import {Routes} from "../../router/routes";
-import {App} from "../../app/app";
+import {App, AppFactory} from "../../app/app";
 import {RouterModule} from "../../router/module";
 import {Server} from "../server";
 import {waitForPromises} from "../../../testing/wait-for-promises";
@@ -10,7 +10,7 @@ import request from "supertest";
 
 describe('server integration', () => {
     it('renders a component', async () => {
-        const appFactory: AppFactory = (window) => {
+        const appFactory: AppFactory = (window, platform) => {
             @component()
             class Component {
                 render() {
@@ -26,7 +26,7 @@ describe('server integration', () => {
                 }
             }]);
 
-            return new App(new RouterModule(window, routes))
+            return new App(new RouterModule(window, platform, routes))
         }
 
         const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'));
@@ -41,7 +41,7 @@ describe('server integration', () => {
 
     it('disconnects components after resolve', async () => {
         const disconnectStub = jest.fn();
-        const appFactory: AppFactory = (window) => {
+        const appFactory: AppFactory = (window, platform) => {
             @component()
             class Component {
                 render() {
@@ -62,7 +62,7 @@ describe('server integration', () => {
                 }
             }]);
 
-            return new App(new RouterModule(window, routes))
+            return new App(new RouterModule(window, platform, routes))
         }
 
         const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'));
@@ -76,7 +76,7 @@ describe('server integration', () => {
     });
 
     it('renders a async component', async () => {
-        const appFactory: AppFactory = (window) => {
+        const appFactory: AppFactory = (window, platform) => {
             @component()
             class Component {
                 render() {
@@ -93,7 +93,7 @@ describe('server integration', () => {
                 }
             }]);
 
-            return new App(new RouterModule(window, routes))
+            return new App(new RouterModule(window, platform, routes))
         }
 
         const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'));
@@ -108,7 +108,7 @@ describe('server integration', () => {
 
     it('returns error given an error on fetch', async () => {
         jest.spyOn(console, 'error').mockImplementation(() => { return; });
-        const appFactory: AppFactory = (window) => {
+        const appFactory: AppFactory = (window, platform) => {
             const routes = new Routes([{
                 path: '/my-route',
                 name: 'home',
@@ -117,7 +117,7 @@ describe('server integration', () => {
                 }
             }]);
 
-            return new App(new RouterModule(window, routes))
+            return new App(new RouterModule(window, platform, routes))
         }
 
         const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'));

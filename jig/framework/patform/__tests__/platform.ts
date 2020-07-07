@@ -1,8 +1,8 @@
-import {PurePlatform} from "../platform";
+import {Platform} from "../platform";
 
 describe('Platform', () => {
     describe('browser', () => {
-        const purePlatform = PurePlatform.browser();
+        const purePlatform = Platform.browser();
         it('isBrowser returns true', () => {
             expect(purePlatform.isBrowser()).toBeTruthy();
         });
@@ -17,7 +17,7 @@ describe('Platform', () => {
     });
 
     describe('server', () => {
-        const purePlatform = PurePlatform.server();
+        const purePlatform = Platform.server();
 
         it('isServer returns true', () => {
             expect(purePlatform.isBrowser()).toBeFalsy();

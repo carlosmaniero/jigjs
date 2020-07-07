@@ -5,6 +5,7 @@ import {Routes} from "../../router/routes";
 import {component, html, renderComponent} from "../../../components";
 import {Renderable} from "../../../template/render";
 import {waitUntil} from "../../../reactive";
+import {Platform} from "../../patform/platform";
 
 describe('App', () => {
     @component()
@@ -18,11 +19,11 @@ describe('App', () => {
     describe('controlling initial render', () => {
         it('returns false given router outlet was not rendered', (done) => {
             const dom = configureJSDOM(undefined, 'http://localhost/');
-            const app = new App(new RouterModule(dom.window, new Routes([
+            const app = new App(new RouterModule(dom.window, Platform.browser(), new Routes([
                 {
                     path: '/',
                     name: 'home',
-                    handler(params, render) {
+                    handler(params, render): void {
                         render(new HomeComponent());
                     }
                 }
@@ -38,11 +39,11 @@ describe('App', () => {
 
         it('renders the given route', async () => {
             const dom = configureJSDOM(undefined, 'http://localhost/');
-            const app = new App(new RouterModule(dom.window, new Routes([
+            const app = new App(new RouterModule(dom.window, Platform.browser(), new Routes([
                 {
                     path: '/',
                     name: 'home',
-                    handler(params, render) {
+                    handler(params, render): void {
                         render(new HomeComponent());
                     }
                 }

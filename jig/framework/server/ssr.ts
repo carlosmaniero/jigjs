@@ -1,12 +1,10 @@
-import {App} from "../app/app";
-import {JigWindow} from "../../types";
+import {AppFactory} from "../app/app";
 import {configureJSDOM} from "../../core/dom";
 import {renderComponent} from "../../components";
 import {waitUntil} from "../../reactive";
 import {Response} from "./response";
 import {render} from "../../template/render";
-
-export type AppFactory = (app: JigWindow) => App
+import {Platform} from "../patform/platform";
 
 export class ServerSideRendering {
     constructor(private readonly appFactory: AppFactory, private readonly template: string, private querySelector: string) {
@@ -14,7 +12,7 @@ export class ServerSideRendering {
 
     async renderRouteAsString(path: string): Promise<Response> {
         const dom = configureJSDOM(this.template, `http://localhost${path}`);
-        const app = this.appFactory(dom.window);
+        const app = this.appFactory(dom.window, Platform.server());
 
         const rootContainer = dom.document.querySelector(this.querySelector);
         renderComponent(rootContainer, app);

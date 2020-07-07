@@ -2,7 +2,7 @@ const browserPlatformId = Symbol('browser-platform');
 const serverPlatformId = Symbol('server-platform');
 
 
-export class PurePlatform {
+export class Platform {
     private constructor(public readonly platformId: symbol) {
     }
 
@@ -22,10 +22,11 @@ export class PurePlatform {
         return serverFactory();
     }
 
-    static browser(): PurePlatform {
-        return new PurePlatform(browserPlatformId);
+    static browser(): Platform {
+        return new Platform(browserPlatformId);
     }
-    static server(): PurePlatform {
-        return new PurePlatform(serverPlatformId);
+
+    static server(): Platform {
+        return new Platform(serverPlatformId);
     }
 }

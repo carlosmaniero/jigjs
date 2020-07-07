@@ -1,13 +1,12 @@
 import '@abraham/reflection';
 import {Renderable} from "jigjs/template/render";
-import {disconnectedCallback, html, component} from "jigjs/components";
+import {component, disconnectedCallback, html} from "jigjs/components";
 import {Subject} from "jigjs/events/subject";
 import {observable, observing} from "jigjs/reactive";
 import {Route, RouteLinkElement, RouterLink, RouterLinkFactory} from "jigjs/framework/router/router-link";
-import {AppFactory} from "jigjs/framework/server/ssr";
 import {RouterModule} from "jigjs/framework/router/module";
 import {Routes} from "jigjs/framework/router/routes";
-import {App} from "jigjs/framework/app/app";
+import {App, AppFactory} from "jigjs/framework/app/app";
 
 
 @observable()
@@ -193,8 +192,8 @@ class Home {
     }
 }
 
-export const appFactory: AppFactory = (window) => {
-    const routerModule = new RouterModule(window, new Routes([
+export const appFactory: AppFactory = (window, platform) => {
+    const routerModule = new RouterModule(window, platform, new Routes([
         {
             path: '/pure',
             name: 'pure',

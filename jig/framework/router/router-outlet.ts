@@ -4,9 +4,15 @@ import {component, connectedCallback, disconnectedCallback, html, RenderableComp
 import {Renderable} from "../../template/render";
 import {observe, observing} from "../../reactive";
 import {Subscription} from "../../events/subject";
+import {TransferState} from "../transfer-state";
+import {TransferStateWriter} from "../transfer-state/internals/transfer-state-writer";
+import {Platform} from "../patform/platform";
+import {TransferStateReader} from "../transfer-state/internals/transfer-state-reader";
 
 @component()
 export class RouterOutlet {
+    static ROUTER_OUTLET_TRANSFER_STATE_URL = '__jigjs__transfer_state_url__';
+
     @observing()
     private routeComponent: RenderableComponent;
 
@@ -18,7 +24,13 @@ export class RouterOutlet {
     private currentProcess = 0;
     private historySubscription: Subscription;
 
-    constructor(private readonly history: History, private readonly routes: Routes) {
+    constructor(
+        private readonly history: History,
+        private readonly platform: Platform,
+        private readonly transferStateWriter: TransferStateWriter,
+        private readonly transferStateReader: TransferStateReader,
+        private readonly routes: Routes
+    ) {
     }
 
     render(): Renderable {
@@ -70,11 +82,40 @@ export class RouterOutlet {
     private async controlRouteChange(handlerFor: MatchedRouterHandler<object>, process: number): Promise<void> {
         this.resolved = false;
 
+        const transferState = this.createTransferState();
+
         await handlerFor.resolve((component) => {
             if (this.currentProcess === process) {
                 this.routeComponent = component;
             }
-        });
+        }, transferState);
+
+        this.transferStateWriter.write(transferState);
+
         this.resolved = true;
+    }
+
+    private createTransferState(): TransferState {
+        return this.platform.strategy(() => this.browserTransferState(), () => this.emptyTransferState());
+    }
+
+    private browserTransferState() {
+        if (!this.transferStateReader.hasTransferState()) {
+            return this.emptyTransferState();
+        }
+
+        const transferState = this.transferStateReader.read();
+
+        if (transferState.getState(RouterOutlet.ROUTER_OUTLET_TRANSFER_STATE_URL) !== this.history.getCurrentUrl()) {
+            return this.emptyTransferState();
+        }
+
+        return transferState;
+    }
+
+    private emptyTransferState(): TransferState {
+        const transferState = new TransferState();
+        transferState.setState(RouterOutlet.ROUTER_OUTLET_TRANSFER_STATE_URL, this.history.getCurrentUrl());
+        return transferState;
     }
 }

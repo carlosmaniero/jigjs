@@ -2,6 +2,8 @@ import {RouterModule} from "../router/module";
 import {component, connectedCallback, html} from "../../components";
 import {Renderable} from "../../template/render";
 import {propagate} from "../../reactive";
+import {JigWindow} from "../../types";
+import {Platform} from "../patform/platform";
 
 @component()
 export class App {
@@ -30,3 +32,5 @@ export class App {
         return this.routerModule.routerOutlet.isResolvedWithUnhandledError();
     }
 }
+
+export type AppFactory = (app: JigWindow, platform: Platform) => App

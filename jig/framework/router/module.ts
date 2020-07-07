@@ -5,6 +5,9 @@ import {Routes} from "./routes";
 import {observable, propagate} from "../../reactive";
 import {RouterLinkFactory} from "./router-link";
 import {Navigation} from "./navigation";
+import {Platform} from "../patform/platform";
+import {TransferStateWriter} from "../transfer-state/internals/transfer-state-writer";
+import {TransferStateReader} from "../transfer-state/internals/transfer-state-reader";
 
 @observable()
 export class RouterModule {
@@ -15,9 +18,9 @@ export class RouterModule {
     readonly linkFactory: RouterLinkFactory;
     readonly navigation: Navigation;
 
-    constructor(private readonly window: JigWindow, routes: Routes) {
+    constructor(private readonly window: JigWindow, private readonly platform: Platform, routes: Routes) {
         this.history = new History(window);
-        this.routerOutlet = new RouterOutlet(this.history, routes);
+        this.routerOutlet = new RouterOutlet(this.history, platform, new TransferStateWriter(window), new TransferStateReader(window), routes);
         this.navigation = new Navigation(routes, this.history);
         this.linkFactory = new RouterLinkFactory(this.navigation, routes);
     }

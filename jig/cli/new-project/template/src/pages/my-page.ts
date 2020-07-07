@@ -1,8 +1,10 @@
-import { component, html } from "jigjs/components";
-import {observing} from "jigjs/reactive";
+import {component, html} from "jigjs/components";
 
 @component()
 export class MyPage {
+    constructor(private readonly title: string) {
+    }
+
     render() {
         return html`
             <style>
@@ -13,7 +15,7 @@ export class MyPage {
             </style>
             <main>
                 <img src="/logo.png" alt="Jig.js Logo" width="300px">
-                <h1>Just another example!</h1>
+                <h1>${this.title}</h1>
                 
                 <p>This page takes a while to render on purpose</p>
                 <p>You can see into the <strong>app.ts</strong> How to handle async operations in router</p>

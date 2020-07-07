@@ -4,13 +4,14 @@ import {Routes} from "../routes";
 import {Route, RouteLinkElement} from "../router-link";
 import {html, renderComponent} from "../../../components";
 import {waitForPromises} from "../../../testing/wait-for-promises";
+import {Platform} from "../../patform/platform";
 
 describe('router link', () => {
     describe('rendering the content', () => {
         it('renders the given content', () => {
             const dom = configureJSDOM(undefined, 'http://jigjs.com/');
 
-            const module = new RouterModule(dom.window, new Routes([
+            const module = new RouterModule(dom.window, Platform.server(), new Routes([
                 {
                     path: '/',
                     name: 'index',
@@ -32,7 +33,7 @@ describe('router link', () => {
         it('updates the content', async () => {
             const dom = configureJSDOM(undefined, 'http://jigjs.com/');
 
-            const module = new RouterModule(dom.window, new Routes([
+            const module = new RouterModule(dom.window, Platform.server(), new Routes([
                 {
                     path: '/',
                     name: 'index',
@@ -63,7 +64,7 @@ describe('router link', () => {
         });
 
         it('renders the link', () => {
-            const module = new RouterModule(dom.window, new Routes([
+            const module = new RouterModule(dom.window, Platform.server(), new Routes([
                 {
                     path: '/home',
                     name: 'index',
@@ -82,7 +83,7 @@ describe('router link', () => {
         });
 
         it('updates the link', async () => {
-            const module = new RouterModule(dom.window, new Routes([
+            const module = new RouterModule(dom.window, Platform.server(), new Routes([
                 {
                     path: '/home',
                     name: 'index',
@@ -110,7 +111,7 @@ describe('router link', () => {
         });
 
         it('changes route when click', async () => {
-            const module = new RouterModule(dom.window, new Routes([
+            const module = new RouterModule(dom.window, Platform.server(), new Routes([
                 {
                     path: '/home',
                     name: 'index',
@@ -142,7 +143,7 @@ describe('router link', () => {
             beforeEach(() => {
                 dom = configureJSDOM(undefined, 'http://jigjs.com/');
 
-                module = new RouterModule(dom.window, new Routes([
+                module = new RouterModule(dom.window, Platform.server(), new Routes([
                     {
                         path: '/home',
                         name: 'index',
