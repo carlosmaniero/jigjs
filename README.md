@@ -204,7 +204,7 @@ const routerModule = new RouterModule(window, platform, new Routes([
         {
             path: '/user/:id',
             name: 'show-user',
-            async handler(params, render, transferState) {
+            async handler(params, render) {
                 render(new PageLoadingComponent());
                 const user = await fetchUser(params.id);
                 render(new UserPage(user));
@@ -215,7 +215,33 @@ const routerModule = new RouterModule(window, platform, new Routes([
 
 The server will only release the request when the promise is resolved. You can call the `render` function as much as
 you want, this is useful to render loading components that will be visible when the code is executed from the 
-client-side.   
+client-side.
+
+### Custom Response
+
+The handler receives the response object that can be used to add custom headers and status code.
+
+There is no intention to specify the response body given it will be always the render result. 
+
+```typescript
+const routerModule = new RouterModule(window, platform, new Routes([
+        {
+            path: '/user/:id',
+            name: 'show-user',
+            async handler(params, render, transferState, response) {
+                try {
+                    const user = await fetchUser(params.id);
+                    render(new UserPage(user));
+                } catch(e) {
+                    response.statusCode = 404;
+                    response.headers['custom-error'] = 'User not found';
+
+                    render(new UserNotFoundPage());
+                }
+            }
+        }
+    ]));
+```
 
 ### Transfer State
 

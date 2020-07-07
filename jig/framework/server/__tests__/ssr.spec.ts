@@ -4,9 +4,8 @@ import {Routes} from "../../router/routes";
 import {component, html} from "../../../components";
 import {waitForPromises} from "../../../testing/wait-for-promises";
 import {Renderable} from "../../../template/render";
-import {ServerSideRendering} from "../ssr";
+import {ServerSideRendering, ServerSideRenderingResponse} from "../ssr";
 import {JSDOM} from "jsdom";
-import {Response} from "../response";
 import {Platform} from "../../patform/platform";
 
 describe('Server side rendering', () => {
@@ -40,10 +39,10 @@ describe('Server side rendering', () => {
             </html>
         `, '#root')
 
-        const renderResult: Response = await ssr.renderRouteAsString('/home');
+        const renderResult: ServerSideRenderingResponse = await ssr.renderRouteAsString('/home');
         const renderDom = new JSDOM(renderResult.responseText);
 
-        expect(renderResult.status).toBe(200);
+        expect(renderResult.statusCode).toBe(200);
         expect(renderDom.window.document.querySelector('html').getAttribute('lang')).toBe('pt-br');
         expect(renderDom.window.document.getElementById('root').querySelector('homecomponent').textContent).toBe('Hello, world!');
     });

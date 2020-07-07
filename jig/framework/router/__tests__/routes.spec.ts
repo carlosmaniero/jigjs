@@ -27,8 +27,8 @@ describe('Routes', () => {
                 coolRouteHandler,
             ]);
 
-            expect(routes.handlerFor('/').routerHandler).toBe(indexHandler);
-            expect(routes.handlerFor('/my/cool/route').routerHandler).toBe(coolRouteHandler);
+            expect(routes.handlerFor('/').routerHandler).toBe(stubIndex);
+            expect(routes.handlerFor('/my/cool/route').routerHandler).toBe(stubCoolRoute);
         });
 
         it('executes the handler with empty params object', () => {
@@ -48,7 +48,7 @@ describe('Routes', () => {
             const transferState = new TransferState();
             routes.handlerFor('/').resolve(renderFn, transferState);
 
-            expect(stubIndex).toBeCalledWith({}, renderFn, transferState);
+            expect(stubIndex.mock.calls[0][0]).toEqual({});
         });
     });
 
@@ -76,8 +76,8 @@ describe('Routes', () => {
             routes.handlerFor('/hello/world').resolve(renderFn, transferState);
             routes.handlerFor('/hello/?name=world').resolve(renderFn, transferState);
 
-            expect(app1).toBeCalledWith({name: 'world'}, renderFn, transferState);
-            expect(app2).toBeCalledWith({name: 'world'}, renderFn, transferState);
+            expect(app1.mock.calls[0][0]).toEqual({name: 'world'});
+            expect(app2.mock.calls[0][0]).toEqual({name: 'world'});
         });
     });
 

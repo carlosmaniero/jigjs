@@ -21,7 +21,7 @@ describe('server integration', () => {
             const routes = new Routes([{
                 path: '/my-route',
                 name: 'home',
-                handler(params, render) {
+                handler(params, render, transferState) {
                     render(new Component());
                 }
             }]);
@@ -127,4 +127,55 @@ describe('server integration', () => {
             .get('/my-route')
             .expect(500);
     });
+
+    it('returns a 404 status code when route does not exists', async () => {
+        jest.spyOn(console, 'error').mockImplementation(() => {
+            return;
+        });
+        const appFactory: AppFactory = (window, platform) => {
+            const routes = new Routes([]);
+
+            return new App(new RouterModule(window, platform, routes))
+        }
+
+        const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'));
+        server.configure();
+
+        await request(server.app).get('/my-route').expect(404);
+    });
+
+    describe('controls response', () => {
+        it('returns a custom status code and headers', async () => {
+            @component()
+            class Component {
+                render() {
+                    return html`Get out!`;
+                }
+            }
+
+            const appFactory: AppFactory = (window, platform) => {
+                return new App(new RouterModule(window, platform, new Routes([
+                    {
+                        path: '/admin',
+                        name: 'admin',
+                        handler(params, render, transferState, response): void {
+                            render(new Component());
+
+                            response.statusCode = 401;
+                            response.headers = {
+                                'custom-header': 'custom-value'
+                            }
+                        }
+                    }
+                ])));
+            }
+
+            const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'));
+            server.configure();
+
+            const response = await request(server.app).get('/admin').expect(401);
+
+            expect(response.headers['custom-header']).toBe('custom-value');
+        });
+    })
 });

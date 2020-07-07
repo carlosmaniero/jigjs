@@ -73,6 +73,10 @@ export const onConstruct = <T extends object>(object: Constructor<T>, callback: 
 
 export const waitUntil = <T extends object>(object: T, guard: (object: T) => boolean): Promise<void> => {
     return new Promise<void>((resolve) => {
+        if (guard(object)) {
+            resolve();
+            return;
+        }
         const subscription = observe(object, () => {
             if (guard(object)) {
                 resolve();

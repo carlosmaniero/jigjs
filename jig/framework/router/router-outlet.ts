@@ -1,4 +1,4 @@
-import {MatchedRouterHandler, Routes} from "./routes";
+import {MatchedRouterHandler, RouterHandler, RouterResponse, Routes} from "./routes";
 import {History} from "./history";
 import {component, connectedCallback, disconnectedCallback, html, RenderableComponent} from "../../components";
 import {Renderable} from "../../template/render";
@@ -8,19 +8,20 @@ import {TransferState} from "../transfer-state";
 import {TransferStateWriter} from "../transfer-state/internals/transfer-state-writer";
 import {Platform} from "../patform/platform";
 import {TransferStateReader} from "../transfer-state/internals/transfer-state-reader";
+import {Default404Component} from "./internals/default-404-component";
+
 
 @component()
 export class RouterOutlet {
     static ROUTER_OUTLET_TRANSFER_STATE_URL = '__jigjs__transfer_state_url__';
 
+    latestResponse: RouterResponse = null;
+
     @observing()
     private routeComponent: RenderableComponent;
-
-    @observing()
-    private hasUnhandledError = false;
-
     @observing()
     private resolved = true;
+
     private currentProcess = 0;
     private historySubscription: Subscription;
 
@@ -41,10 +42,6 @@ export class RouterOutlet {
         return this.resolved;
     }
 
-    isResolvedWithUnhandledError(): boolean {
-        return this.hasUnhandledError;
-    }
-
     @connectedCallback()
     private watchHistory(): void {
         this.historySubscription = observe(this.history, () => {
@@ -54,19 +51,16 @@ export class RouterOutlet {
 
     @connectedCallback()
     private processRouteHandlingForCurrentUrl(): void {
-        this.hasUnhandledError = false;
         const process = this.startProcess();
-        const handlerFor = this.routes.handlerFor(this.history.getCurrentUrl());
+        let handlerFor: MatchedRouterHandler<unknown> = this.routes.handlerFor(this.history.getCurrentUrl());
 
         if (!handlerFor) {
-            return
+            handlerFor = new MatchedRouterHandler(this.getRouter404Handler(), this.history.getCurrentUrl(), new RouterResponse(404))
         }
 
-        this.controlRouteChange(handlerFor, process)
+        this.handleMatcherHandler(handlerFor, process)
             .catch((e) => {
-                console.error(e);
-                this.resolved = true;
-                this.hasUnhandledError = true;
+                console.error('Router resolved with an error: ', e);
             });
     }
 
@@ -79,27 +73,45 @@ export class RouterOutlet {
         return ++this.currentProcess % 100;
     }
 
-    private async controlRouteChange(handlerFor: MatchedRouterHandler<object>, process: number): Promise<void> {
+
+    private getRouter404Handler(): RouterHandler<string> {
+        if (this.routes.routerErrorHandler.handle404) {
+            return this.routes.routerErrorHandler.handle404;
+        }
+
+        return (params, render): void => render(new Default404Component());
+    }
+
+    private async handleMatcherHandler(handlerFor: MatchedRouterHandler<unknown>, process: number): Promise<void> {
         this.resolved = false;
 
         const transferState = this.createTransferState();
 
-        await handlerFor.resolve((component) => {
-            if (this.currentProcess === process) {
-                this.routeComponent = component;
-            }
-        }, transferState);
+        try {
+            await handlerFor.resolve((component) => {
+                this.renderRouteComponent(process, component);
+            }, transferState);
+        } catch (e) {
+            handlerFor.response.statusCode = 500;
+            throw e;
+        } finally {
+            this.latestResponse = handlerFor.response;
+            this.transferStateWriter.write(transferState);
+            this.resolved = true;
+        }
+    }
 
-        this.transferStateWriter.write(transferState);
-
-        this.resolved = true;
+    private renderRouteComponent(process: number, component: RenderableComponent): void {
+        if (this.currentProcess === process) {
+            this.routeComponent = component;
+        }
     }
 
     private createTransferState(): TransferState {
         return this.platform.strategy(() => this.browserTransferState(), () => this.emptyTransferState());
     }
 
-    private browserTransferState() {
+    private browserTransferState(): TransferState {
         if (!this.transferStateReader.hasTransferState()) {
             return this.emptyTransferState();
         }

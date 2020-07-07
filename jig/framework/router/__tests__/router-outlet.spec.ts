@@ -187,6 +187,49 @@ describe('Router outlet', () => {
         });
     });
 
+    describe('404', () => {
+        it('returns a default 404 page', async () => {
+            const dom = configureJSDOM(undefined, 'http://jig/home')
+
+            const routerModule = new RouterModule(dom.window, Platform.server(), new Routes([]));
+            const routerOutlet = routerModule.routerOutlet;
+
+            renderComponent(dom.body, routerOutlet);
+
+            await waitForPromises();
+            expect(routerOutlet.isResolved()).toBeTruthy();
+            expect(dom.body.textContent).toContain('404 - Not Found');
+        });
+
+        it('receives a custom a 404 handler', async () => {
+            @component()
+            class NotFountPage {
+                constructor(private readonly route: string) {
+                }
+
+                render() {
+                    return html`${this.route} not found.`
+                }
+            }
+
+            const dom = configureJSDOM(undefined, 'http://jig/home')
+
+            const routerModule = new RouterModule(dom.window, Platform.server(), new Routes(
+                [],
+                {
+                    handle404: (route, render): void => render(new NotFountPage(route))
+                }
+            ));
+            const routerOutlet = routerModule.routerOutlet;
+
+            renderComponent(dom.body, routerOutlet);
+
+            await waitForPromises();
+            expect(routerOutlet.isResolved()).toBeTruthy();
+            expect(dom.body.textContent).toContain('/home not found');
+        });
+    });
+
     describe('when state history', () => {
         it('updates with the new route result', async () => {
             const dom = configureJSDOM(undefined, 'http://jig/hello/world')
@@ -267,9 +310,11 @@ describe('Router outlet', () => {
         });
     });
 
-    describe('unhandled errors', () => {
-        it('marks router outlet with error when handler promise is rejected', async () => {
-            jest.spyOn(console, 'error').mockImplementation(() => { return; });
+    describe('Customising response', () => {
+        it('returns 500 status code when handler returns a rejected promise', async () => {
+            jest.spyOn(console, 'error').mockImplementation(() => {
+                return;
+            });
 
             const dom = configureJSDOM(undefined, 'http://jig/home')
             const promise = controlledPromise();
@@ -279,7 +324,7 @@ describe('Router outlet', () => {
                     path: '/home',
                     name: 'home',
                     handler(params, render): Promise<void> {
-                        render(new HelloComponent('world'));
+                        render(new HelloComponent('resolved with error'));
                         return promise.promise;
                     }
                 },
@@ -295,13 +340,41 @@ describe('Router outlet', () => {
             const {routerOutlet, history} = routerModule;
 
             renderComponent(dom.body, routerOutlet);
-            promise.rejecter(new Error('my error'));
+            const error = new Error('my error');
+            promise.rejecter(error);
             await waitForPromises();
-            expect(routerOutlet.isResolvedWithUnhandledError()).toBeTruthy();
+            expect(routerOutlet.latestResponse.statusCode).toBe(500);
+            expect(console.error).toBeCalledWith('Router resolved with an error: ', error);
+            expect(dom.body.textContent).toContain('resolved with error');
 
             history.push('/success');
             promise.resolver();
-            expect(routerOutlet.isResolvedWithUnhandledError()).toBeFalsy();
+
+            await waitForPromises();
+            expect(routerOutlet.latestResponse.statusCode).toBe(200);
+        });
+
+        it('returns a custom status code', async () => {
+            const dom = configureJSDOM(undefined, 'http://jig/admin')
+
+            const routerModule = new RouterModule(dom.window, Platform.server(), new Routes([
+                {
+                    path: '/admin',
+                    name: 'admin',
+                    handler(params, render, transferState, response): void {
+                        render(new HelloComponent('get out'));
+                        response.statusCode = 401;
+                    }
+                }
+            ]));
+
+            const {routerOutlet} = routerModule;
+
+            renderComponent(dom.body, routerOutlet);
+
+            await waitForPromises();
+            expect(dom.body.textContent).toContain('get out');
+            expect(routerOutlet.latestResponse.statusCode).toBe(401);
         });
     });
 
@@ -341,6 +414,36 @@ describe('Router outlet', () => {
                             handler(params, render, transferState): void {
                                 transferState.setState('key', 'value');
                                 render(new HelloComponent('world'));
+                            }
+                        }
+                    ]));
+
+                renderComponent(dom.body, routerModule.routerOutlet);
+
+                await waitUntil(routerModule.routerOutlet, () => routerModule.routerOutlet.isResolved());
+
+                expect(new TransferStateReader(dom.window).read().getState('key')).toBe('value');
+            });
+
+
+            it('persists the transfer state when the router resolves with an error', async () => {
+                jest.spyOn(console, 'error').mockImplementation(() => {
+                    return;
+                });
+
+                const dom = configureJSDOM(undefined, 'http://jigjs.com/');
+
+                const routerModule = new RouterModule(
+                    dom.window,
+                    Platform.server(),
+                    new Routes([
+                        {
+                            path: '/',
+                            name: 'home',
+                            async handler(params, render, transferState): Promise<void> {
+                                transferState.setState('key', 'value');
+                                render(new HelloComponent('world'));
+                                return Promise.reject();
                             }
                         }
                     ]));

@@ -11,13 +11,20 @@ export class Server {
         this.app = express();
     }
 
-    configure() {
+    configure(): void {
         this.app.use(express.static(process.cwd() + '/dist'));
 
         this.app.get('*', async (req, res) => {
-            const responseBody = await this.ssr.renderRouteAsString(req.url);
-            res.statusCode = responseBody.status;
-            res.send(responseBody.responseText);
+            const ssrResponse = await this.ssr.renderRouteAsString(req.url);
+            res.statusCode = ssrResponse.statusCode;
+
+            for (const key in ssrResponse.headers) {
+                if (ssrResponse.headers.hasOwnProperty(key)) {
+                    res.setHeader(key, ssrResponse.headers[key]);
+                }
+            }
+
+            res.send(ssrResponse.responseText);
         });
     }
 

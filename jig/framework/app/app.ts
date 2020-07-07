@@ -4,6 +4,7 @@ import {Renderable} from "../../template/render";
 import {propagate} from "../../reactive";
 import {JigWindow} from "../../types";
 import {Platform} from "../patform/platform";
+import {RouterResponse} from "../router/routes";
 
 @component()
 export class App {
@@ -28,8 +29,8 @@ export class App {
         return this.connected && this.routerModule.routerOutlet.isResolved();
     }
 
-    isFinishedWithError(): boolean {
-        return this.routerModule.routerOutlet.isResolvedWithUnhandledError();
+    get latestResponse(): RouterResponse {
+        return this.routerModule.routerOutlet.latestResponse;
     }
 }
 

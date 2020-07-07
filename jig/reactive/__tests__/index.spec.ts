@@ -321,6 +321,24 @@ describe('side-effect', () => {
             expect(stub).toBeCalled();
         });
 
+        it('returns if the condition is already true', async () => {
+            @observable()
+            class SideEffectClass {
+                @observing()
+                public name = 'World';
+            }
+
+            const stub = jest.fn();
+
+            const sideEffectClass = new SideEffectClass();
+
+            waitUntil(sideEffectClass, (obj) => obj.name === 'World')
+                .then(stub);
+
+            await waitForPromises();
+            expect(stub).toBeCalled();
+        });
+
         it('does not calls guard after it returns as resolved', async () => {
             @observable()
             class SideEffectClass {

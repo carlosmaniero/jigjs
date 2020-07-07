@@ -2,15 +2,20 @@ import {AppFactory} from "../app/app";
 import {configureJSDOM} from "../../core/dom";
 import {renderComponent} from "../../components";
 import {waitUntil} from "../../reactive";
-import {Response} from "./response";
 import {render} from "../../template/render";
 import {Platform} from "../patform/platform";
+
+export interface ServerSideRenderingResponse {
+    statusCode: number;
+    headers: Record<string, string>;
+    responseText: string;
+}
 
 export class ServerSideRendering {
     constructor(private readonly appFactory: AppFactory, private readonly template: string, private querySelector: string) {
     }
 
-    async renderRouteAsString(path: string): Promise<Response> {
+    async renderRouteAsString(path: string): Promise<ServerSideRenderingResponse> {
         const dom = configureJSDOM(this.template, `http://localhost${path}`);
         const app = this.appFactory(dom.window, Platform.server());
 
@@ -18,14 +23,15 @@ export class ServerSideRendering {
         renderComponent(rootContainer, app);
         await waitUntil(app, () => app.isInitialRenderFinished());
 
-        const status = app.isFinishedWithError() ? 500 : 200;
+        const {statusCode, headers} = app.latestResponse;
         const responseText = dom.serialize();
 
         render(dom.document.createElement('div'))(rootContainer);
 
         return {
-            status,
+            statusCode: statusCode,
             responseText,
+            headers
         };
     }
 }
