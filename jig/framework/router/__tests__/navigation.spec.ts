@@ -1,14 +1,13 @@
 import {configureJSDOM} from "../../../core/dom";
-import {History} from "../history";
 import {Routes} from "../routes";
-import {Navigation} from "../navigation";
+import {RouterModule} from "../module";
+import {Platform} from "../../patform/platform";
 
 describe('navigation', () => {
     it('navigates to the given route', () => {
         const dom = configureJSDOM(undefined, 'http://jigjs.com/');
-        const history = new History(dom.window);
 
-        const routes = new Routes([
+        const routerModule = new RouterModule(dom.window, Platform.browser(), new Routes([
             {
                 path: '/',
                 name: 'index',
@@ -19,11 +18,12 @@ describe('navigation', () => {
                 name: 'hello',
                 handler: jest.fn()
             }
-        ]);
+        ]));
+        const {history, navigation} = routerModule;
 
-        new Navigation(routes, history).navigateTo('hello', {name: 'world'});
+        navigation.navigateTo('hello', {name: 'world'});
         expect(history.getCurrentUrl()).toBe('/hello/world');
-        new Navigation(routes, history).navigateTo('index');
+        navigation.navigateTo('index');
         expect(history.getCurrentUrl()).toBe('/');
     });
 });

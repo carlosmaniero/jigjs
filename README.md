@@ -128,7 +128,11 @@ It comes with a `Router` system that enables `Single Page Applications`, Native 
 
 ### Routing
 
-With the native router you can have custom routes and easily extracts router parameters.
+A router is composed by a `path`, a `name` and `handler`. 
+
+- `path` is used to match the user request.
+- `name` is used to reverse a route.
+- `handler` is called whtn the path matches the user request.
 
 ```typescript
 new Routes([
@@ -163,7 +167,55 @@ new Routes([
 ]);
 ```
 
-For more examples of router matchers: https://github.com/rcs/route-parser 
+For more examples of router matchers: https://github.com/rcs/route-parser
+
+### Navigation
+
+To redirect users to a specific URL you can use the `Navigation` object.
+
+```typescript
+ const routerModule = new RouterModule(window, platform, new Routes([
+    {
+        path: '/',
+        name: 'index',
+        handler() {
+            // ...
+        }
+    },
+    {
+        path: '/hello/:name',
+        name: 'hello',
+        handler() {
+            // ...
+        }
+    }
+]));
+
+routerModule.navigation.navigateTo('hello', {name: 'world'});
+routerModule.navigation.navigateTo('index');
+```
+
+### Async Handlers
+
+When you need to process async functions in your components you can make your handler to return a promise.
+
+```typescript
+const routerModule = new RouterModule(window, platform, new Routes([
+        {
+            path: '/user/:id',
+            name: 'show-user',
+            async handler(params, render, transferState) {
+                render(new PageLoadingComponent());
+                const user = await fetchUser(params.id);
+                render(new UserPage(user));
+            }
+        }
+    ]));
+```
+
+The server will only release the request when the promise is resolved. You can call the `render` function as much as
+you want, this is useful to render loading components that will be visible when the code is executed from the 
+client-side.   
 
 ### Transfer State
 
