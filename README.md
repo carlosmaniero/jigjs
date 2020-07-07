@@ -49,7 +49,7 @@ npm install -g jigjs
 
 ## Components
 
-A component is a small UI peace that manage its own state. Whenever the class fields
+A component is a small UI peace that manages its own state. Whenever the class fields
 decorated with `@overserving` changes the component is re-rendered.
 
 ```typescript
@@ -132,7 +132,7 @@ A router is composed by a `path`, a `name` and `handler`.
 
 - `path` is used to match the user request.
 - `name` is used to reverse a route.
-- `handler` is called whtn the path matches the user request.
+- `handler` is called when the path matches the user request.
 
 ```typescript
 new Routes([
