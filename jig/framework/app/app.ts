@@ -9,7 +9,7 @@ import {RouterResponse} from "../router/routes";
 @component()
 export class App {
     @propagate()
-    private readonly routerModule: RouterModule;
+    readonly routerModule: RouterModule;
     private connected = false;
 
     constructor(routerModule: RouterModule) {

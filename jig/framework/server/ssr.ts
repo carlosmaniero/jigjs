@@ -1,7 +1,7 @@
-import {AppFactory} from "../app/app";
-import {configureJSDOM} from "../../core/dom";
+import {App, AppFactory} from "../app/app";
+import {configureJSDOM, DOM} from "../../core/dom";
 import {renderComponent} from "../../components";
-import {waitUntil} from "../../reactive";
+import {observe, waitUntil} from "../../reactive";
 import {render} from "../../template/render";
 import {Platform} from "../patform/platform";
 
@@ -19,8 +19,17 @@ export class ServerSideRendering {
         const dom = configureJSDOM(this.template, `http://localhost${path}`);
         const app = this.appFactory(dom.window, Platform.server());
 
+        return Promise.race([
+            this.historyChangeResponse(app),
+            this.appResponse(app, dom)
+        ]);
+    }
+
+    private async appResponse(app: App, dom: DOM): Promise<ServerSideRenderingResponse> {
         const rootContainer = dom.document.querySelector(this.querySelector);
+
         renderComponent(rootContainer, app);
+
         await waitUntil(app, () => app.isInitialRenderFinished());
 
         const {statusCode, headers} = app.latestResponse;
@@ -33,5 +42,19 @@ export class ServerSideRendering {
             responseText,
             headers
         };
+    }
+
+    private historyChangeResponse(app: App): Promise<ServerSideRenderingResponse> {
+        return new Promise((resolve) => {
+            observe(app.routerModule.history, () => {
+                resolve({
+                    statusCode: 301,
+                    responseText: '',
+                    headers: {
+                        'location': app.routerModule.history.getCurrentUrl()
+                    }
+                })
+            });
+        })
     }
 }

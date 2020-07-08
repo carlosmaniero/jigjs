@@ -21,7 +21,7 @@ describe('server integration', () => {
             const routes = new Routes([{
                 path: '/my-route',
                 name: 'home',
-                handler(params, render, transferState) {
+                handler(params, render) {
                     render(new Component());
                 }
             }]);
@@ -126,6 +126,37 @@ describe('server integration', () => {
         await request(server.app)
             .get('/my-route')
             .expect(500);
+    });
+
+    it('returns 301 when history push is called', async () => {
+        @component()
+        class Component {
+            render() {
+                return html`Hello, World!`;
+            }
+        }
+
+        const appFactory: AppFactory = (window, platform) => {
+            const routerModule = new RouterModule(window, platform, new Routes([{
+                path: '/my-route',
+                name: 'home',
+                handler(params, render) {
+                    routerModule.history.push('/');
+                    render(new Component());
+                }
+            }]));
+
+            return new App(routerModule)
+        }
+
+        const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'));
+        server.configure();
+
+        const response = await request(server.app)
+            .get('/my-route')
+            .expect(301);
+
+        expect(response.headers['location']).toBe('/');
     });
 
     it('returns a 404 status code when route does not exists', async () => {
