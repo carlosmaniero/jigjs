@@ -1,5 +1,4 @@
-import { component, html } from "jigjs/components";
-import {observing} from "jigjs/reactive";
+import {component, html} from "jigjs/components";
 import {Route, RouteLinkElement, RouterLink, RouterLinkFactory} from "jigjs/framework/router/router-link";
 import {Counter} from "../components/counter";
 
@@ -17,9 +16,6 @@ export class Home {
         this.counter = new Counter();
     }
 
-    @observing()
-    private number = 0;
-
     render() {
         return html`
             <style>
@@ -29,7 +25,7 @@ export class Home {
                 }
                 
                 .link {
-                    color: #ff677d;
+                    color: #ff677c;
                 }
             </style>
             <main>

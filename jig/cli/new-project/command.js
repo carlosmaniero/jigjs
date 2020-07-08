@@ -36,7 +36,7 @@ const validateProjectName = (text) => {
 }
 
 (async () => {
-    console.log(chalk.bold.green(`Let's create you Jig.js app!`));
+    console.log(`🧩 ${chalk.bold.hex('f67280')('Jig.js')} ${chalk.bold.bold('- New project')}`);
     const response = await prompts({
         type: 'text',
         name: 'projectName',
@@ -61,8 +61,8 @@ const validateProjectName = (text) => {
 
         writePackageJson(projectName, projectPath);
 
-        console.log(`${chalk.bold.green('✔️')} ${chalk.bold(projectName)} created with success!`);
-        console.log(chalk.bold('Run the commands bellow:'));
+        console.log(`${chalk.bold('✅')} ${chalk.bold(projectName)} created with success!`);
+        console.log(chalk.bold('🚀 Run the commands bellow:'));
         console.log(`${chalk.bold('$')} cd ${projectName}`);
         console.log(`${chalk.bold('$')} npm install`);
         console.log(`${chalk.bold('$')} npm run dev`);

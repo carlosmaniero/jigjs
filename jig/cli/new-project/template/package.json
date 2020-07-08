@@ -3,8 +3,11 @@
   "scripts": {
     "start": "ts-node src/server.ts",
     "build": "jigjs-build",
-    "dev": "DEV=true npm run build && npm start",
-    "test": "jest --no-cache"
+    "build:analyse-bundle": "SHOW_BUNDLE_REPORT=true npm run build",
+    "build:watch": "DEV=true BUILD_WATCH=true npm run build",
+    "server:watch": "DEV=true ts-node-dev --no-notify src/server.ts",
+    "dev": "concurrently -n build,server \"npm run build:watch\" \"DEV=true ts-node-dev --no-notify src/server.ts\"",
+    "test": "jest"
   },
   "dependencies": {
     "jigjs": "^{{jigjs-version}}",
@@ -15,9 +18,11 @@
     "typescript": "^3.8.3"
   },
   "devDependencies": {
+    "ts-node-dev": "^1.0.0-pre.50",
     "@testing-library/dom": "^7.20.0",
     "@testing-library/jest-dom": "^5.11.0",
     "@types/jest": "^26.0.3",
+    "concurrently": "^5.2.0",
     "jest-environment-jsdom-sixteen": "^1.0.3",
     "webpack": "^4.43.0",
     "webpack-bundle-analyzer": "^3.7.0"

@@ -32,11 +32,10 @@ export class Server {
         this.configure();
 
         this.listener = this.app.listen(port, function () {
-            console.log('.----------------------------------------.')
-            console.log(`| 🧩 ${chalk.bold.hex('f67280')('Jig.js')} - ${chalk.bold('A micro-frontend framework')} |`)
-            console.log('|----------------------------------------|')
-            console.log(`|    Server is running at port: ${chalk.bold.green(port)}     |`);
-            console.log('\'----------------------------------------\'')
+            console.log(`🧩 ${chalk.bold.hex('f67280')('Jig.js')} - Server
+🔍 Server is running at port: ${chalk.bold.green(port)}
+🔗 http://localhost:${port}/
+`);
         });
     }
 
