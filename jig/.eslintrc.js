@@ -7,6 +7,8 @@ module.exports = {
     extends: [
         "plugin:@typescript-eslint/recommended",
     ],
-    rules: {},
+    rules: {
+        "@typescript-eslint/ban-types": 0
+    },
     ignorePatterns: ["**/*.js"]
 };

@@ -22,7 +22,7 @@ const template = `<html lang="en">
     </body>
 </html>`;
 
-let server = new Server(new ServerSideRendering(appFactory, template, '#root'));
+const server = new Server(new ServerSideRendering(appFactory, template, '#root'));
 
 server.app.use(express.static(process.cwd() + '/assets'));
 
