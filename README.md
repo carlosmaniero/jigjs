@@ -225,22 +225,22 @@ There is no intention to specify the response body given it will be always the r
 
 ```typescript
 const routerModule = new RouterModule(window, platform, new Routes([
-        {
-            path: '/user/:id',
-            name: 'show-user',
-            async handler(params, render, transferState, response) {
-                try {
-                    const user = await fetchUser(params.id);
-                    render(new UserPage(user));
-                } catch(e) {
-                    response.statusCode = 404;
-                    response.headers['custom-error'] = 'User not found';
+    {
+        path: '/user/:id',
+        name: 'show-user',
+        async handler(params, render, transferState, response) {
+            try {
+                const user = await fetchUser(params.id);
+                render(new UserPage(user));
+            } catch(e) {
+                response.statusCode = 404;
+                response.headers['custom-error'] = 'User not found';
 
-                    render(new UserNotFoundPage());
-                }
+                render(new UserNotFoundPage());
             }
         }
-    ]));
+    }
+]));
 ```
 
 ### Transfer State
