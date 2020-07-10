@@ -1,6 +1,6 @@
 {
   "name": "jigcss",
-  "version": "0.0.0-pre-alpha.10",
+  "version": "0.0.0-pre-alpha.11",
   "description": "A css-in-js module for jigjs",
   "repository": "https://github.com/carlosmaniero/jigjs.git",
   "author": "Carlos Maniero",

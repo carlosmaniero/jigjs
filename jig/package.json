@@ -1,6 +1,6 @@
 {
   "name": "jigjs",
-  "version": "0.0.0-pre-alpha.10",
+  "version": "0.0.0-pre-alpha.11",
   "description": "A micro front-end framework",
   "author": "Carlos Maniero",
   "scripts": {

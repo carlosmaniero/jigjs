@@ -23,13 +23,20 @@ jobs:
     - run: yarn --cwd jig clean
       env:
         CI: true
-    - run: yarn --cwd jig lint
-      env:
-        CI: true
-    - run: yarn --cwd jig test
-      env:
-        CI: true
     - run: yarn --cwd jig build
+      env:
+        CI: true
+    - run: npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      working-directory: jig/dist
+    - run: yarn --cwd jigcss
+      env:
+        CI: true
+    - run: yarn --cwd jigcss clean
+      env:
+        CI: true
+    - run: yarn --cwd jigcss build
       env:
         CI: true
     - run: npm publish --access public
