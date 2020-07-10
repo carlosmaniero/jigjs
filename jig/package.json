@@ -1,7 +1,7 @@
 {
   "name": "jigjs",
-  "version": "0.0.0-pre-alpha.12",
-  "description": "A micro front-end framework",
+  "version": "0.0.0-pre-alpha.13",
+  "description": "A front-end library",
   "author": "Carlos Maniero",
   "scripts": {
     "lint": "eslint './**/*.ts' --quiet",

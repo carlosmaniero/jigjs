@@ -1,10 +1,21 @@
  ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
-# JigCss - A CSS-in-JS package for Jig.js
+# Jig.css - A CSS-in-JS package for Jig.js
 
 This package enables CSS-in-JS.
 
+## Installation
+
+```shell script
+npm install jigcss
+```
+
+# Usage
+
 ```typescript
+import {Css} from 'jigcss';
+
+
 @component()
 class MyComponent {
   private readonly css: Css;

@@ -111,6 +111,12 @@ renderComponent(document.querySelector('#root'), new CounterPage());
 In jisjs you control the component instance. There aren't a magic way to update a component props. The component props
 is its state you update it by using class methods.
 
+## Styling the component
+
+There are a css-in-js module for Jig.js.
+
+Read more about Jig.css [here](/jigcss).
+
 ## Creating an APP
 
 As showed in the previous example, you can use jigjs as a simple library by using the `renderComponent` function.
@@ -122,6 +128,8 @@ To start a jigjs project you can use the cli:
 npm install -g jigjs
 npx jigjs-new-project
 ``` 
+
+![Installation demo](jig/ghassets/gif-fast.gif)
 
 It comes with a `Router` system that enables `Single Page Applications`, Native `Server Side Rendering` and built-in 
 `build system`.
