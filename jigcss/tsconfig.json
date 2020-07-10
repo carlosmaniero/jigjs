@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "baseUrl": "./",
+    "outDir": "./dist",
+    "declaration": true,
+    "allowJs": true,
+    "lib": [
+      "dom",
+      "es6",
+      "es2019"
+    ],
+    "target": "ES2015"
+  },
+  "include": [
+    "./**/*.ts",
+    "./**/*.spec.ts"
+  ]
+}
