@@ -7,7 +7,8 @@
     "lint": "eslint './**/*.ts' --quiet",
     "clean": "tsc --build --clean",
     "build": "tsc && cp package.json dist/ && cp ../README.md dist/ && cp -R cli/ dist/cli",
-    "test": "jest"
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "main": "./main.js",
   "type": "./main.d.ts",
