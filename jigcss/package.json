@@ -8,6 +8,7 @@
   "scripts": {
     "test": "jest",
     "lint": "eslint './**/*.ts' --quiet",
+    "clean": "tsc --build --clean",
     "build": "tsc && cp package.json dist/ && cp ./README.md dist/"
   },
   "main": "./index.js",
