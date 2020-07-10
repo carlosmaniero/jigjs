@@ -1,4 +1,5 @@
- ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Jig](https://github.com/carlosmaniero/jigjs/workflows/Jig/badge.svg) [![npm version](https://badge.fury.io/js/jigjs.svg)](https://badge.fury.io/js/jigjs)
+ ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Jig](https://github.com/carlosmaniero/jigjs/workflows/Jig/badge.svg) [![npm version](https://badge.fury.io/js/jigjs.svg)](https://badge.fury.io/js/jigjs) [![codecov](https://codecov.io/gh/carlosmaniero/jigjs/branch/main/graph/badge.svg)](https://codecov.io/gh/carlosmaniero/jigjs)
+
 
 # ![Jig Logo](jig/ghassets/logo.svg) a front-end library.
 
