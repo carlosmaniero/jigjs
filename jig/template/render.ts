@@ -1,7 +1,7 @@
 import morphdom from 'morphdom';
 
 const createPlaceholderForIndex = (valueIndex: number): string =>
-    `__render_placeholder_${valueIndex}_render_placeholder__`;
+  `__render_placeholder_${valueIndex}_render_placeholder__`;
 
 const NODES = {
   ELEMENT_NODE: 1,
@@ -144,17 +144,17 @@ const applyToDom = (bindElement: Node & ParentNode, clone: Node & ParentNode): v
 };
 
 export const render = (renderable: Renderable) =>
-    (bindElement: Node & ParentNode): void => {
-      if (renderable !== undefined && 'renderAt' in renderable) {
-        const clone = cloneActualElementFromFragment(bindElement, renderable.renderAt(bindElement.ownerDocument));
-        applyToDom(bindElement, clone);
-        return;
-      }
-
-      const clone = cloneActualElementFromFragment(bindElement, bindElement.ownerDocument.createDocumentFragment());
-      renderable && clone.appendChild(renderable as HTMLElement);
+  (bindElement: Node & ParentNode): void => {
+    if (renderable !== undefined && 'renderAt' in renderable) {
+      const clone = cloneActualElementFromFragment(bindElement, renderable.renderAt(bindElement.ownerDocument));
       applyToDom(bindElement, clone);
-    };
+      return;
+    }
+
+    const clone = cloneActualElementFromFragment(bindElement, bindElement.ownerDocument.createDocumentFragment());
+    renderable && clone.appendChild(renderable as HTMLElement);
+    applyToDom(bindElement, clone);
+  };
 
 const hasPlaceHolder = (text: string): boolean => {
   return text.indexOf('__render_placeholder_') >= 0 && text.indexOf('_render_placeholder__') >= 0;
@@ -166,7 +166,7 @@ const getPlaceHolderIndex = (placeholder: string): number[] => {
   }
   return placeholder.match(placeHolderRegex())
       .map((mathPlaceholder) =>
-          parseInt(mathPlaceholder.match(/(__render_placeholder_)(\d+)(_render_placeholder__)/)[2]));
+        parseInt(mathPlaceholder.match(/(__render_placeholder_)(\d+)(_render_placeholder__)/)[2]));
 };
 
 const createElementChildNodesForValue = (document, value: unknown): ChildNode[] => {

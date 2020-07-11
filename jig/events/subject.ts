@@ -16,23 +16,23 @@ export class Subject<T> implements Subscriber<T>, Publisher<T> {
     private callbacks: Callback<T>[] = []
 
     publish(value: T): void {
-        this.callbacks.forEach((callback) => {
-            callback(value);
-        });
+      this.callbacks.forEach((callback) => {
+        callback(value);
+      });
     }
 
     subscribe(callback: (value: T) => void): Subscription {
-        this.callbacks.push(callback);
-        return {
-            unsubscribe: (): void => {
-                this.callbacks = this.callbacks.filter((otherCallback) => {
-                    return otherCallback !== callback;
-                });
-            },
-        };
+      this.callbacks.push(callback);
+      return {
+        unsubscribe: (): void => {
+          this.callbacks = this.callbacks.filter((otherCallback) => {
+            return otherCallback !== callback;
+          });
+        },
+      };
     }
 
     subscribersCount(): number {
-        return this.callbacks.length;
+      return this.callbacks.length;
     }
 }

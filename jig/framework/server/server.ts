@@ -31,7 +31,7 @@ export class Server {
   public start(port: number): void {
     this.configure();
 
-    this.listener = this.app.listen(port, function () {
+    this.listener = this.app.listen(port, function() {
       console.log(`🧩 ${chalk.bold.hex('f67280')('Jig.js')} - Server
 🔍 Server is running at port: ${chalk.bold.green(port)}
 🔗 http://localhost:${port}/

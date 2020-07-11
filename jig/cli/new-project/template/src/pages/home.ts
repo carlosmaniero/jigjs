@@ -8,16 +8,16 @@ export class Home {
     private readonly counter: Counter;
 
     constructor(linkFactory: RouterLinkFactory) {
-        this.myPageLink = linkFactory.createLink(
-            new Route('my-page'),
-            new RouteLinkElement('Another page Example', {class: 'link'}),
-        );
+      this.myPageLink = linkFactory.createLink(
+          new Route('my-page'),
+          new RouteLinkElement('Another page Example', {class: 'link'}),
+      );
 
-        this.counter = new Counter();
+      this.counter = new Counter();
     }
 
     render() {
-        return html`
+      return html`
             <style>
                 main {
                     font-family: 'Mandali', sans-serif;

@@ -87,7 +87,7 @@ export const waitUntil = <T extends object>(object: T, guard: (object: T) => boo
 };
 
 export const subscribersCount = <T extends object>(instance: T): number =>
-    instance[objectChangedSubjectSymbol].subscribersCount();
+  instance[objectChangedSubjectSymbol].subscribersCount();
 
 class SideEffectPropagation<T extends object> {
   private subscriptions = {}
