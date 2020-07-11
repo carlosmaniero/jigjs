@@ -3,30 +3,30 @@ const serverPlatformId = Symbol('server-platform');
 
 
 export class Platform {
-    private constructor(public readonly platformId: symbol) {
+  private constructor(public readonly platformId: symbol) {
+  }
+
+  static browser(): Platform {
+    return new Platform(browserPlatformId);
+  }
+
+  static server(): Platform {
+    return new Platform(serverPlatformId);
+  }
+
+  isBrowser(): boolean {
+    return this.platformId === browserPlatformId;
+  }
+
+  isServer(): boolean {
+    return this.platformId === serverPlatformId;
+  }
+
+  strategy<T>(browserFactory: () => T, serverFactory: () => T): T {
+    if (this.isBrowser()) {
+      return browserFactory();
     }
 
-    static browser(): Platform {
-        return new Platform(browserPlatformId);
-    }
-
-    static server(): Platform {
-        return new Platform(serverPlatformId);
-    }
-
-    isBrowser(): boolean {
-        return this.platformId === browserPlatformId;
-    }
-
-    isServer(): boolean {
-        return this.platformId === serverPlatformId;
-    }
-
-    strategy<T>(browserFactory: () => T, serverFactory: () => T): T {
-        if (this.isBrowser()) {
-            return browserFactory();
-        }
-
-        return serverFactory();
-    }
+    return serverFactory();
+  }
 }

@@ -1,5 +1,5 @@
 const deprecatedLog = (message: string): void =>
-    console.warn(`DEPRECATED!
+  console.warn(`DEPRECATED!
 
 ${message}`);
 
