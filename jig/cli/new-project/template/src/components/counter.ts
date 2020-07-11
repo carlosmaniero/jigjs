@@ -1,17 +1,17 @@
-import {component, html} from "jigjs/components";
-import {observing} from "jigjs/reactive/index";
+import {component, html} from 'jigjs/components';
+import {observing} from 'jigjs/reactive/index';
 
 @component()
 export class Counter {
-    @observing()
-    private number: number;
+  @observing()
+  private number: number;
 
-    constructor() {
-        this.number = 0;
-    }
+  constructor() {
+    this.number = 0;
+  }
 
-    render() {
-        return html`
+  render() {
+    return html`
 
         <style>
             .counter {
@@ -37,6 +37,6 @@ export class Counter {
             <span>${this.number}</span>
             <button class="counter__action-button" onclick="${() => this.number++}">+</button>
         </section>
-        `
-    }
+        `;
+  }
 }

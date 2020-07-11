@@ -1,7 +1,7 @@
-import {appFactory} from "./app";
+import {appFactory} from './app';
 import express from 'express';
 import {ServerSideRendering} from 'jigjs/framework/server/ssr';
-import {Server} from "jigjs/framework/server/server";
+import {Server} from 'jigjs/framework/server/server';
 
 
 const template = `<html lang="en">

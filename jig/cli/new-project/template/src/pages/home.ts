@@ -1,6 +1,6 @@
-import {component, html} from "jigjs/components";
-import {Route, RouteLinkElement, RouterLink, RouterLinkFactory} from "jigjs/framework/router/router-link";
-import {Counter} from "../components/counter";
+import {component, html} from 'jigjs/components';
+import {Route, RouteLinkElement, RouterLink, RouterLinkFactory} from 'jigjs/framework/router/router-link';
+import {Counter} from '../components/counter';
 
 @component()
 export class Home {
@@ -10,7 +10,7 @@ export class Home {
     constructor(linkFactory: RouterLinkFactory) {
         this.myPageLink = linkFactory.createLink(
             new Route('my-page'),
-            new RouteLinkElement('Another page Example', {class: 'link'})
+            new RouteLinkElement('Another page Example', {class: 'link'}),
         );
 
         this.counter = new Counter();

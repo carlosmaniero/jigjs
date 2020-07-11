@@ -6,6 +6,14 @@ export class Platform {
     private constructor(public readonly platformId: symbol) {
     }
 
+    static browser(): Platform {
+        return new Platform(browserPlatformId);
+    }
+
+    static server(): Platform {
+        return new Platform(serverPlatformId);
+    }
+
     isBrowser(): boolean {
         return this.platformId === browserPlatformId;
     }
@@ -20,13 +28,5 @@ export class Platform {
         }
 
         return serverFactory();
-    }
-
-    static browser(): Platform {
-        return new Platform(browserPlatformId);
-    }
-
-    static server(): Platform {
-        return new Platform(serverPlatformId);
     }
 }

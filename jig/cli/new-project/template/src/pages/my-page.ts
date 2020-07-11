@@ -1,12 +1,12 @@
-import {component, html} from "jigjs/components";
+import {component, html} from 'jigjs/components';
 
 @component()
 export class MyPage {
-    constructor(private readonly title: string) {
-    }
+  constructor(private readonly title: string) {
+  }
 
-    render() {
-        return html`
+  render() {
+    return html`
             <style>
                 main {
                     font-family: 'Mandali', sans-serif;
@@ -21,5 +21,5 @@ export class MyPage {
                 <p>You can see into the <strong>app.ts</strong> How to handle async operations in router.</p>
             </main>
         `;
-    }
+  }
 }

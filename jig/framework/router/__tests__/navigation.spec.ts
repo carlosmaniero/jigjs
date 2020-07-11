@@ -1,6 +1,6 @@
-import {configureJSDOM} from "../../../core/dom";
-import {RouterModule} from "../module";
-import {Platform} from "../../patform/platform";
+import {configureJSDOM} from '../../../core/dom';
+import {RouterModule} from '../module';
+import {Platform} from '../../patform/platform';
 
 describe('navigation', () => {
     it('navigates to the given route', () => {
@@ -12,12 +12,12 @@ describe('navigation', () => {
             .handle({
                 path: '/',
                 name: 'index',
-                handler: jest.fn()
+                handler: jest.fn(),
             })
             .handle({
                 path: '/hello/:name',
                 name: 'hello',
-                handler: jest.fn()
+                handler: jest.fn(),
             });
 
         const {history, navigation} = routerModule;

@@ -1,37 +1,37 @@
-import {App} from "../../app/app";
-import {RouterModule} from "../../router/module";
-import {component, html} from "../../../components";
-import {waitForPromises} from "../../../testing/wait-for-promises";
-import {Renderable} from "../../../template/render";
-import {ServerSideRendering, ServerSideRenderingResponse} from "../ssr";
-import {JSDOM} from "jsdom";
-import {Platform} from "../../patform/platform";
+import {App} from '../../app/app';
+import {RouterModule} from '../../router/module';
+import {component, html} from '../../../components';
+import {waitForPromises} from '../../../testing/wait-for-promises';
+import {Renderable} from '../../../template/render';
+import {ServerSideRendering, ServerSideRenderingResponse} from '../ssr';
+import {JSDOM} from 'jsdom';
+import {Platform} from '../../patform/platform';
 
 describe('Server side rendering', () => {
-    @component()
-    class HomeComponent {
-        render(): Renderable {
-            return html`Hello, world!`;
-        }
+  @component()
+  class HomeComponent {
+    render(): Renderable {
+      return html`Hello, world!`;
     }
+  }
 
-    it('renders the given template', async () => {
-        const appFactory = (window): App => {
-            const routerModule = new RouterModule(window, Platform.server());
+  it('renders the given template', async () => {
+    const appFactory = (window): App => {
+      const routerModule = new RouterModule(window, Platform.server());
 
-            routerModule.routes.handle({
-                path: '/home',
-                name: 'home',
-                async handler(params, render): Promise<void> {
-                    await waitForPromises();
-                    render(new HomeComponent());
-                }
-            });
+      routerModule.routes.handle({
+        path: '/home',
+        name: 'home',
+        async handler(params, render): Promise<void> {
+          await waitForPromises();
+          render(new HomeComponent());
+        },
+      });
 
-            return new App(routerModule);
-        };
+      return new App(routerModule);
+    };
 
-        const ssr = new ServerSideRendering(appFactory, `
+    const ssr = new ServerSideRendering(appFactory, `
             <html lang="pt-br">
                 <head>
                     <title>Hello!</title>                    
@@ -40,35 +40,35 @@ describe('Server side rendering', () => {
                     <div id="root"></div>
                 </body>
             </html>
-        `, '#root')
+        `, '#root');
 
-        const renderResult: ServerSideRenderingResponse = await ssr.renderRouteAsString('/home');
-        const renderDom = new JSDOM(renderResult.responseText);
+    const renderResult: ServerSideRenderingResponse = await ssr.renderRouteAsString('/home');
+    const renderDom = new JSDOM(renderResult.responseText);
 
-        expect(renderResult.statusCode).toBe(200);
-        expect(renderDom.window.document.querySelector('html').getAttribute('lang')).toBe('pt-br');
-        expect(renderDom.window.document.getElementById('root').querySelector('homecomponent').textContent).toBe('Hello, world!');
-    });
+    expect(renderResult.statusCode).toBe(200);
+    expect(renderDom.window.document.querySelector('html').getAttribute('lang')).toBe('pt-br');
+    expect(renderDom.window.document.getElementById('root').querySelector('homecomponent').textContent).toBe('Hello, world!');
+  });
 
-    it('returns a server platform', async (done) => {
-        const appFactory = (window, platform: Platform): App => {
-            expect(platform.isServer()).toBeTruthy();
-            done();
+  it('returns a server platform', async (done) => {
+    const appFactory = (window, platform: Platform): App => {
+      expect(platform.isServer()).toBeTruthy();
+      done();
 
-            const routerModule = new RouterModule(window, Platform.server());
+      const routerModule = new RouterModule(window, Platform.server());
 
-            routerModule.routes.handle({
-                path: '/home',
-                name: 'home',
-                handler(params, render): void {
-                    render(new HomeComponent());
-                }
-            });
+      routerModule.routes.handle({
+        path: '/home',
+        name: 'home',
+        handler(params, render): void {
+          render(new HomeComponent());
+        },
+      });
 
-            return new App(routerModule);
-        };
+      return new App(routerModule);
+    };
 
-        const ssr = new ServerSideRendering(appFactory, `
+    const ssr = new ServerSideRendering(appFactory, `
             <html lang="pt-br">
                 <head>
                     <title>Hello!</title>                    
@@ -77,8 +77,8 @@ describe('Server side rendering', () => {
                     <div id="root"></div>
                 </body>
             </html>
-        `, '#root')
+        `, '#root');
 
-        await ssr.renderRouteAsString('/home');
-    });
+    await ssr.renderRouteAsString('/home');
+  });
 });

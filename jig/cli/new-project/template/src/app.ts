@@ -1,9 +1,9 @@
 import '@abraham/reflection';
-import {RouterModule} from "jigjs/framework/router/module";
-import {App, AppFactory} from "jigjs/framework/app/app";
-import {Home} from "./pages/home";
-import {MyPage} from "./pages/my-page";
-import {NotFound} from "./pages/not-found";
+import {RouterModule} from 'jigjs/framework/router/module';
+import {App, AppFactory} from 'jigjs/framework/app/app';
+import {Home} from './pages/home';
+import {MyPage} from './pages/my-page';
+import {NotFound} from './pages/not-found';
 
 
 export const appFactory: AppFactory = (window, platform) => {
@@ -14,8 +14,8 @@ export const appFactory: AppFactory = (window, platform) => {
             path: '/',
             name: 'home',
             handler(params, render) {
-                render(new Home(routerModule.linkFactory))
-            }
+                render(new Home(routerModule.linkFactory));
+            },
         })
         .handle({
             path: '/another/page',
@@ -40,9 +40,9 @@ export const appFactory: AppFactory = (window, platform) => {
                 // a fake async function that takes two seconds to return a page title (it is mocking a request)
                 const asyncMethodThatReturnsANicePageTitle = () => new Promise<string>((resolve) => {
                     setTimeout(() => {
-                        resolve("Just another example!");
+                        resolve('Just another example!');
                     }, 2000);
-                })
+                });
 
                 console.log('There is no page title information. fetching it...');
                 const pageTitle = await asyncMethodThatReturnsANicePageTitle();
@@ -52,11 +52,11 @@ export const appFactory: AppFactory = (window, platform) => {
 
                 // render the component
                 render(new MyPage(pageTitle));
-            }
+            },
         })
         .handle404((route: string, render) => {
             render(new NotFound(routerModule.linkFactory, route));
         });
 
-    return new App(routerModule)
-}
+    return new App(routerModule);
+};

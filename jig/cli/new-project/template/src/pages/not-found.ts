@@ -1,22 +1,22 @@
-import {component, html} from "jigjs/components";
-import {Route, RouteLinkElement, RouterLink, RouterLinkFactory} from "jigjs/framework/router/router-link";
+import {component, html} from 'jigjs/components';
+import {Route, RouteLinkElement, RouterLink, RouterLinkFactory} from 'jigjs/framework/router/router-link';
 
 @component()
 export class NotFound {
-    private readonly homeLink: RouterLink;
+  private readonly homeLink: RouterLink;
 
-    constructor(
-        linkFactory: RouterLinkFactory,
-        private readonly route: string
-    ) {
-        this.homeLink = linkFactory.createLink(
-            new Route('home'),
-            new RouteLinkElement('Go back to Home', {class: 'link'})
-        );
-    }
+  constructor(
+      linkFactory: RouterLinkFactory,
+      private readonly route: string,
+  ) {
+    this.homeLink = linkFactory.createLink(
+        new Route('home'),
+        new RouteLinkElement('Go back to Home', {class: 'link'}),
+    );
+  }
 
-    render() {
-        return html`
+  render() {
+    return html`
             <style>
                 main {
                     font-family: 'Mandali', sans-serif;
@@ -38,5 +38,5 @@ export class NotFound {
                 </p>
             </main>
         `;
-    }
+  }
 }

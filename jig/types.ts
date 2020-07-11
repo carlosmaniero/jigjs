@@ -1,8 +1,8 @@
 export type JigWindow = Window & {
-    HTMLElement: typeof HTMLElement;
-    MouseEvent: typeof MouseEvent;
+  HTMLElement: typeof HTMLElement;
+  MouseEvent: typeof MouseEvent;
 };
 
 export type Constructor<T> = {
-    new(...args: unknown[]): T;
+  new(...args: unknown[]): T;
 }

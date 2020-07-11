@@ -26,10 +26,10 @@ export class Subject<T> implements Subscriber<T>, Publisher<T> {
         return {
             unsubscribe: (): void => {
                 this.callbacks = this.callbacks.filter((otherCallback) => {
-                    return otherCallback !== callback
+                    return otherCallback !== callback;
                 });
-            }
-        }
+            },
+        };
     }
 
     subscribersCount(): number {
