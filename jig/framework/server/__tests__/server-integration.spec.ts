@@ -1,6 +1,5 @@
 import {ServerSideRendering} from "../ssr";
 import {component, disconnectedCallback, html} from "../../../components";
-import {Routes} from "../../router/routes";
 import {App, AppFactory} from "../../app/app";
 import {RouterModule} from "../../router/module";
 import {Server} from "../server";
@@ -18,15 +17,16 @@ describe('server integration', () => {
                 }
             }
 
-            const routes = new Routes([{
+            const routerModule = new RouterModule(window, platform);
+            routerModule.routes.handle({
                 path: '/my-route',
                 name: 'home',
                 handler(params, render) {
                     render(new Component());
                 }
-            }]);
+            });
 
-            return new App(new RouterModule(window, platform, routes))
+            return new App(routerModule)
         }
 
         const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'));
@@ -54,15 +54,16 @@ describe('server integration', () => {
                 }
             }
 
-            const routes = new Routes([{
+            const routerModule = new RouterModule(window, platform);
+            routerModule.routes.handle({
                 path: '/my-route',
                 name: 'home',
                 handler(params, render) {
                     render(new Component());
                 }
-            }]);
+            });
 
-            return new App(new RouterModule(window, platform, routes))
+            return new App(routerModule)
         }
 
         const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'));
@@ -84,16 +85,17 @@ describe('server integration', () => {
                 }
             }
 
-            const routes = new Routes([{
+            const routerModule = new RouterModule(window, platform);
+            routerModule.routes.handle({
                 path: '/my-route',
                 name: 'home',
                 async handler(params, render) {
                     await waitForPromises();
                     render(new Component());
                 }
-            }]);
+            });
 
-            return new App(new RouterModule(window, platform, routes))
+            return new App(routerModule)
         }
 
         const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'));
@@ -109,15 +111,15 @@ describe('server integration', () => {
     it('returns error given an error on fetch', async () => {
         jest.spyOn(console, 'error').mockImplementation(() => { return; });
         const appFactory: AppFactory = (window, platform) => {
-            const routes = new Routes([{
+            const routerModule = new RouterModule(window, platform);
+            routerModule.routes.handle({
                 path: '/my-route',
                 name: 'home',
                 handler() {
                     return Promise.reject("bla!");
                 }
-            }]);
-
-            return new App(new RouterModule(window, platform, routes))
+            });
+            return new App(routerModule)
         }
 
         const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'));
@@ -137,14 +139,16 @@ describe('server integration', () => {
         }
 
         const appFactory: AppFactory = (window, platform) => {
-            const routerModule = new RouterModule(window, platform, new Routes([{
+            const routerModule = new RouterModule(window, platform);
+
+            routerModule.routes.handle({
                 path: '/my-route',
                 name: 'home',
                 handler(params, render) {
                     routerModule.history.push('/');
                     render(new Component());
                 }
-            }]));
+            });
 
             return new App(routerModule)
         }
@@ -164,9 +168,7 @@ describe('server integration', () => {
             return;
         });
         const appFactory: AppFactory = (window, platform) => {
-            const routes = new Routes([]);
-
-            return new App(new RouterModule(window, platform, routes))
+            return new App(new RouterModule(window, platform))
         }
 
         const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'));
@@ -185,20 +187,21 @@ describe('server integration', () => {
             }
 
             const appFactory: AppFactory = (window, platform) => {
-                return new App(new RouterModule(window, platform, new Routes([
-                    {
-                        path: '/admin',
-                        name: 'admin',
-                        handler(params, render, transferState, response): void {
-                            render(new Component());
+                const routerModule = new RouterModule(window, platform);
 
-                            response.statusCode = 401;
-                            response.headers = {
-                                'custom-header': 'custom-value'
-                            }
+                routerModule.routes.handle({
+                    path: '/admin',
+                    name: 'admin',
+                    handler(params, render, transferState, response): void {
+                        render(new Component());
+
+                        response.statusCode = 401;
+                        response.headers = {
+                            'custom-header': 'custom-value'
                         }
                     }
-                ])));
+                });
+                return new App(routerModule);
             }
 
             const server = new Server(new ServerSideRendering(appFactory, `<div id="root"></div>`, '#root'));

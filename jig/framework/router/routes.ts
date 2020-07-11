@@ -39,7 +39,7 @@ export interface RouteErrorHandler {
 
 export class Routes {
     constructor(
-        private readonly routerHandlers: RouterHandlerDefinition<unknown & object>[],
+        private readonly routerHandlers: RouterHandlerDefinition<unknown & object>[] = [],
         readonly routerErrorHandler: RouteErrorHandler = {}
     ) {
     }
@@ -70,5 +70,15 @@ export class Routes {
         }
 
         throw new Error(`There are no route named "${name}".`);
+    }
+
+    handle(routerHandlerDefinition: RouterHandlerDefinition<unknown & object>): Routes {
+        this.routerHandlers.push(routerHandlerDefinition);
+        return this;
+    }
+
+    handle404(handler: RouterHandler<string>): Routes {
+        this.routerErrorHandler.handle404 = handler;
+        return this;
     }
 }

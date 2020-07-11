@@ -1,7 +1,6 @@
 import {App} from "../app";
 import {RouterModule} from "../../router/module";
 import {configureJSDOM} from "../../../core/dom";
-import {Routes} from "../../router/routes";
 import {component, html, renderComponent} from "../../../components";
 import {Renderable} from "../../../template/render";
 import {waitUntil} from "../../../reactive";
@@ -19,15 +18,18 @@ describe('App', () => {
     describe('controlling initial render', () => {
         it('returns false given router outlet was not rendered', (done) => {
             const dom = configureJSDOM(undefined, 'http://localhost/');
-            const app = new App(new RouterModule(dom.window, Platform.browser(), new Routes([
-                {
-                    path: '/',
-                    name: 'home',
-                    handler(params, render): void {
-                        render(new HomeComponent());
-                    }
+
+            const routerModule = new RouterModule(dom.window, Platform.browser());
+
+            routerModule.routes.handle({
+                path: '/',
+                name: 'home',
+                handler(params, render): void {
+                    render(new HomeComponent());
                 }
-            ])));
+            })
+
+            const app = new App(routerModule);
 
             expect(app.isInitialRenderFinished()).toBeFalsy();
 
@@ -39,15 +41,18 @@ describe('App', () => {
 
         it('renders the given route', async () => {
             const dom = configureJSDOM(undefined, 'http://localhost/');
-            const app = new App(new RouterModule(dom.window, Platform.browser(), new Routes([
-                {
-                    path: '/',
-                    name: 'home',
-                    handler(params, render): void {
-                        render(new HomeComponent());
-                    }
+
+            const routerModule = new RouterModule(dom.window, Platform.browser());
+
+            routerModule.routes.handle({
+                path: '/',
+                name: 'home',
+                handler(params, render): void {
+                    render(new HomeComponent());
                 }
-            ])));
+            });
+
+            const app = new App(routerModule);
 
             renderComponent(dom.body, app);
             await waitUntil(app, () => app.isInitialRenderFinished())

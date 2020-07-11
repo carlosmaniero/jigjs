@@ -1,6 +1,5 @@
 import {App} from "../../app/app";
 import {RouterModule} from "../../router/module";
-import {Routes} from "../../router/routes";
 import {component, html} from "../../../components";
 import {waitForPromises} from "../../../testing/wait-for-promises";
 import {Renderable} from "../../../template/render";
@@ -17,16 +16,20 @@ describe('Server side rendering', () => {
     }
 
     it('renders the given template', async () => {
-        const appFactory = (window): App => new App(new RouterModule(window, Platform.server(), new Routes([
-            {
+        const appFactory = (window): App => {
+            const routerModule = new RouterModule(window, Platform.server());
+
+            routerModule.routes.handle({
                 path: '/home',
                 name: 'home',
                 async handler(params, render): Promise<void> {
                     await waitForPromises();
                     render(new HomeComponent());
                 }
-            }
-        ])));
+            });
+
+            return new App(routerModule);
+        };
 
         const ssr = new ServerSideRendering(appFactory, `
             <html lang="pt-br">
@@ -52,15 +55,17 @@ describe('Server side rendering', () => {
             expect(platform.isServer()).toBeTruthy();
             done();
 
-            return new App(new RouterModule(window, Platform.server(), new Routes([
-                {
-                    path: '/home',
-                    name: 'home',
-                    handler(params, render): void {
-                        render(new HomeComponent());
-                    }
+            const routerModule = new RouterModule(window, Platform.server());
+
+            routerModule.routes.handle({
+                path: '/home',
+                name: 'home',
+                handler(params, render): void {
+                    render(new HomeComponent());
                 }
-            ])));
+            });
+
+            return new App(routerModule);
         };
 
         const ssr = new ServerSideRendering(appFactory, `
