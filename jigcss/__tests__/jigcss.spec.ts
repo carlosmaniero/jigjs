@@ -173,10 +173,11 @@ describe('jigcss', () => {
           background: black;
           color: red;
         `,
-        '@media': [{
-          query: 'screen and (min-width: 700px)',
-          '&': 'color: blue;'
-        }]
+        '@media': {
+          'screen and (min-width: 700px)': {
+            '&': 'color: blue;'
+          }
+        }
       });
 
       expect(document.head.innerHTML).toContain(`@media screen and (min-width: 700px) {.${myClass}{color: blue;}}`);
@@ -204,17 +205,7 @@ describe('jigcss', () => {
           this.css.style({
             '@media': 'color: blue;'
           });
-        }).toThrow(new Error('The @media selector must be an array. Found: "string".'));
-      });
-
-      it('throws an error the given media query selector does not starts with &', () => {
-        this.css = new Css(window);
-
-        expect(() => {
-          this.css.style({
-            '@media': 'color: blue;'
-          });
-        }).toThrow(new Error('The @media selector must be an array. Found: "string".'));
+        }).toThrow(new Error('The @media selector must be an object. Found: "string".'));
       });
     });
   });

@@ -24,31 +24,44 @@ class MyComponent {
 
   constructor(window) {
     this.css = new Css(window);
+    // Simple class
     this.helloClassName = this.css.style(`
       background: black;
       color: red;
     `);
+    
+    // class with extra selectors
     this.byeClassName = this.css.style({
       '&': `
         background: black;
         color: red;
       `,
-      '&:hover': 'color: blue;',
-      '@media': [{
-        query: 'screen and (min-width: 700px)',
-        '&': 'color: blue;'
-      }]
+      '&:hover': `
+        color: blue;
+      `,
+      '& a': `
+        color: green;
+      `,
+      '@media': {
+        'screen and (min-width: 700px)': {
+          '&': `
+            color: blue;
+          `
+        }
+      }
     });
   }
 
   render() {
     return html`      
       <div class="${this.helloClassName}">Hello, World!</div>
-      <div class="${this.byeClassName}">Bye!</div>
+      <div class="${this.byeClassName}">Bye! <a href="#">Go Home</a></div>
     `
   }
 }
 ```
+
+The `&` wildcard will be replaced with the class name.
 
 ## TODO:
 

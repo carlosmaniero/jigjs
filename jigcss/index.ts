@@ -4,7 +4,11 @@ export type MediaQueryStyle = Record<string, string> & {
   query: string;
 }
 
-export type ElementStyle = { '@media': MediaQueryStyle[]; } | Record<string, string>;
+export type ElementStyle = {
+  '@media': {
+    [query: string]: Record<string, string>
+  }
+} | Record<string, string>;
 
 const SEED = 5381;
 
@@ -60,13 +64,12 @@ export class Css {
   private createStylesFor(elementStyle: ElementStyle | Record<string, string>, className: string) {
     return Object.keys(elementStyle).map((elementStyleKey) => {
       if (elementStyleKey === '@media') {
-        const media = elementStyle['@media'] as MediaQueryStyle[];
+        const media = elementStyle['@media'] as Record<string, Record<string, string>>;
 
-        return media.map((mediaQuery) => {
-          const classes = {...mediaQuery};
-          delete classes.query;
+        return Object.keys(media).map((query) => {
+          const classes = media[query];
 
-          return `@media ${mediaQuery.query} {${this.createStylesFor(classes, className)}}`;
+          return `@media ${query} {${this.createStylesFor(classes, className)}}`;
         }).join('');
       }
 
@@ -91,8 +94,8 @@ export class Css {
   }
 
   private validateElementStyle(elementStyle: ElementStyle) {
-    if (elementStyle['@media'] && !Array.isArray(elementStyle['@media'])) {
-      throw new Error(`The @media selector must be an array. Found: "${typeof elementStyle['@media']}".`);
+    if (elementStyle['@media'] && !(typeof elementStyle['@media'] === 'object')) {
+      throw new Error(`The @media selector must be an object. Found: "${typeof elementStyle['@media']}".`);
     }
   }
 
