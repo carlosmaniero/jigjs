@@ -22,22 +22,23 @@ class MyComponent {
   private readonly helloClassName: string;
   private readonly byeClassName: string;
 
-  constructor() {
-    this.css = new Css();
+  constructor(window) {
+    this.css = new Css(window);
     this.helloClassName = this.css.style(`
       background: black;
       color: red;
     `);
-    this.byeClassName = this.css.style(`
-      background: red;
-      color: black;
-    `);
+    this.byeClassName = this.css.style({
+      base: `
+        background: black;
+        color: red;
+      `,
+      '&:hover': 'color: blue;'
+    });
   }
 
   render() {
-    return html`
-      ${this.css}
-      
+    return html`      
       <div class="${this.helloClassName}">Hello, World!</div>
       <div class="${this.byeClassName}">Bye!</div>
     `
@@ -45,7 +46,6 @@ class MyComponent {
 }
 ```
 
-Ideally it's better to have just one instance of `Css` in your entire application. 
+## TODO:
 
-If you need to have more than one instance of `Css` give the prefix argument to avoid
-class name collision `new Css('prefix-')`. 
+- Keyframes 

@@ -6,7 +6,7 @@ import {observing} from "jigjs/reactive";
 describe('jigcss', () => {
   const waitForPromises = () => new Promise((resolve) => setImmediate(resolve));
 
-  it('renders the css property', () => {
+  it('renders the css property', async () => {
     @component()
     class MyComponent {
       private readonly css: Css;
@@ -14,7 +14,8 @@ describe('jigcss', () => {
       private readonly byeClassName: string;
 
       constructor() {
-        this.css = new Css();
+        this.css = new Css(window);
+
         this.helloClassName = this.css.style(`
           background: black;
           color: red;
@@ -27,8 +28,6 @@ describe('jigcss', () => {
 
       render() {
         return html`
-          ${this.css}
-          
           <div class="${this.helloClassName}">Hello, World!</div>
           <div class="${this.byeClassName}">Bye!</div>
         `
@@ -51,13 +50,11 @@ describe('jigcss', () => {
       helloClassName = '';
 
       constructor() {
-        this.css = new Css();
+        this.css = new Css(window);
       }
 
       render() {
         return html`
-          ${this.css}
-          
           <div class="${this.helloClassName}">Hello, World!</div>
         `
       }
@@ -75,7 +72,7 @@ describe('jigcss', () => {
   });
 
   describe('removing duplicated classes', () => {
-    it('prevent equal classes to be created', () => {
+    it('prevent equal classes to be created', async () => {
       @component()
       class MyComponent {
         private readonly css: Css;
@@ -83,7 +80,7 @@ describe('jigcss', () => {
         private readonly byeClassName: string;
 
         constructor() {
-          this.css = new Css();
+          this.css = new Css(window);
           this.helloClassName = this.css.style(`
           background: black;
           color: red;
@@ -96,8 +93,6 @@ describe('jigcss', () => {
 
         render() {
           return html`
-          ${this.css}
-          
           <div class="${this.helloClassName}">Hello, World!</div>
           <div class="${this.byeClassName}">Bye!</div>
         `
@@ -108,6 +103,83 @@ describe('jigcss', () => {
 
       expect(screen.getByText('Hello, World!'))
         .toHaveClass(screen.getByText('Bye!').className);
+    });
+  });
+
+  describe('element style', () => {
+    it('renders the base style', () => {
+      @component()
+      class MyComponent {
+        private readonly css: Css;
+        private readonly helloClassName: string;
+
+        constructor() {
+          this.css = new Css(window);
+
+          this.helloClassName = this.css.style({
+            base: `
+              background: black;
+              color: red;
+            `
+          })
+        }
+
+        render() {
+          return html`
+          <div class="${this.helloClassName}">Hello, World!</div>
+        `
+        }
+      }
+
+      renderComponent(document.body, new MyComponent());
+
+      expect(screen.getByText('Hello, World!')).toHaveStyle('background: black');
+      expect(screen.getByText('Hello, World!')).toHaveStyle('color: red');
+    });
+
+    it('has transformations', () => {
+      @component()
+      class MyComponent {
+        private readonly css: Css;
+        private readonly helloClassName: string;
+
+        constructor() {
+          this.css = new Css(window);
+
+          this.helloClassName = this.css.style({
+            base: `
+              background: black;
+              color: red;
+            `,
+            '& a': 'color: blue;'
+          });
+        }
+
+        render() {
+          return html`
+          <div class="${this.helloClassName}"><a href="#">Hello, World!</a></div>
+        `
+        }
+      }
+
+      renderComponent(document.body, new MyComponent());
+
+      screen.getByText('Hello, World!').focus();
+      expect(screen.getByText('Hello, World!')).toHaveStyle('color: blue');
+    });
+
+    it('throws an error if the transformation does not starts with &', () => {
+      this.css = new Css(window);
+
+      expect(() => {
+        this.css.style({
+          base: `
+              background: black;
+              color: red;
+            `,
+          'a': 'color: blue;'
+        });
+      }).toThrow(new Error('The style transformation must starts with "&". Found: "a".'));
     });
   });
 })
