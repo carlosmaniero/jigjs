@@ -117,7 +117,7 @@ describe('jigcss', () => {
           this.css = new Css(window);
 
           this.helloClassName = this.css.style({
-            base: `
+            '&': `
               background: black;
               color: red;
             `
@@ -147,10 +147,6 @@ describe('jigcss', () => {
           this.css = new Css(window);
 
           this.helloClassName = this.css.style({
-            base: `
-              background: black;
-              color: red;
-            `,
             '& a': 'color: blue;'
           });
         }
@@ -163,23 +159,63 @@ describe('jigcss', () => {
       }
 
       renderComponent(document.body, new MyComponent());
-
-      screen.getByText('Hello, World!').focus();
       expect(screen.getByText('Hello, World!')).toHaveStyle('color: blue');
     });
 
-    it('throws an error if the transformation does not starts with &', () => {
-      this.css = new Css(window);
+    it('has media queries', () => {
+      // .toHaveStyle does not supports media queries
+      // That's why this test is expecting the generated css
 
-      expect(() => {
-        this.css.style({
-          base: `
-              background: black;
-              color: red;
-            `,
-          'a': 'color: blue;'
-        });
-      }).toThrow(new Error('The style transformation must starts with "&". Found: "a".'));
+      const css = new Css(window);
+
+      const myClass = css.style({
+        '&': `
+          background: black;
+          color: red;
+        `,
+        '@media': [{
+          query: 'screen and (min-width: 700px)',
+          '&': 'color: blue;'
+        }]
+      });
+
+      expect(document.head.innerHTML).toContain(`@media screen and (min-width: 700px) {.${myClass}{color: blue;}}`);
+    });
+
+    describe('error handling', () => {
+      it('throws an error if the selector does not starts with &', () => {
+        this.css = new Css(window);
+
+        expect(() => {
+          this.css.style({
+            '&': `
+                background: black;
+                color: red;
+              `,
+            'a': 'color: blue;'
+          });
+        }).toThrow(new Error('The selector must starts with "&". Found: "a".'));
+      });
+
+      it('throws an error the given media query is not an array', () => {
+        this.css = new Css(window);
+
+        expect(() => {
+          this.css.style({
+            '@media': 'color: blue;'
+          });
+        }).toThrow(new Error('The @media selector must be an array. Found: "string".'));
+      });
+
+      it('throws an error the given media query selector does not starts with &', () => {
+        this.css = new Css(window);
+
+        expect(() => {
+          this.css.style({
+            '@media': 'color: blue;'
+          });
+        }).toThrow(new Error('The @media selector must be an array. Found: "string".'));
+      });
     });
   });
 })

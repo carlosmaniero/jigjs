@@ -29,11 +29,15 @@ class MyComponent {
       color: red;
     `);
     this.byeClassName = this.css.style({
-      base: `
+      '&': `
         background: black;
         color: red;
       `,
-      '&:hover': 'color: blue;'
+      '&:hover': 'color: blue;',
+      '@media': [{
+        query: 'screen and (min-width: 700px)',
+        '&': 'color: blue;'
+      }]
     });
   }
 

@@ -1,8 +1,10 @@
 import {JigWindow} from "jigjs/types";
 
-export type ElementStyle = {
-  base: string
-} & Record<string, string>;
+export type MediaQueryStyle = Record<string, string> & {
+  query: string;
+}
+
+export type ElementStyle = { '@media': MediaQueryStyle[]; } | Record<string, string>;
 
 const SEED = 5381;
 
@@ -55,33 +57,42 @@ export class Css {
     return this.styleElement.innerHTML.includes('.' + className + '{');
   }
 
-  private createStylesFor(elementStyle: ElementStyle, className: string) {
+  private createStylesFor(elementStyle: ElementStyle | Record<string, string>, className: string) {
     return Object.keys(elementStyle).map((elementStyleKey) => {
-      if (elementStyleKey === 'base') {
-        return `.${className}{${elementStyle.base}}`
+      if (elementStyleKey === '@media') {
+        const media = elementStyle['@media'] as MediaQueryStyle[];
+
+        return media.map((mediaQuery) => {
+          const classes = {...mediaQuery};
+          delete classes.query;
+
+          return `@media ${mediaQuery.query} {${this.createStylesFor(classes, className)}}`;
+        }).join('');
       }
 
-      const classNameTransformed = this.classNameWithTransformation(className, elementStyleKey);
-      return `.${classNameTransformed}{${elementStyle[elementStyleKey]}}`
+      const selector = this.createSelector(className, elementStyleKey);
+      return `${selector}{${elementStyle[elementStyleKey]}}`
     }).join('');
   }
 
   private toElementStyle(style: string | ElementStyle): ElementStyle {
     if (typeof style === 'string') {
-      return {base: style};
+      return {'&': style};
     }
 
     return style;
   }
 
-  private classNameWithTransformation(className: string, elementStyleKey: string) {
-    return elementStyleKey.replace(/&/g, className);
+  private createSelector(className: string, elementStyleKey: string) {
+    if (!elementStyleKey.startsWith('&')) {
+      throw new Error(`The selector must starts with "&". Found: "${elementStyleKey}".`);
+    }
+    return elementStyleKey.replace(/&/g, '.' + className);
   }
 
   private validateElementStyle(elementStyle: ElementStyle) {
-    const nonStandardKey = Object.keys(elementStyle).find((key) => key !== 'base' && !key.startsWith('&'));
-    if (nonStandardKey) {
-      throw new Error(`The style transformation must starts with "&". Found: "${nonStandardKey}".`);
+    if (elementStyle['@media'] && !Array.isArray(elementStyle['@media'])) {
+      throw new Error(`The @media selector must be an array. Found: "${typeof elementStyle['@media']}".`);
     }
   }
 
