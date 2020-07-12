@@ -6,9 +6,9 @@ export type MediaQueryStyle = Record<string, string> & {
 
 export type ElementStyle = {
   '@media': {
-    [query: string]: Record<string, string>
+    [query: string]: ElementStyle
   }
-} | Record<string, string>;
+} | Record<string, Record<string, string>>;
 
 const SEED = 5381;
 
@@ -40,8 +40,7 @@ export class Css {
     this.styleElement = this.getOrCreateStyleElement();
   }
 
-  style(style: string | ElementStyle): string {
-    const elementStyle = this.toElementStyle(style);
+  style(elementStyle: ElementStyle): string {
 
     this.validateElementStyle(elementStyle);
 
@@ -64,7 +63,7 @@ export class Css {
   private createStylesFor(elementStyle: ElementStyle | Record<string, string>, className: string) {
     return Object.keys(elementStyle).map((elementStyleKey) => {
       if (elementStyleKey === '@media') {
-        const media = elementStyle['@media'] as Record<string, Record<string, string>>;
+        const media = elementStyle['@media'] as Record<string, Record<string, Record<string, string>>>;
 
         return Object.keys(media).map((query) => {
           const classes = media[query];
@@ -74,16 +73,8 @@ export class Css {
       }
 
       const selector = this.createSelector(className, elementStyleKey);
-      return `${selector}{${elementStyle[elementStyleKey]}}`
+      return `${selector}{${this.toClassBody(elementStyle[elementStyleKey])}}`
     }).join('');
-  }
-
-  private toElementStyle(style: string | ElementStyle): ElementStyle {
-    if (typeof style === 'string') {
-      return {'&': style};
-    }
-
-    return style;
   }
 
   private createSelector(className: string, elementStyleKey: string) {
@@ -114,5 +105,15 @@ export class Css {
 
   private appendToElement(classes: string) {
     this.styleElement.appendChild(this.window.document.createTextNode(classes));
+  }
+
+  private toClassBody(elementStyleElement: Record<string, string>) {
+    return Object.keys(elementStyleElement)
+      .map((property) => `${this.toKebabCase(property)}: ${elementStyleElement[property]}`)
+      .join(';');
+  }
+
+  private toKebabCase(property: string) {
+    return property.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/\s+/g, '-').toLowerCase();
   }
 }

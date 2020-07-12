@@ -25,28 +25,30 @@ class MyComponent {
   constructor(window) {
     this.css = new Css(window);
     // Simple class
-    this.helloClassName = this.css.style(`
-      background: black;
-      color: red;
-    `);
+    this.helloClassName = this.css.style({
+      '&': {
+        backgroundColor: 'black',
+        color: 'red',
+      },
+    });
     
     // class with extra selectors
     this.byeClassName = this.css.style({
-      '&': `
-        background: black;
-        color: red;
-      `,
-      '&:hover': `
-        color: blue;
-      `,
-      '& a': `
-        color: green;
-      `,
+      '&': {
+        backgroundColor: 'black',
+        color: 'red',
+      },
+      '&:hover': {
+        color: 'blue',
+      },
+      '& a': {
+        color: 'green',
+      },
       '@media': {
         'screen and (min-width: 700px)': {
-          '&': `
-            color: blue;
-          `
+          '&': {
+            color: 'blue',
+          }
         }
       }
     });
@@ -62,6 +64,8 @@ class MyComponent {
 ```
 
 The `&` wildcard will be replaced with the class name.
+
+You can use properties as kebab case and quotes `'grid-gap'` or camel case `gridGap`.
 
 ## TODO:
 

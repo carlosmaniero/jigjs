@@ -16,14 +16,18 @@ describe('jigcss', () => {
       constructor() {
         this.css = new Css(window);
 
-        this.helloClassName = this.css.style(`
-          background: black;
-          color: red;
-        `);
-        this.byeClassName = this.css.style(`
-          background: red;
-          color: black;
-        `);
+        this.helloClassName = this.css.style({
+          '&': {
+            background: 'black',
+            color: 'red',
+          }
+        });
+        this.byeClassName = this.css.style({
+          '&': {
+            background: 'red',
+            color: 'black',
+          }
+        });
       }
 
       render() {
@@ -64,7 +68,11 @@ describe('jigcss', () => {
 
     renderComponent(document.body, myComponent);
 
-    myComponent.helloClassName = myComponent.css.style('background: black');
+    myComponent.helloClassName = myComponent.css.style({
+      '&': {
+        background: 'black'
+      }
+    });
 
     await waitForPromises();
 
@@ -81,14 +89,18 @@ describe('jigcss', () => {
 
         constructor() {
           this.css = new Css(window);
-          this.helloClassName = this.css.style(`
-          background: black;
-          color: red;
-        `);
-          this.byeClassName = this.css.style(`
-          background: black;
-          color: red;
-        `);
+          this.helloClassName = this.css.style({
+            '&': {
+              background: 'black',
+              color: 'red',
+            }
+          });
+          this.byeClassName = this.css.style({
+            '&': {
+              background: 'black',
+              color: 'red',
+            }
+          });
         }
 
         render() {
@@ -117,10 +129,10 @@ describe('jigcss', () => {
           this.css = new Css(window);
 
           this.helloClassName = this.css.style({
-            '&': `
-              background: black;
-              color: red;
-            `
+            '&': {
+              background: 'black',
+              color: 'red',
+            }
           })
         }
 
@@ -137,6 +149,36 @@ describe('jigcss', () => {
       expect(screen.getByText('Hello, World!')).toHaveStyle('color: red');
     });
 
+    it('renders the base style with camel case', () => {
+      @component()
+      class MyComponent {
+        private readonly css: Css;
+        private readonly helloClassName: string;
+
+        constructor() {
+          this.css = new Css(window);
+
+          this.helloClassName = this.css.style({
+            '&': {
+              backgroundColor: 'black',
+              color: 'red',
+            }
+          })
+        }
+
+        render() {
+          return html`
+          <div class="${this.helloClassName}">Hello, World!</div>
+        `
+        }
+      }
+
+      renderComponent(document.body, new MyComponent());
+
+      expect(screen.getByText('Hello, World!')).toHaveStyle('background-color: black');
+      expect(screen.getByText('Hello, World!')).toHaveStyle('color: red');
+    });
+
     it('has transformations', () => {
       @component()
       class MyComponent {
@@ -147,7 +189,9 @@ describe('jigcss', () => {
           this.css = new Css(window);
 
           this.helloClassName = this.css.style({
-            '& a': 'color: blue;'
+            '& a': {
+              color: 'blue'
+            }
           });
         }
 
@@ -169,18 +213,20 @@ describe('jigcss', () => {
       const css = new Css(window);
 
       const myClass = css.style({
-        '&': `
-          background: black;
-          color: red;
-        `,
+        '&': {
+          background: 'black',
+          color: 'red',
+        },
         '@media': {
           'screen and (min-width: 700px)': {
-            '&': 'color: blue;'
+            '&': {
+              color: 'blue'
+            }
           }
         }
       });
 
-      expect(document.head.innerHTML).toContain(`@media screen and (min-width: 700px) {.${myClass}{color: blue;}}`);
+      expect(document.head.innerHTML).toContain(`@media screen and (min-width: 700px) {.${myClass}{color: blue}}`);
     });
 
     describe('error handling', () => {
