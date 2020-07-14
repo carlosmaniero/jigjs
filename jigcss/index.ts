@@ -1,14 +1,10 @@
 import {JigWindow} from "jigjs/types";
 
-export type MediaQueryStyle = Record<string, string> & {
-  query: string;
-}
-
 export type ElementStyle = {
   '@media': {
     [query: string]: ElementStyle
   }
-} | Record<string, Record<string, string>>;
+} | Record<string, Partial<CSSStyleDeclaration> | Record<string, string>>;
 
 const SEED = 5381;
 
