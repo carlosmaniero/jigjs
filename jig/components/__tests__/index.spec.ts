@@ -245,6 +245,34 @@ describe('@pureComponent', () => {
       });
 
       it('connects again when the component instance changes', () => {
+        const stub1 = jest.fn();
+        const stub2 = jest.fn();
+
+        @component()
+        class HelloWorldComponent {
+          constructor(private readonly stub: jest.Mock) {
+          }
+
+          render(): Renderable {
+            return html`Hello, World!`;
+          }
+
+          @connectedCallback()
+          onConnect(): void {
+            this.stub();
+          }
+        }
+
+        const dom = configureJSDOM();
+
+        renderComponent(dom.body, new HelloWorldComponent(stub1));
+        renderComponent(dom.body, new HelloWorldComponent(stub2));
+
+        expect(stub1).toHaveBeenCalledTimes(1);
+        expect(stub2).toHaveBeenCalledTimes(1);
+      });
+
+      it('does not connects again instance is kept', () => {
         const stub = jest.fn();
 
         @component()
@@ -261,10 +289,12 @@ describe('@pureComponent', () => {
 
         const dom = configureJSDOM();
 
-        renderComponent(dom.body, new HelloWorldComponent());
-        renderComponent(dom.body, new HelloWorldComponent());
+        const helloWorldComponent = new HelloWorldComponent();
 
-        expect(stub).toHaveBeenCalledTimes(2);
+        renderComponent(dom.body, helloWorldComponent);
+        renderComponent(dom.body, helloWorldComponent);
+
+        expect(stub).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -451,6 +481,35 @@ describe('@pureComponent', () => {
         parent.childComponents = [];
         await waitForPromises();
         expect(stub).toBeCalled();
+      });
+
+      it('disconnects the component right instance when the render changes to the same component', () => {
+        const stub1 = jest.fn();
+        const stub2 = jest.fn();
+
+        @component()
+        class HelloWorldComponent {
+          constructor(private readonly stub: jest.Mock) {
+          }
+
+          render(): Renderable {
+            return html`Hello, World!`;
+          }
+
+          @disconnectedCallback()
+          onConnect(): void {
+            this.stub();
+          }
+        }
+
+        const dom = configureJSDOM();
+
+        renderComponent(dom.body, new HelloWorldComponent(stub1));
+        renderComponent(dom.body, new HelloWorldComponent(stub2));
+        render(dom.document.createElement('div'))(dom.body);
+
+        expect(stub1).toHaveBeenCalledTimes(1);
+        expect(stub2).toHaveBeenCalledTimes(1);
       });
     });
   });

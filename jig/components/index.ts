@@ -94,11 +94,14 @@ class ComponentRenderControl {
   }
 }
 
+const getRenderComponentInstance = (componentElement: HTMLElement) =>
+  elementRenderControlFromElement(componentElement).componentInstance;
+
 export const renderComponent = (element: HTMLElement, component: RenderableComponent): void => {
   const componentElement = element.ownerDocument.createElement(component.constructor.name);
-  const componentLifecycle = getComponentLifecycle(component);
-
   const componentRenderControl = new ComponentRenderControl(component, componentElement);
+
+  setElementRenderControl(componentElement, componentRenderControl);
 
   componentElement['bindPreExisting'] = (from): void => {
     setElementRenderControl(from, componentRenderControl);
@@ -109,22 +112,23 @@ export const renderComponent = (element: HTMLElement, component: RenderableCompo
   componentElement['shouldUpdate'] = (to): boolean => {
     const newComponentRenderControl: ComponentRenderControl = to[elementRenderControlSymbol];
 
-    if (elementRenderControlFromElement(componentElement).componentInstance !== newComponentRenderControl.componentInstance) {
+    if (getRenderComponentInstance(componentElement) !== newComponentRenderControl.componentInstance) {
       componentElement['onDisconnect']();
       setElementRenderControl(componentElement, newComponentRenderControl);
       componentElement['onConnect']();
-      newComponentRenderControl.updateElement(componentElement);
       newComponentRenderControl.subscribe();
     }
     return true;
   };
   componentElement['onDisconnect'] = (): void => {
     elementRenderControlFromElement(componentElement).unsubscribe();
-    componentLifecycle.disconnectedCallbackNode(componentElement);
+    getComponentLifecycle(getRenderComponentInstance(componentElement))
+        .disconnectedCallbackNode(componentElement);
   };
   componentElement['onConnect'] = (): void => {
     componentRenderControl.subscribe();
-    componentLifecycle.connectedCallbackNode(componentElement);
+    getComponentLifecycle(getRenderComponentInstance(componentElement))
+        .connectedCallbackNode(componentElement);
   };
 
   templateRender(component.render())(componentElement);
