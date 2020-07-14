@@ -109,11 +109,13 @@ export const renderComponent = (element: HTMLElement, component: RenderableCompo
   componentElement['shouldUpdate'] = (to): boolean => {
     const newComponentRenderControl: ComponentRenderControl = to[elementRenderControlSymbol];
 
-    elementRenderControlFromElement(componentElement).unsubscribe();
-    setElementRenderControl(componentElement, newComponentRenderControl);
-
-    newComponentRenderControl.updateElement(componentElement);
-    newComponentRenderControl.subscribe();
+    if (elementRenderControlFromElement(componentElement).componentInstance !== newComponentRenderControl.componentInstance) {
+      componentElement['onDisconnect']();
+      setElementRenderControl(componentElement, newComponentRenderControl);
+      componentElement['onConnect']();
+      newComponentRenderControl.updateElement(componentElement);
+      newComponentRenderControl.subscribe();
+    }
     return true;
   };
   componentElement['onDisconnect'] = (): void => {

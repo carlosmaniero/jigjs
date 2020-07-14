@@ -243,6 +243,29 @@ describe('@pureComponent', () => {
 
         expect(stub).toBeCalledTimes(1);
       });
+
+      it('connects again when the component instance changes', () => {
+        const stub = jest.fn();
+
+        @component()
+        class HelloWorldComponent {
+          render(): Renderable {
+            return html`Hello, World!`;
+          }
+
+          @connectedCallback()
+          onConnect(): void {
+            stub();
+          }
+        }
+
+        const dom = configureJSDOM();
+
+        renderComponent(dom.body, new HelloWorldComponent());
+        renderComponent(dom.body, new HelloWorldComponent());
+
+        expect(stub).toHaveBeenCalledTimes(2);
+      });
     });
 
     describe('@connectedCallback', () => {
