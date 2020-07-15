@@ -18,10 +18,11 @@ const finishWithError = (e, humanMessage) => {
     process.exit(1);
 }
 
+const isWatching = process.env.BUILD_WATCH === 'true';
 webpack({
     ...config,
     entry: browserFile,
-    watch: process.env.BUILD_WATCH === 'true'
+    watch: isWatching
 }, (err, stats) => {
     if (err) {
         finishWithError(err, '🚫 Unable to compile');
@@ -30,7 +31,7 @@ webpack({
         const statsJson = stats.toJson('minimal');
         console.error(chalk.red.bold('🚫 Compilation Error'));
         statsJson.errors.forEach(error => console.error(error));
-        finishWithError();
+        !isWatching && finishWithError();
         return;
     }
     console.log(chalk.bold('📦 Bundle created'));
