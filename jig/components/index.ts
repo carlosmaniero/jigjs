@@ -57,6 +57,7 @@ class RenderRacing {
       if (!this.isElementControlledByThisInstance(element, componentInstance)) {
         return;
       }
+
       this.willRender = false;
       templateRender(componentInstance.render())(element);
     });
@@ -95,7 +96,7 @@ class ComponentRenderControl {
 }
 
 const getRenderComponentInstance = (componentElement: HTMLElement) =>
-  elementRenderControlFromElement(componentElement).componentInstance;
+  elementRenderControlFromElement(componentElement)?.componentInstance;
 
 export const renderComponent = (element: HTMLElement, component: RenderableComponent): void => {
   const componentElement = element.ownerDocument.createElement(component.constructor.name);
@@ -114,11 +115,16 @@ export const renderComponent = (element: HTMLElement, component: RenderableCompo
 
     if (getRenderComponentInstance(componentElement) !== newComponentRenderControl.componentInstance) {
       componentElement['onDisconnect']();
+
       setElementRenderControl(componentElement, newComponentRenderControl);
+      newComponentRenderControl.updateElement(componentElement);
+
       componentElement['onConnect']();
-      newComponentRenderControl.subscribe();
     }
     return true;
+  };
+  componentElement['shouldReplace'] = (from): boolean => {
+    return getRenderComponentInstance(componentElement) !== getRenderComponentInstance(from);
   };
   componentElement['onDisconnect'] = (): void => {
     elementRenderControlFromElement(componentElement).unsubscribe();
@@ -126,9 +132,10 @@ export const renderComponent = (element: HTMLElement, component: RenderableCompo
         .disconnectedCallbackNode(componentElement);
   };
   componentElement['onConnect'] = (): void => {
-    componentRenderControl.subscribe();
     getComponentLifecycle(getRenderComponentInstance(componentElement))
         .connectedCallbackNode(componentElement);
+
+    elementRenderControlFromElement(componentElement).subscribe();
   };
 
   templateRender(component.render())(componentElement);

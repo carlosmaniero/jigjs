@@ -50,6 +50,7 @@ const cloneActualElementFromFragment = (bindElement: Node & ParentNode, document
 
 export type HTMLElementWithJigProperties = HTMLElement & {
   shouldUpdate?: (to: HTMLElement) => boolean;
+  shouldReplace?: (to: HTMLElement) => boolean;
   onConnect?: () => void;
   onDisconnect?: () => void;
   bindPreExisting?: (from: HTMLElement) => void;
@@ -105,31 +106,50 @@ const applyToDom = (bindElement: Node & ParentNode, clone: Node & ParentNode): v
   bindElement.normalize();
   clone.normalize();
 
+  function onNodeDiscarded(node: HTMLElementWithJigProperties) {
+    if (node.disconnectingFromDocument && node.onDisconnect) {
+      node.onDisconnect();
+    }
+  }
+
+  function onBeforeNodeDiscarded(node: HTMLElementWithJigProperties) {
+    if (attachedToDocument(node)) {
+      node.disconnectingFromDocument = true;
+      node.querySelectorAll && node.querySelectorAll('*').forEach((el: HTMLElementWithJigProperties) => {
+        el.disconnectingFromDocument = true;
+      });
+    }
+  }
+
+  function onNodeAdded(node: HTMLElement & { shouldUpdate?: (to: HTMLElement) => boolean; shouldReplace?: (to: HTMLElement) => boolean; onConnect?: () => void; onDisconnect?: () => void; bindPreExisting?: (from: HTMLElement) => void; events?: Record<string, (event: Event) => void>; props?: Record<string, unknown>; disconnectingFromDocument?: boolean; alreadyConnected?: boolean }) {
+    if (attachedToDocument(node) && node.onConnect) {
+      node.onConnect();
+      node.alreadyConnected = true;
+    }
+  }
+
   morphdom(bindElement, clone, {
     childrenOnly: true,
     onNodeAdded(node: HTMLElementWithJigProperties) {
-      if (attachedToDocument(node) && node.onConnect) {
-        node.onConnect();
-        node.alreadyConnected = true;
-      }
+      onNodeAdded(node);
 
       return node;
     },
     onNodeDiscarded(node: HTMLElementWithJigProperties) {
-      if (node.disconnectingFromDocument && node.onDisconnect) {
-        node.onDisconnect();
-      }
+      onNodeDiscarded(node);
     },
     onBeforeNodeDiscarded(node: HTMLElementWithJigProperties) {
-      if (attachedToDocument(node)) {
-        node.disconnectingFromDocument = true;
-        node.querySelectorAll && node.querySelectorAll('*').forEach((el: HTMLElementWithJigProperties) => {
-          el.disconnectingFromDocument = true;
-        });
-      }
+      onBeforeNodeDiscarded(node);
       return true;
     },
     onBeforeElUpdated: (from: HTMLElementWithJigProperties, to: HTMLElementWithJigProperties) => {
+      if (from.alreadyConnected && to.shouldReplace && to.shouldReplace(from)) {
+        onBeforeNodeDiscarded(from);
+        onNodeDiscarded(from);
+        from.replaceWith(to);
+        onNodeAdded(to);
+        return false;
+      }
       bindProps(from, to);
       bindEvents(from, to);
       connectPreExisting(from, to);

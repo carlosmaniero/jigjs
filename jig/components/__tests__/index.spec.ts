@@ -12,6 +12,7 @@ import {configureJSDOM, DOM} from '../../core/dom';
 import {HTMLElementWithJigProperties, render, Renderable} from '../../template/render';
 import {observable, observing, propagate, subscribersCount} from '../../reactive';
 import {waitForPromises} from '../../testing/wait-for-promises';
+import waitForExpect from 'wait-for-expect';
 
 @component()
 class ParentComponent {
@@ -163,6 +164,40 @@ describe('@pureComponent', () => {
 
       expect(dom.body.textContent).toContain('child say: Hi!');
     });
+
+    it('updates the element entire node when the component instance changes', async () => {
+      const childComponent = new ChildComponent('not expected string of old child');
+      const component = new ParentComponent(childComponent);
+      const dom = configureJSDOM();
+
+      renderComponent(dom.body, component);
+
+      const initialElement = dom.document.querySelector('childcomponent');
+
+      component.childComponent = new ChildComponent('not expected string of new child!');
+
+      childComponent.say = 'Killed reference!';
+
+      await waitForPromises();
+
+      expect(dom.document.querySelector('childcomponent')).not.toBe(initialElement);
+    });
+
+    // it('does not calls render again', () => {
+    //   @component()
+    //   class HelloWorldComponent {
+    //     render(): Renderable {
+    //       return html`Hello, World!`;
+    //     }
+    //   }
+    //
+    //   const helloWorldComponent = new HelloWorldComponent();
+    //   const dom = configureJSDOM();
+    //
+    //   renderComponent(dom.body, helloWorldComponent);
+    //
+    //   expect(subscribersCount(helloWorldComponent)).toBe(1);
+    // });
   });
 
   describe('when component state change', () => {
@@ -242,6 +277,43 @@ describe('@pureComponent', () => {
         renderComponent(div2, helloWorldComponent);
 
         expect(stub).toBeCalledTimes(1);
+      });
+
+      it('updates the value', async () => {
+        @component()
+        class HelloWorldComponent {
+          @observing()
+          name = 'World';
+
+          render(): Renderable {
+            return html`Hello, ${this.name}!`;
+          }
+
+          @connectedCallback()
+          changeName() {
+            setImmediate(() => {
+              this.name = 'Universe';
+              setImmediate(() => {
+                this.name = 'Mars';
+                setImmediate(() => {
+                  this.name = 'Earth';
+                });
+              });
+            });
+          }
+        }
+
+        const dom = configureJSDOM();
+
+        const parentComponent = new ParentComponent(new HelloWorldComponent());
+
+        renderComponent(dom.body, parentComponent);
+
+        parentComponent.childComponent = new HelloWorldComponent();
+
+        await waitForExpect(() => {
+          expect(dom.body.textContent).toContain('Earth');
+        });
       });
 
       it('connects again when the component instance changes', () => {
