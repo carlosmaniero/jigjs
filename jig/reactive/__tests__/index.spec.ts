@@ -359,4 +359,16 @@ describe('side-effect', () => {
       expect(stub).toBeCalledTimes(1);
     });
   });
+
+  describe('json', () => {
+    it('does not changes the json.stringify response', () => {
+      @observable()
+      class SideEffectClass {
+        @observing()
+        public name = 'World';
+      }
+
+      expect(JSON.parse(JSON.stringify(new SideEffectClass()))).toEqual({name: 'World'});
+    });
+  });
 });
