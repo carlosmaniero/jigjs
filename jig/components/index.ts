@@ -3,8 +3,8 @@ import {observable, observe, onConstruct} from '../reactive';
 import {Subscription} from '../events/subject';
 import {Constructor} from '../types';
 
-const elementRenderControlSymbol = Symbol('element-render-control-symbol');
 const componentLifecycleSymbol = Symbol('component-lifecycle-symbol');
+const elementComponentInstance = Symbol('component-instance');
 
 const getComponentLifecycle = <T extends RenderableComponent>(component: T): ComponentLifecycle<T> => {
   return component[componentLifecycleSymbol];
@@ -35,18 +35,10 @@ const componentReflection = {
   },
 };
 
-const elementRenderControlFromElement = (element: HTMLElement): ComponentRenderControl => {
-  return element[elementRenderControlSymbol];
-};
-
-const setElementRenderControl = (componentElement: HTMLElement, componentRenderControl: ComponentRenderControl): void => {
-  componentElement[elementRenderControlSymbol] = componentRenderControl;
-};
-
 class RenderRacing {
   private willRender = false;
 
-  render(componentInstance: RenderableComponent, element: HTMLElement): void {
+  render(componentInstance: RenderableComponent, elements: HTMLElement[]): void {
     if (this.willRender) {
       return;
     }
@@ -54,88 +46,50 @@ class RenderRacing {
     this.willRender = true;
 
     Promise.resolve().then(() => {
-      if (!this.isElementControlledByThisInstance(element, componentInstance)) {
-        return;
-      }
+      elements.forEach((element) => {
+        if (!this.isElementControlledByThisInstance(element, componentInstance)) {
+          return;
+        }
 
-      this.willRender = false;
-      templateRender(componentInstance.render())(element);
+        this.willRender = false;
+        templateRender(componentInstance.render())(element);
+      });
     });
   }
 
   private isElementControlledByThisInstance(element: HTMLElement, componentInstance: RenderableComponent): boolean {
-    return elementRenderControlFromElement(element).componentInstance === componentInstance;
+    return element[elementComponentInstance] === componentInstance;
   }
 }
-
-class ComponentRenderControl {
-  private subscription: Subscription;
-  private renderRace: RenderRacing;
-
-  constructor(
-      public readonly componentInstance: RenderableComponent,
-      private element: HTMLElement,
-  ) {
-    this.renderRace = new RenderRacing();
-  }
-
-  subscribe(): void {
-    this.subscription = observe(this.componentInstance, () => {
-      this.renderRace.render(this.componentInstance, this.element);
-    });
-  }
-
-  unsubscribe(): void {
-    this.subscription && this.subscription.unsubscribe();
-    this.subscription = undefined;
-  }
-
-  updateElement(element: HTMLElement): void {
-    this.element = element;
-  }
-}
-
-const getRenderComponentInstance = (componentElement: HTMLElement) =>
-  elementRenderControlFromElement(componentElement)?.componentInstance;
 
 export const renderComponent = (element: HTMLElement, component: RenderableComponent): void => {
   const componentElement = element.ownerDocument.createElement(component.constructor.name);
-  const componentRenderControl = new ComponentRenderControl(component, componentElement);
-
-  setElementRenderControl(componentElement, componentRenderControl);
+  componentElement[elementComponentInstance] = component;
 
   componentElement['bindPreExisting'] = (from): void => {
-    setElementRenderControl(from, componentRenderControl);
-    componentRenderControl.updateElement(from);
+    from[elementComponentInstance] = component;
+    getComponentLifecycle(componentElement[elementComponentInstance])
+        .connectedCallbackNode(from);
   };
 
-  setElementRenderControl(componentElement, componentRenderControl);
   componentElement['shouldUpdate'] = (to): boolean => {
-    const newComponentRenderControl: ComponentRenderControl = to[elementRenderControlSymbol];
-
-    if (getRenderComponentInstance(componentElement) !== newComponentRenderControl.componentInstance) {
+    if (componentElement[elementComponentInstance] !== to[elementComponentInstance]) {
       componentElement['onDisconnect']();
-
-      setElementRenderControl(componentElement, newComponentRenderControl);
-      newComponentRenderControl.updateElement(componentElement);
-
+      component[elementComponentInstance] = to[elementComponentInstance];
       componentElement['onConnect']();
     }
     return true;
   };
   componentElement['shouldReplace'] = (from): boolean => {
-    return getRenderComponentInstance(componentElement) !== getRenderComponentInstance(from);
+    return componentElement[elementComponentInstance] !== from[elementComponentInstance];
   };
   componentElement['onDisconnect'] = (): void => {
-    elementRenderControlFromElement(componentElement).unsubscribe();
-    getComponentLifecycle(getRenderComponentInstance(componentElement))
+    getComponentLifecycle(componentElement[elementComponentInstance])
         .disconnectedCallbackNode(componentElement);
   };
   componentElement['onConnect'] = (): void => {
-    getComponentLifecycle(getRenderComponentInstance(componentElement))
+    getComponentLifecycle(componentElement[elementComponentInstance])
         .connectedCallbackNode(componentElement);
-
-    elementRenderControlFromElement(componentElement).subscribe();
   };
 
   templateRender(component.render())(componentElement);
@@ -240,15 +194,20 @@ export const disconnectedCallback = <T extends object>() => (componentClass: T, 
 };
 
 class ComponentLifecycle<T extends RenderableComponent> {
-  private connectedCount = 0;
+  private connectedElements: HTMLElement[] = [];
+  private subscription: Subscription;
+  private renderRace: RenderRacing;
 
   constructor(
       private readonly instance: T, private readonly componentConfiguration: ComponentConfiguration) {
+    this.renderRace = new RenderRacing();
   }
 
   connectedCallbackNode(element: HTMLElement): void {
-    this.connectedCount++;
-    if (this.connectedCount === 1) {
+    this.connectedElements.push(element);
+
+    if (this.connectedElements.length === 1) {
+      this.watchSideEffects();
       this.componentConfiguration.connectedCallback(this.instance);
     }
 
@@ -256,12 +215,26 @@ class ComponentLifecycle<T extends RenderableComponent> {
   }
 
   disconnectedCallbackNode(element: HTMLElement): void {
-    this.connectedCount--;
+    this.connectedElements = this.connectedElements
+        .filter((connectedElement) => connectedElement !== element);
+
     this.componentConfiguration.disconnectedNodeCallback(this.instance, element);
 
-    if (this.connectedCount === 0) {
+    if (this.connectedElements.length === 0) {
+      this.stopWatchingSideEffects();
       this.componentConfiguration.disconnectedCallback(this.instance);
     }
+  }
+
+  private watchSideEffects() {
+    this.subscription = observe(this.instance, () => {
+      this.renderRace.render(this.instance, this.connectedElements);
+    });
+  }
+
+  private stopWatchingSideEffects(): void {
+    this.subscription && this.subscription.unsubscribe();
+    this.subscription = undefined;
   }
 }
 

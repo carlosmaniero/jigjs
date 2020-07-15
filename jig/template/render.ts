@@ -93,10 +93,6 @@ const connectPreExisting = (from: HTMLElementWithJigProperties, to: HTMLElementW
 
   from.alreadyConnected = true;
 
-  if (to.onConnect) {
-    to.onConnect();
-  }
-
   if (to.bindPreExisting) {
     to.bindPreExisting(from);
   }
