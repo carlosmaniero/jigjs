@@ -1,4 +1,4 @@
-import {html as templateHtml, render as templateRender, Renderable} from '../template/render';
+import {html as templateHtml, HTMLElementWithJigProperties, render, Renderable} from '../template/render';
 import {observable, observe, onConstruct} from '../reactive';
 import {Subscription} from '../events/subject';
 import {Constructor} from '../types';
@@ -52,7 +52,7 @@ class RenderRacing {
         }
 
         this.willRender = false;
-        templateRender(componentInstance.render())(element);
+        render(componentInstance.render())(element);
       });
     });
   }
@@ -62,17 +62,17 @@ class RenderRacing {
   }
 }
 
-export const renderComponent = (element: HTMLElement, component: RenderableComponent): void => {
-  const componentElement = element.ownerDocument.createElement(component.constructor.name);
+export const renderComponent = (element: HTMLElementWithJigProperties, component: RenderableComponent, selfControlled = false): void => {
+  const componentElement: HTMLElementWithJigProperties = element.ownerDocument.createElement(component.constructor.name);
   componentElement[elementComponentInstance] = component;
 
-  componentElement['bindPreExisting'] = (from): void => {
+  componentElement.bindPreExisting = (from): void => {
     from[elementComponentInstance] = component;
     getComponentLifecycle(componentElement[elementComponentInstance])
         .connectedCallbackNode(from);
   };
 
-  componentElement['shouldUpdate'] = (to): boolean => {
+  componentElement.shouldUpdate = (to): boolean => {
     if (componentElement[elementComponentInstance] !== to[elementComponentInstance]) {
       componentElement['onDisconnect']();
       component[elementComponentInstance] = to[elementComponentInstance];
@@ -80,20 +80,30 @@ export const renderComponent = (element: HTMLElement, component: RenderableCompo
     }
     return true;
   };
-  componentElement['shouldReplace'] = (from): boolean => {
+  componentElement.shouldReplace = (from): boolean => {
     return componentElement[elementComponentInstance] !== from[elementComponentInstance];
   };
-  componentElement['onDisconnect'] = (): void => {
+  componentElement.onDisconnect = (): void => {
     getComponentLifecycle(componentElement[elementComponentInstance])
         .disconnectedCallbackNode(componentElement);
   };
-  componentElement['onConnect'] = (): void => {
+  componentElement.onConnect = (): void => {
     getComponentLifecycle(componentElement[elementComponentInstance])
         .connectedCallbackNode(componentElement);
   };
 
-  templateRender(component.render())(componentElement);
-  templateRender(componentElement)(element);
+  if (selfControlled) {
+    componentElement.isSelfControlled = true;
+    componentElement.selfControlledInitialRender = (from) => {
+      render(from[elementComponentInstance].render())(componentElement);
+    };
+
+    render(componentElement)(element);
+    return;
+  }
+
+  render(component.render())(componentElement);
+  render(componentElement)(element);
 };
 
 const renderComponentOrValue = (valueOrComponent: object | object[] | RenderableComponent): Renderable | Renderable[] => {
@@ -105,7 +115,7 @@ const renderComponentOrValue = (valueOrComponent: object | object[] | Renderable
     return {
       renderAt(document): DocumentFragment {
         const fragment = document.createDocumentFragment();
-        renderComponent(fragment, valueOrComponent);
+        renderComponent(fragment, valueOrComponent, true);
         return fragment;
       },
     };
@@ -199,7 +209,8 @@ class ComponentLifecycle<T extends RenderableComponent> {
   private renderRace: RenderRacing;
 
   constructor(
-      private readonly instance: T, private readonly componentConfiguration: ComponentConfiguration) {
+      private readonly instance: T,
+      private readonly componentConfiguration: ComponentConfiguration) {
     this.renderRace = new RenderRacing();
   }
 

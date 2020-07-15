@@ -53,9 +53,11 @@ export type HTMLElementWithJigProperties = HTMLElement & {
   shouldReplace?: (to: HTMLElement) => boolean;
   onConnect?: () => void;
   onDisconnect?: () => void;
+  selfControlledInitialRender?: (from: HTMLElement) => void;
   bindPreExisting?: (from: HTMLElement) => void;
   events?: Record<string, (event: Event) => void>;
   props?: Record<string, unknown>;
+  isSelfControlled?: boolean;
   disconnectingFromDocument?: boolean;
   alreadyConnected?: boolean;
 }
@@ -117,10 +119,14 @@ const applyToDom = (bindElement: Node & ParentNode, clone: Node & ParentNode): v
     }
   }
 
-  function onNodeAdded(node: HTMLElement & { shouldUpdate?: (to: HTMLElement) => boolean; shouldReplace?: (to: HTMLElement) => boolean; onConnect?: () => void; onDisconnect?: () => void; bindPreExisting?: (from: HTMLElement) => void; events?: Record<string, (event: Event) => void>; props?: Record<string, unknown>; disconnectingFromDocument?: boolean; alreadyConnected?: boolean }) {
+  function onNodeAdded(node: HTMLElementWithJigProperties) {
     if (attachedToDocument(node) && node.onConnect) {
       node.onConnect();
       node.alreadyConnected = true;
+
+      if (node.isSelfControlled) {
+        node.selfControlledInitialRender(node);
+      }
     }
   }
 
@@ -146,6 +152,11 @@ const applyToDom = (bindElement: Node & ParentNode, clone: Node & ParentNode): v
         onNodeAdded(to);
         return false;
       }
+
+      if (from.alreadyConnected && to.isSelfControlled) {
+        return false;
+      }
+
       bindProps(from, to);
       bindEvents(from, to);
       connectPreExisting(from, to);

@@ -19,12 +19,15 @@ class ParentComponent {
   @observing()
   public childComponent: RenderableComponent;
 
+  @observing()
+  public extraText = '';
+
   constructor(childComponent: RenderableComponent) {
     this.childComponent = childComponent;
   }
 
   render(): Renderable {
-    return html`child say: <strong>${this.childComponent}</strong>`;
+    return html`child say: <strong>${this.childComponent}</strong> <span>${this.extraText}</span>`;
   }
 }
 
@@ -183,21 +186,31 @@ describe('@pureComponent', () => {
       expect(dom.document.querySelector('childcomponent')).not.toBe(initialElement);
     });
 
-    // it('does not calls render again', () => {
-    //   @component()
-    //   class HelloWorldComponent {
-    //     render(): Renderable {
-    //       return html`Hello, World!`;
-    //     }
-    //   }
-    //
-    //   const helloWorldComponent = new HelloWorldComponent();
-    //   const dom = configureJSDOM();
-    //
-    //   renderComponent(dom.body, helloWorldComponent);
-    //
-    //   expect(subscribersCount(helloWorldComponent)).toBe(1);
-    // });
+    it('does not calls render again if parent changes', async () => {
+      const renderStub = jest.fn();
+
+      @component()
+      class HelloWorldComponent {
+        render(): Renderable {
+          renderStub();
+          return html`Hello, World!`;
+        }
+      }
+
+      const helloWorldComponent = new HelloWorldComponent();
+      const parent = new ParentComponent(helloWorldComponent);
+      const dom = configureJSDOM();
+
+      renderComponent(dom.body, parent);
+
+      parent.extraText = 'updated!';
+
+      await waitForPromises();
+
+      expect(renderStub).toBeCalledTimes(1);
+      expect(dom.body.textContent).toContain('updated!');
+      expect(dom.body.textContent).toContain('Hello, World!');
+    });
   });
 
   describe('when component state change', () => {
