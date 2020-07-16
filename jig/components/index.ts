@@ -38,7 +38,7 @@ const componentReflection = {
 class RenderRacing {
   private willRender = false;
 
-  render(componentInstance: RenderableComponent, elements: HTMLElement[]): void {
+  render(componentInstance: RenderableComponent, elementsCallback: () => HTMLElement[]): void {
     if (this.willRender) {
       return;
     }
@@ -46,19 +46,11 @@ class RenderRacing {
     this.willRender = true;
 
     Promise.resolve().then(() => {
-      elements.forEach((element) => {
-        if (!this.isElementControlledByThisInstance(element, componentInstance)) {
-          return;
-        }
-
-        this.willRender = false;
+      this.willRender = false;
+      elementsCallback().forEach((element) => {
         render(componentInstance.render())(element);
       });
     });
-  }
-
-  private isElementControlledByThisInstance(element: HTMLElement, componentInstance: RenderableComponent): boolean {
-    return element[elementComponentInstance] === componentInstance;
   }
 }
 
@@ -239,7 +231,7 @@ class ComponentLifecycle<T extends RenderableComponent> {
 
   private watchSideEffects() {
     this.subscription = observe(this.instance, () => {
-      this.renderRace.render(this.instance, this.connectedElements);
+      this.renderRace.render(this.instance, () => this.connectedElements);
     });
   }
 
