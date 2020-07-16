@@ -51,7 +51,7 @@ npm install -g jigjs
 ## Components
 
 A component is a small UI peace that manages its own state. Whenever the class fields
-decorated with `@overserving` changes the component is re-rendered.
+decorated with `@observing` changes the component is re-rendered.
 
 ```typescript
 import {component, html} from "jigjs/components";
@@ -109,19 +109,19 @@ export class CounterPage {
 renderComponent(document.querySelector('#root'), new CounterPage());
 ```
 
-In jisjs you control the component instance. There aren't a magic way to update a component props. The component props
-is its state you update it by using class methods.
+In jisjs you control the component instance. There isn't a magic way to update a component props. The component props
+is its state, and you update it by using class methods.
 
 ## Styling the component
 
-There are a css-in-js module for Jig.js.
+There is a css-in-js module for Jig.js.
 
 Read more about Jig.css [here](/jigcss).
 
 ## Creating an APP
 
 As showed in the previous example, you can use jigjs as a simple library by using the `renderComponent` function.
-However, it is possible to use jigjs as a framework. 
+However, it is also possible to use jigjs as a framework.
 
 To start a jigjs project you can use the cli:
 
@@ -230,7 +230,7 @@ client-side.
 
 The handler receives the response object that can be used to add custom headers and status code.
 
-There is no intention to specify the response body given it will be always the render result. 
+There is no need to specify the response body since it will be always the render result.
 
 ```typescript
 const routerModule = new RouterModule(window, platform, new Routes([
@@ -255,8 +255,8 @@ const routerModule = new RouterModule(window, platform, new Routes([
 ### Transfer State
 
 When you make a request to the jigjs server, it will pre-render the entire page and return it as raw HTML. Coming to 
-browser, jigjs will execute the same code that had executed on server. It means that, any request you made at the 
-server-side will be made again.
+browser, jigjs will execute the same code that had executed on server. It means that, any request you performed at the
+server-side will be performed again.
 
 To prevent this kind of behaviour you must use `TransferState`. The`TransferState` is a key-value object that can 
 be shared from server to browser. Once the server stores a value using `TransferState.setState` it will be available 
@@ -284,7 +284,7 @@ const routerModule = new RouterModule(window, platform, new Routes([
 
 ### SSR limitations
 
-There are no global `window` and `document` because global variables into a back-end application leads to concurrency 
-issues. If you want to access the `window` or `document` you will need to use the window injected into the `AppFactory`.
+There is no global variable like `window` or `document` because global variables into a back-end application leads to concurrency
+issues. If you want to access the `window` or `document` you can use the window injected into the `AppFactory`.
 
 For third-party libraries you can use the `Platform` object to verify if the code is being executed from browser.
