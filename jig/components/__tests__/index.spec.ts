@@ -186,7 +186,7 @@ describe('@pureComponent', () => {
       expect(dom.document.querySelector('childcomponent')).not.toBe(initialElement);
     });
 
-    it('does not calls render again if parent changes', async () => {
+    it('does not calls child render again if parent changes', async () => {
       const renderStub = jest.fn();
 
       @component()
@@ -751,6 +751,23 @@ describe('@pureComponent', () => {
       await waitForPromises();
 
       expect(dom.body.textContent).toContain('Universe');
+    });
+  });
+
+  describe('meta information', () => {
+    it('is not enumerable', () => {
+      @component()
+      class HelloWorldComponent {
+        public name = 'World';
+
+        render(): Renderable {
+          return html`Hello, ${this.name}!`;
+        }
+      }
+
+      const helloWorldComponent = new HelloWorldComponent();
+
+      expect(JSON.parse(JSON.stringify(helloWorldComponent))).toEqual({name: 'World'});
     });
   });
 });

@@ -1,4 +1,3 @@
-import '@abraham/reflection';
 import {RouterModule} from 'jigjs/framework/router/module';
 import {App, AppFactory} from 'jigjs/framework/app/app';
 import {Home} from './pages/home';

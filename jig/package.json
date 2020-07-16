@@ -28,7 +28,6 @@
   "types": "./main.d.ts",
   "license": "MIT",
   "dependencies": {
-    "@abraham/reflection": "^0.7.0",
     "chalk": "^4.0.0",
     "cross-fetch": "^3.0.4",
     "express": "^4.17.1",

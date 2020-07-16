@@ -150,9 +150,9 @@ class SideEffectPropagation<T extends object> {
   }
 }
 
-export const observable = <T extends object>() => (subjectClass: Constructor<T>): Constructor<T> => {
+export const observable = <T extends object>() => (subjectClass: Constructor<T>) => {
   const proxyConstructor = new Proxy(subjectClass, {
-    construct(target: Constructor<T>, argArray: unknown[], newTarget?: unknown): T {
+    construct(target: any, argArray: any, newTarget?: any): any {
       const instance = Reflect.construct(target, argArray, newTarget);
 
       const objectChangedSubject = new Subject<T>();
@@ -201,7 +201,7 @@ export const observable = <T extends object>() => (subjectClass: Constructor<T>)
 };
 
 export const observing = <T extends object>() => (subjectClass: T, property: PropertyKey): void => {
-  watchMetadata.addWatchProperty(subjectClass.constructor, property);
+  watchMetadata.addWatchProperty(subjectClass, property);
 };
 
 export const propagate = <T extends object>() => (subjectClass: T, property: PropertyKey): void => {

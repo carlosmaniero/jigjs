@@ -3,27 +3,27 @@ import {observable, observe, onConstruct} from '../reactive';
 import {Subscription} from '../events/subject';
 import {Constructor} from '../types';
 
-const componentLifecycleSymbol = Symbol('component-lifecycle-symbol');
-const elementComponentInstance = Symbol('component-instance');
+const componentLifecycleSymbol = '####jig-component-lifecycle-symbol####';
+const elementComponentInstance = '####jig-component-instance####';
 
 const getComponentLifecycle = <T extends RenderableComponent>(component: T): ComponentLifecycle<T> => {
   return component[componentLifecycleSymbol];
 };
 
 const componentReflection = {
-  isComponentSymbol: Symbol('is-component'),
-  lifecycleProperty: Symbol('component-lifecycle'),
+  isComponentSymbol: '####jig-is-component####',
+  lifecycleProperty: '####jig-component-lifecycle####',
   markAsComponent<T extends RenderableComponent>(componentClass: Constructor<T>): void {
-    Reflect.defineMetadata(this.isComponentSymbol, true, componentClass);
+    componentClass[this.isComponentSymbol] = true;
   },
   defineComponentLifecycle<T extends RenderableComponent>(componentClass: Constructor<T>, componentLifeCycle: ComponentConfiguration): void {
-    Reflect.defineMetadata(this.lifecycleProperty, componentLifeCycle, componentClass);
+    componentClass[this.lifecycleProperty] = componentLifeCycle;
   },
   getComponentConfiguration(component: object): ComponentConfiguration {
     const componentLifecycle: ComponentConfiguration =
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        Reflect.getMetadata(this.lifecycleProperty, component) || new ComponentConfiguration();
-    this.defineComponentLifecycle(component, componentLifecycle);
+        component.constructor[this.lifecycleProperty] || new ComponentConfiguration();
+    this.defineComponentLifecycle(component.constructor, componentLifecycle);
 
     return componentLifecycle;
   },
@@ -31,7 +31,7 @@ const componentReflection = {
     if (!component) {
       return;
     }
-    return !!Reflect.getMetadata(this.isComponentSymbol, component.constructor);
+    return !!component.constructor[this.isComponentSymbol];
   },
 };
 
@@ -254,8 +254,11 @@ export const component = <T extends RenderableComponent>() => (componentClass: C
   const componentClassWithSideEffects = observable()(componentClass);
 
   onConstruct(componentClassWithSideEffects, (instance: T) => {
-    instance[componentLifecycleSymbol] =
-        new ComponentLifecycle(instance, componentReflection.getComponentConfiguration(instance));
+    Object.defineProperty(instance, componentLifecycleSymbol, {
+      enumerable: false,
+      writable: false,
+      value: new ComponentLifecycle(instance, componentReflection.getComponentConfiguration(instance)),
+    });
   });
 
   return componentClassWithSideEffects;
