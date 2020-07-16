@@ -64,14 +64,6 @@ export const renderComponent = (element: HTMLElementWithJigProperties, component
         .connectedCallbackNode(from);
   };
 
-  componentElement.shouldUpdate = (to): boolean => {
-    if (componentElement[elementComponentInstance] !== to[elementComponentInstance]) {
-      componentElement['onDisconnect']();
-      component[elementComponentInstance] = to[elementComponentInstance];
-      componentElement['onConnect']();
-    }
-    return true;
-  };
   componentElement.shouldReplace = (from): boolean => {
     return componentElement[elementComponentInstance] !== from[elementComponentInstance];
   };
