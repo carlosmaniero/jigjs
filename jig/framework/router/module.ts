@@ -5,7 +5,7 @@ import {Routes} from './routes';
 import {observable, propagate} from '../../reactive';
 import {RouterLinkFactory} from './router-link';
 import {Navigation} from './navigation';
-import {Platform} from '../patform/platform';
+import {Platform} from '../platform';
 import {TransferStateWriter} from '../transfer-state/internals/transfer-state-writer';
 import {TransferStateReader} from '../transfer-state/internals/transfer-state-reader';
 import {deprecation} from '../../deprecation';

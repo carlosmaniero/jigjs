@@ -1,6 +1,6 @@
 import {configureJSDOM} from '../../../core/dom';
 import {RouterModule} from '../module';
-import {Platform} from '../../patform/platform';
+import {Platform} from '../../platform';
 
 describe('navigation', () => {
   it('navigates to the given route', () => {

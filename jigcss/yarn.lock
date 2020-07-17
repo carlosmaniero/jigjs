@@ -2,11 +2,6 @@
 # yarn lockfile v1
 
 
-"@abraham/reflection@^0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@abraham/reflection/-/reflection-0.7.0.tgz#16d4ff597d3797001bcf88738d6edc3dd19b50c7"
-  integrity sha512-W4V4I0PzxeWCiMKnS4n4x3Fzb8cQp2qlmBO7RACS/00YsvIgijjcBz5Mp3P1PPP9vSzpbmi0qwuVYZ4twXKwxg==
-
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4":
   version "7.10.4"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.10.4.tgz#168da1a36e90da68ae8d49c0f1b48c7c6249213a"
@@ -2890,12 +2885,11 @@ jest@^26.0.1:
     import-local "^3.0.2"
     jest-cli "^26.1.0"
 
-jigjs@^0.0.0-pre-alpha.10:
-  version "0.0.0-pre-alpha.10"
-  resolved "https://registry.yarnpkg.com/jigjs/-/jigjs-0.0.0-pre-alpha.10.tgz#85e897847f14a9877c4ef7c6ed62ca5e86dabb03"
-  integrity sha512-tgikcRUM2m4mLKM5/ShGNVdSPpuPsFPXRtmXofM7xzB1nitC7D/eW4fVPy0JLoCcQL1Saq5UOEJpb3YzoCTcjw==
+jigjs@^0.0.0-pre-alpha.20:
+  version "0.0.0-pre-alpha.20"
+  resolved "https://registry.yarnpkg.com/jigjs/-/jigjs-0.0.0-pre-alpha.20.tgz#868517f422e884f8e8116e5c2717f5779bb4d91c"
+  integrity sha512-UAVIYaLg3p2A+F5VEa7Q3kYC5txh4Yq8IZTuEpXI6Ivg2lwgtR2fVOoKJmuFzbkjsBCjqA2+c61jxO0FIQsK4w==
   dependencies:
-    "@abraham/reflection" "^0.7.0"
     chalk "^4.0.0"
     cross-fetch "^3.0.4"
     express "^4.17.1"
@@ -2908,7 +2902,7 @@ jigjs@^0.0.0-pre-alpha.10:
     route-parser "^0.0.5"
     ts-loader "^7.0.4"
     ts-node "^8.9.1"
-    typescript "^3.9.3"
+    typescript "^3.9.6"
 
 js-tokens@^4.0.0:
   version "4.0.0"
@@ -4541,6 +4535,11 @@ typescript@^3.9.3:
   version "3.9.6"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.6.tgz#8f3e0198a34c3ae17091b35571d3afd31999365a"
   integrity sha512-Pspx3oKAPJtjNwE92YS05HQoY7z2SFyOpHo9MqJor3BXAGNaPUs83CuVp9VISFkSjyRfiTpmKuAYGJB7S7hOxw==
+
+typescript@^3.9.6:
+  version "3.9.7"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.7.tgz#98d600a5ebdc38f40cb277522f12dc800e9e25fa"
+  integrity sha512-BLbiRkiBzAwsjut4x/dsibSTB6yWpwT5qWmC2OfuCg3GgVQCSgMs4vEctYPhsaGtd0AeuuHMkjZ2h2WG8MSzRw==
 
 union-value@^1.0.0:
   version "1.0.1"

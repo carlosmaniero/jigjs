@@ -3,7 +3,7 @@ import {configureJSDOM, DOM} from '../../core/dom';
 import {renderComponent} from '../../components';
 import {observe, waitUntil} from '../../reactive';
 import {render} from '../../template/render';
-import {Platform} from '../patform/platform';
+import {Platform} from '../platform';
 
 export interface ServerSideRenderingResponse {
   statusCode: number;

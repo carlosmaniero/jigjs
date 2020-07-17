@@ -6,7 +6,7 @@ import {observe, observing} from '../../reactive';
 import {Subscription} from '../../events/subject';
 import {TransferState} from '../transfer-state';
 import {TransferStateWriter} from '../transfer-state/internals/transfer-state-writer';
-import {Platform} from '../patform/platform';
+import {Platform} from '../platform';
 import {TransferStateReader} from '../transfer-state/internals/transfer-state-reader';
 import {Default404Component} from './internals/default-404-component';
 

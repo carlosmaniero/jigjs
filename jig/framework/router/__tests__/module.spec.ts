@@ -1,6 +1,6 @@
 import {RouterModule} from '../module';
 import {configureJSDOM} from '../../../core/dom';
-import {Platform} from '../../patform/platform';
+import {Platform} from '../../platform';
 import {Routes} from '../routes';
 
 describe('RouterModule', () => {

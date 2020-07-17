@@ -1,6 +1,6 @@
 {
   "name": "jigcss",
-  "version": "0.0.0-pre-alpha.20",
+  "version": "0.0.0-pre-alpha.21",
   "description": "A css-in-js module for jigjs",
   "repository": "https://github.com/carlosmaniero/jigjs.git",
   "author": "Carlos Maniero",
@@ -14,10 +14,9 @@
   "main": "./index.js",
   "type": "./index.d.ts",
   "dependencies": {
-    "jigjs": "^0.0.0-pre-alpha.10"
+    "jigjs": "^0.0.0-pre-alpha.20"
   },
   "devDependencies": {
-    "typescript": "^3.9.3",
     "@testing-library/dom": "^7.20.0",
     "@testing-library/jest-dom": "^5.11.0",
     "@types/jest": "^26.0.4",
@@ -28,6 +27,7 @@
     "eslint": "^7.0.0",
     "jest": "^26.0.1",
     "jest-environment-jsdom-sixteen": "^1.0.3",
-    "ts-jest": "^26.0.0"
+    "ts-jest": "^26.0.0",
+    "typescript": "^3.9.3"
   }
 }

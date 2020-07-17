@@ -3,7 +3,7 @@ import {component, connectedCallback, html} from '../../components';
 import {Renderable} from '../../template/render';
 import {propagate} from '../../reactive';
 import {JigWindow} from '../../types';
-import {Platform} from '../patform/platform';
+import {Platform} from '../platform';
 import {RouterResponse} from '../router/routes';
 
 @component()

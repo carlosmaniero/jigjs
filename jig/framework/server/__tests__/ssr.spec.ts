@@ -5,7 +5,7 @@ import {waitForPromises} from '../../../testing/wait-for-promises';
 import {Renderable} from '../../../template/render';
 import {ServerSideRendering, ServerSideRenderingResponse} from '../ssr';
 import {JSDOM} from 'jsdom';
-import {Platform} from '../../patform/platform';
+import {Platform} from '../../platform';
 
 describe('Server side rendering', () => {
   @component()

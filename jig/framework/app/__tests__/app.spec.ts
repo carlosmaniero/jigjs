@@ -4,7 +4,7 @@ import {configureJSDOM} from '../../../core/dom';
 import {component, html, renderComponent} from '../../../components';
 import {Renderable} from '../../../template/render';
 import {waitUntil} from '../../../reactive';
-import {Platform} from '../../patform/platform';
+import {Platform} from '../../platform';
 
 describe('App', () => {
   @component()

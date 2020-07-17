@@ -5,7 +5,7 @@ import {waitForPromises} from '../../../testing/wait-for-promises';
 import {waitUntil} from '../../../reactive';
 import {render} from '../../../template/render';
 import {RouterModule} from '../module';
-import {Platform} from '../../patform/platform';
+import {Platform} from '../../platform';
 import {TransferStateReader} from '../../transfer-state/internals/transfer-state-reader';
 import {TransferStateWriter} from '../../transfer-state/internals/transfer-state-writer';
 import {TransferState} from '../../transfer-state';

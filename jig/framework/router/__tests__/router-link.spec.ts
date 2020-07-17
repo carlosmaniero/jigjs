@@ -3,7 +3,7 @@ import {configureJSDOM} from '../../../core/dom';
 import {Route, RouteLinkElement} from '../router-link';
 import {html, renderComponent} from '../../../components';
 import {waitForPromises} from '../../../testing/wait-for-promises';
-import {Platform} from '../../patform/platform';
+import {Platform} from '../../platform';
 
 describe('router link', () => {
   describe('rendering the content', () => {
@@ -173,7 +173,7 @@ describe('router link', () => {
         expect(module.history.getCurrentUrl()).toBe('/');
       });
 
-      it('does nothing when use shif button', () => {
+      it('does nothing when use shift button', () => {
         dom.body.querySelector('a').dispatchEvent(new dom.window.MouseEvent('click', {
           shiftKey: true,
         }));

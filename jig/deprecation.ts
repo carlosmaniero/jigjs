@@ -8,6 +8,7 @@ export const deprecation = {
 
 use instead:
 const routerModule = new RouterModule(window, platform);
-routermodule.routes.handle(...);
+routerModule.routes.handle(...);
 `),
+  platformPackageTypo: (): void => deprecatedLog(`There was a typo into the "jigjs/patform/platform.ts". Replace the import with "jigjs/platform."`),
 };
