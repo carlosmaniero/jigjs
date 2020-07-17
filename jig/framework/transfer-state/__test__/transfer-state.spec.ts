@@ -43,4 +43,45 @@ describe('Transfer State', () => {
 
     expect(transferStateReader.hasTransferState()).toBeFalsy();
   });
+
+  describe('Transfer state callback', () => {
+    it('returns the promise result given there is no value for key', (done) => {
+      const transferState = new TransferState();
+      transferState.fetch<string>('my-key', () => Promise.resolve('hey!'), (err: unknown, value: string) => {
+        expect(err).toBeUndefined();
+        expect(value).toBe('hey!');
+        done();
+      });
+    });
+
+    it('stores the fetcher result into the transfer state', (done) => {
+      const transferState = new TransferState();
+      transferState.fetch<string>('my-key', () => Promise.resolve('hey!'), () => {
+        expect(transferState.getState('my-key')).toBe('hey!');
+        done();
+      });
+    });
+
+    it('returns the value from cache when given', (done) => {
+      const transferState = new TransferState();
+      transferState.setState('my-key', 'hey!');
+
+      transferState.fetch<string>('my-key', () => Promise.reject<string>(new Error('la')), (err: unknown, value: string) => {
+        expect(err).toBeUndefined();
+        expect(value).toBe('hey!');
+        done();
+      });
+    });
+
+    it('returns the error when fetcher fails', (done) => {
+      const transferState = new TransferState();
+      const error = new Error('la');
+
+      transferState.fetch<string>('my-key', () => Promise.reject<string>(error), (err: unknown, value: string) => {
+        expect(err).toBe(error);
+        expect(value).toBe(undefined);
+        done();
+      });
+    });
+  });
 });

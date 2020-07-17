@@ -14,6 +14,18 @@ export class TransferState {
     return this.state.hasOwnProperty(key);
   }
 
+  fetch<T>(key: string, fetcher: () => Promise<T>, callback: (err: unknown, value: T) => void): void {
+    if (this.hasState(key)) {
+      callback(undefined, this.getState<T>(key));
+      return;
+    }
+
+    fetcher().then((result) => {
+      this.setState(key, result);
+      callback(undefined, result);
+    }).catch((err) => callback(err, undefined));
+  }
+
   flush(): Record<string, unknown> {
     return {...this.state};
   }
