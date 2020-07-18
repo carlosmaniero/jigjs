@@ -291,24 +291,6 @@ describe('Render', () => {
       expect(mock).toBeCalledTimes(1);
     });
 
-
-    it('binds new props', () => {
-      render(html`
-                <div>
-                    <button>Hit me!</button>
-                </div>
-            `)(document.body);
-
-      render(html`
-                <div>
-                    <button @prop="cool!">Hit me!</button>
-                </div>
-            `)(document.body);
-
-      const buttonElement = document.querySelector('button');
-      expect((buttonElement as HTMLElementWithJigProperties).props.prop).toBe('cool!');
-    });
-
     it('prevents to rerender given a should render function', () => {
       render(html`
                 <div>
@@ -331,51 +313,6 @@ describe('Render', () => {
       const buttonElement = document.querySelector('button');
       expect(buttonElement).toBeTruthy();
       expect(shouldUpdateMock.mock.calls[0][0].textContent).toContain('I changed');
-    });
-  });
-
-  describe('handling props', () => {
-    it('adds props', () => {
-      const props1 = 'Hi';
-      const props2 = 10;
-      const props3 = {x: 1};
-
-      render(html`
-                <div 
-                    @props1="${props1}" 
-                    @props2="${props2}"
-                    @props3="${props3}"></div>
-            `)(document.body);
-
-      const divElement: HTMLElementWithJigProperties = document.querySelector('div');
-      expect(divElement.props.props1).toBe(props1);
-      expect(divElement.props.props2).toBe(props2);
-      expect(divElement.props.props3).toBe(props3);
-      expect(divElement.getAttributeNames()).toEqual([]);
-    });
-
-    it('adds static props', () => {
-      render(html`
-                <div 
-                    @props1="1" 
-                    @props2="Hi"></div>
-            `)(document.body);
-
-      const divElement: HTMLElementWithJigProperties = document.querySelector('div');
-      expect(divElement.props.props1).toBe('1');
-      expect(divElement.props.props2).toBe('Hi');
-      expect(divElement.getAttributeNames()).toEqual([]);
-    });
-
-    it('adds props with static content', () => {
-      const prop = 'Socrates';
-      const greatestTeamInTheWorld = 'Corinthians';
-
-      render(html`<div @prop="Hi ${prop} of ${greatestTeamInTheWorld}!"></div>`)(document.body);
-
-      const divElement: HTMLElementWithJigProperties = document.querySelector('div');
-      expect(divElement.props.prop).toBe('Hi Socrates of Corinthians!');
-      expect(divElement.getAttributeNames()).toEqual([]);
     });
   });
 

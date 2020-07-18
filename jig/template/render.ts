@@ -19,7 +19,6 @@ const customPropertySyntaxSugarAttributeRegex = (): RegExp => /([/@](\w+)[ ]*[=]
 const customPropertySyntaxSugarAttributeGroup = '$2';
 const customPropertyAttributePrefix = 'jig-custom-property-';
 
-const isCustomProperty = (attributeName: string): boolean => attributeName.startsWith(customPropertyAttributePrefix);
 const isElement = (element: Node): element is HTMLElement => element.nodeType === NODES.ELEMENT_NODE;
 const isTextNode = (element: Node): boolean => element.nodeType === NODES.TEXT_NODE;
 const isPlaceHolder = (value: string): boolean => placeHolderRegex().test(value);
@@ -56,7 +55,6 @@ export type HTMLElementWithJigProperties = HTMLElement & {
   selfControlledInitialRender?: (from: HTMLElement) => void;
   bindPreExisting?: (from: HTMLElement) => void;
   events?: Record<string, (event: Event) => void>;
-  props?: Record<string, unknown>;
   isSelfControlled?: boolean;
   disconnectingFromDocument?: boolean;
   alreadyConnected?: boolean;
@@ -78,10 +76,6 @@ const bindEvents = (from: HTMLElementWithJigProperties, to: HTMLElementWithJigPr
 
     from.events = fromEvents;
   }
-};
-
-const bindProps = (from: HTMLElementWithJigProperties, to: HTMLElementWithJigProperties): void => {
-  from.props = to.props;
 };
 
 const attachedToDocument = (node: HTMLElementWithJigProperties): boolean => {
@@ -157,7 +151,6 @@ const applyToDom = (bindElement: Node & ParentNode, clone: Node & ParentNode): v
         return false;
       }
 
-      bindProps(from, to);
       bindEvents(from, to);
       connectPreExisting(from, to);
 
@@ -257,50 +250,6 @@ interface AttributeHandler {
   handle: (props: AttributeHandlerProps) => void;
 }
 
-const customPropertyHandler: AttributeHandler = {
-  handle(props: AttributeHandlerProps): void {
-    const {attributeName, element, values}: AttributeHandlerProps = props;
-    const originalAttribute = element.getAttribute(attributeName);
-    const propsKey = attributeName.replace(customPropertyAttributePrefix, '');
-
-    element.props = element.props || {};
-
-    const placeHolderIndexes = getPlaceHolderIndex(originalAttribute) || [];
-
-    if (placeHolderIndexes.length === 1) {
-      const placeHolderIndex = placeHolderIndexes[0];
-      const placeholder = createPlaceholderForIndex(placeHolderIndex);
-      const value = values[placeHolderIndex];
-
-
-      if (originalAttribute === placeholder) {
-        element.props[propsKey] = value;
-      } else {
-        element.props[propsKey] =
-            originalAttribute.replace(placeholder, value as string);
-      }
-
-      element.removeAttribute(attributeName);
-
-      return;
-    }
-
-    let attributeToAdd = originalAttribute;
-
-    placeHolderIndexes.forEach((placeholderIndex) => {
-      const value = values[placeholderIndex];
-      const placeholder = createPlaceholderForIndex(placeholderIndex);
-      attributeToAdd = attributeToAdd.replace(placeholder, value as string);
-    });
-
-    element.props[propsKey] = attributeToAdd;
-    element.removeAttribute(attributeName);
-  },
-  isHandlerOf(element: HTMLElement, attributeName: string): boolean {
-    return isCustomProperty(attributeName);
-  },
-};
-
 const eventAttributeHandler = {
   handle(props: AttributeHandlerProps): void {
     const {attributeName, element, values}: AttributeHandlerProps = props;
@@ -367,12 +316,11 @@ const attributeMapHandler = {
       }
     });
   },
-  isHandlerOf(element: HTMLElement, attributeName: string): boolean {
+  isHandlerOf(_element: HTMLElement, attributeName: string): boolean {
     return isPlaceHolder(attributeName);
   },
 };
 const attributeHandlers: AttributeHandler[] = [
-  customPropertyHandler,
   eventAttributeHandler,
   commonAttributeHandler,
   attributeMapHandler,
