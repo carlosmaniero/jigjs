@@ -15,15 +15,26 @@ export class TransferState {
   }
 
   fetch<T>(key: string, fetcher: () => Promise<T>, callback: (err: unknown, value: T) => void): void {
+    const executeCallback = (err: unknown, value: T) => {
+      try {
+        callback(err, value);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
     if (this.hasState(key)) {
-      callback(undefined, this.getState<T>(key));
+      executeCallback(undefined, this.getState<T>(key));
       return;
     }
 
     fetcher().then((result) => {
       this.setState(key, result);
-      callback(undefined, result);
-    }).catch((err) => callback(err, undefined));
+      executeCallback(undefined, result);
+    }).catch((err) => {
+      executeCallback(err, undefined);
+      return undefined;
+    });
   }
 
   flush(): Record<string, unknown> {

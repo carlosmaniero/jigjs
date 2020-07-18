@@ -2,6 +2,7 @@ import {TransferState} from '../';
 import {TransferStateWriter} from '../internals/transfer-state-writer';
 import {TransferStateReader} from '../internals/transfer-state-reader';
 import {configureJSDOM} from '../../../core/dom';
+import {waitForPromises} from '../../../testing/wait-for-promises';
 
 describe('Transfer State', () => {
   it('writes the content as json into the window', () => {
@@ -82,6 +83,24 @@ describe('Transfer State', () => {
         expect(value).toBe(undefined);
         done();
       });
+    });
+
+    it('does not calls the callback twice when callback throws an exception.', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => undefined);
+      const transferState = new TransferState();
+      const error = new Error('My error');
+      const stub = jest.fn().mockImplementationOnce(() => {
+        throw error;
+      });
+
+      transferState.fetch<string>('my-key', () => Promise.resolve<string>('any'), () => {
+        stub();
+      });
+
+      await waitForPromises();
+
+      expect(stub).toBeCalledTimes(1);
+      expect(console.error).toBeCalledWith(error);
     });
   });
 });
