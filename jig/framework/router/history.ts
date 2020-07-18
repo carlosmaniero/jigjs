@@ -4,7 +4,7 @@ import {JigWindow} from '../../types';
 @observable()
 export class History {
   @observing()
-  private currentUrl;
+  private currentUrl: string;
 
   constructor(private readonly window: JigWindow) {
     this.updateCurrentUrl();
@@ -17,8 +17,8 @@ export class History {
   }
 
   push(url: string): void {
-    this.currentUrl = url;
     this.window.history.pushState(undefined, undefined, url);
+    this.currentUrl = url;
   }
 
   getCurrentUrl(): string {

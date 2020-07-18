@@ -44,5 +44,21 @@ describe('history', () => {
         expect(history.getCurrentUrl()).toBe('/home');
       });
     });
+
+    it('keeps the latest url when url changes into an observer', async () => {
+      const dom = configureJSDOM(undefined, 'http://jigjs.com/');
+      const history = new History(dom.window);
+
+      const subscription = observe(history, () => {
+        subscription.unsubscribe();
+        history.push('/home');
+      });
+
+      history.push('/hello/world');
+
+      await waitForExpect(() => {
+        expect(dom.window.location.pathname).toBe('/home');
+      });
+    });
   });
 });
