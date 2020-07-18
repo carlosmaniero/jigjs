@@ -219,6 +219,22 @@ describe('Render', () => {
       expect(mock).toBeCalled();
     });
 
+    it('adds click when it is given as attribute', () => {
+      const mock = jest.fn();
+
+      render(html`
+                <div>
+                    <button ${{onclick: mock}}">Hit me!</button>
+                </div>
+            `)(document.body);
+
+      const buttonElement = document.querySelector('button');
+      buttonElement.click();
+
+      expect(buttonElement.hasAttribute('onclick')).toBeFalsy();
+      expect(mock).toBeCalled();
+    });
+
     it('logs an error if there are more then the placeholder into an event', () => {
       const mock = jest.fn();
 

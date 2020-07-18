@@ -250,23 +250,27 @@ interface AttributeHandler {
   handle: (props: AttributeHandlerProps) => void;
 }
 
+const bindElementEvent = (attributeName: string, element: HTMLElementWithJigProperties, value: () => void) => {
+  const event = attributeName.replace('on', '') as keyof HTMLElementEventMap;
+
+  element.events = element.events || {};
+  element.events[event] = value;
+
+  element.addEventListener(event, value as () => void);
+  element.removeAttribute(attributeName);
+};
+
 const eventAttributeHandler = {
   handle(props: AttributeHandlerProps): void {
     const {attributeName, element, values}: AttributeHandlerProps = props;
     const originalAttribute = element.getAttribute(attributeName);
     const placeHolderIndex = getPlaceHolderIndex(originalAttribute)[0];
     const placeholder = createPlaceholderForIndex(placeHolderIndex);
-    const value = values[placeHolderIndex] as (event: Event) => void;
+    const value = values[placeHolderIndex] as () => void;
 
     this.validate(originalAttribute, placeholder, attributeName, value);
 
-    const event = attributeName.replace('on', '') as keyof HTMLElementEventMap;
-
-    element.events = element.events || {};
-    element.events[event] = value;
-
-    element.addEventListener(event, value as () => void);
-    element.removeAttribute(attributeName);
+    bindElementEvent(attributeName, element, value);
   },
   isHandlerOf(element: HTMLElement, attributeName: string): boolean {
     return attributeName.startsWith('on');
@@ -308,10 +312,15 @@ const attributeMapHandler = {
     props.element.removeAttribute(props.attributeName);
 
     getPlaceHolderIndex(props.attributeName).forEach((placeholderIndex) => {
-      const attributeMap = props.values[placeholderIndex] as Record<string, string>;
+      const attributeMap = props.values[placeholderIndex] as Record<string, unknown>;
+
       for (const attributeName in attributeMap) {
         if (attributeMap.hasOwnProperty(attributeName)) {
-          props.element.setAttribute(attributeName, attributeMap[attributeName]);
+          if (attributeName.startsWith('on')) {
+            bindElementEvent(attributeName, props.element, attributeMap[attributeName] as () => void);
+          } else {
+            props.element.setAttribute(attributeName, attributeMap[attributeName] as string);
+          }
         }
       }
     });
@@ -326,21 +335,21 @@ const attributeHandlers: AttributeHandler[] = [
   attributeMapHandler,
 ];
 
+const applyAttributeTransformation = (props: AttributeHandlerProps) => {
+  const handler = attributeHandlers
+      .find((handler) => handler.isHandlerOf(props.element, props.attributeName));
+
+  if (handler) {
+    handler.handle(props);
+  }
+};
+
 const fillAttributes = (element: DocumentFragment | ChildNode, values: unknown[]): void => {
   if (isElement(element)) {
     const attributes = element.getAttributeNames();
 
     attributes.forEach((attributeName) => {
-      const handler = attributeHandlers
-          .find((handler) => handler.isHandlerOf(element, attributeName));
-
-      if (handler) {
-        handler.handle({
-          element,
-          attributeName,
-          values,
-        });
-      }
+      applyAttributeTransformation({element, attributeName, values});
     });
   }
 
