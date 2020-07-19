@@ -7,6 +7,7 @@
   "license": "MIT",
   "scripts": {
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "lint": "eslint './**/*.ts' --quiet",
     "clean": "tsc --build --clean",
     "build": "tsc && cp package.json dist/ && cp ./README.md dist/"

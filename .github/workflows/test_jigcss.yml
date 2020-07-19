@@ -33,6 +33,12 @@ jobs:
       - run: yarn --cwd jigcss lint
         env:
           CI: true
-      - run: yarn --cwd jigcss test
+      - run: yarn --cwd jigcss test:coverage
         env:
           CI: true
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          base-path: jigcss
+          path-to-lcov: ./jigcss/coverage/lcov.info
