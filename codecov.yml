@@ -1,9 +1,9 @@
 flags:
   jigjs:
     paths:
-      - jig/
+      - jig/**/*
     carryforward: true
   jigcss:
     paths:
-      - jigcss/
+      - jigcss/**/*
     carryforward: true
