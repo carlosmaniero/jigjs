@@ -1,3 +1,5 @@
+import { lazyEvaluation } from "jigjs/template/render";
+
 export type ElementStyle = {
   '@media': {
     [query: string]: ElementStyle
@@ -28,9 +30,23 @@ const hash = (x: string): number => {
 
 const JIG_STYLE_ID = 'jig-style-element'
 
-export type JigCss = (template: TemplateStringsArray, ...values: unknown[]) => string;
+export type JigCssClass = {
+  jigLazyRun: (document: Document) => string;
+};
 
-export const jigcss = (window: Document): JigCss => {
+export const css = (template: TemplateStringsArray, ...values: unknown[]): JigCssClass => {
+  let evaluated: string = null;
+  return lazyEvaluation((document) => {
+    if (evaluated) {
+      return evaluated;
+    }
+
+    evaluated = _jigcss(document)(template, ...values);
+    return evaluated;
+  });
+}
+
+export const _jigcss = (document: Document) => {
   const getOrCreateStyleElement = () => {
     return document.getElementById(JIG_STYLE_ID) || this.createStyleElement();
   }

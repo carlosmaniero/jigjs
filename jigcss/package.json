@@ -1,6 +1,6 @@
 {
   "name": "jigcss",
-  "version": "0.0.0-pre-alpha.25",
+  "version": "0.0.0-pre-alpha.26",
   "description": "A css-in-js module for jigjs",
   "repository": "https://github.com/carlosmaniero/jigjs.git",
   "author": "Carlos Maniero",
@@ -14,7 +14,7 @@
   "main": "./index.js",
   "type": "./index.d.ts",
   "dependencies": {
-    "jigjs": "^0.0.0-pre-alpha.20"
+    "jigjs": "^0.0.0-pre-alpha.25"
   },
   "devDependencies": {
     "@testing-library/dom": "^7.20.0",

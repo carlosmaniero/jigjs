@@ -1,7 +1,8 @@
-import { Css, jigcss, JigCss } from "../";
-import { component, html, renderComponent } from "jigjs/components";
 import { screen } from "@testing-library/dom";
+import { component, html, renderComponent } from "jigjs/components";
 import { observing } from "jigjs/reactive";
+import * as jigcss from "../";
+import { Css, css } from "../";
 
 describe('jigcss', () => {
   const waitForPromises = () => new Promise((resolve) => setImmediate(resolve));
@@ -262,27 +263,18 @@ describe('jigcss', () => {
     it('renders the css property', async () => {
       @component()
       class MyComponent {
-        private readonly css: JigCss;
-        private readonly helloClassName: string;
-        private readonly byeClassName: string;
-
-        constructor() {
-          const css = jigcss(document);
-
-          this.helloClassName = css`
-            & {
-              background: black;
-              color: red;
-            }
-          `;
-
-          this.byeClassName = css`
-            & {
-              background: red;
-              color: black;
-            }
-          `;
-        }
+        private readonly helloClassName = css`
+          & {
+            background: black;
+            color: red;
+          }
+        `;
+        private readonly byeClassName = css`
+          & {
+            background: red;
+            color: black;
+          }
+        `;
 
         render() {
           return html`
@@ -302,8 +294,6 @@ describe('jigcss', () => {
   });
 
   it('prevents equal classes to be created', async () => {
-    const css = jigcss(document);
-
     const helloClassName = css`
       & {
         background: black;
@@ -317,18 +307,33 @@ describe('jigcss', () => {
       }
     `;
 
-    expect(helloClassName).toBe(byeClassName);
-    expect(document.documentElement.outerHTML.match(new RegExp(helloClassName, 'g'))).toHaveLength(1);
+    expect(helloClassName.jigLazyRun(document)).toBe(byeClassName.jigLazyRun(document));
+    expect(document.documentElement.outerHTML.match(new RegExp(helloClassName.jigLazyRun(document), 'g'))).toHaveLength(1);
   });
 
-  it('prevents amp character replaced inside a content', async () => {
-    const css = jigcss(document);
+  it('prevents same class to be evaluated twice', async () => {
+    jest.spyOn(jigcss, '_jigcss');
 
     const helloClassName = css`
       & {
-        content: 'keep \& \& look'
+        background: black;
+        color: red
       }
     `;
+
+    helloClassName.jigLazyRun(document);
+    helloClassName.jigLazyRun(document);
+
+    expect(jigcss._jigcss).toBeCalledTimes(1);
+
+  });
+
+  it('prevents amp character replaced inside a content', async () => {
+    (css`
+      & {
+        content: 'keep \& \& look'
+      }
+    `).jigLazyRun(document);
     
     expect(document.documentElement.outerHTML.match(/keep & & look/)).toHaveLength(1);
   });
