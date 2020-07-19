@@ -1,9 +1,9 @@
- ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Jig](https://github.com/carlosmaniero/jigjs/workflows/Jig/badge.svg) [![npm version](https://badge.fury.io/js/jigjs.svg)](https://badge.fury.io/js/jigjs) [![Coverage Status](https://coveralls.io/repos/github/carlosmaniero/jigjs/badge.svg?branch=main)](https://coveralls.io/github/carlosmaniero/jigjs?branch=main)
-
 <p align="center" style="color: #343a40">
   <img src="jig/ghassets/logo.svg" alt="jigjs" align="center">
   <h1 align="center">a front-end framework</h1>
 </p>
+
+ ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Jig](https://github.com/carlosmaniero/jigjs/workflows/Jig/badge.svg) [![npm version](https://badge.fury.io/js/jigjs.svg)](https://badge.fury.io/js/jigjs) [![Coverage Status](https://coveralls.io/repos/github/carlosmaniero/jigjs/badge.svg?branch=main)](https://coveralls.io/github/carlosmaniero/jigjs?branch=main) ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
 jigjs is a web library that combines reactiveness with OOP. Making it easy to react to
 object side-effects.
