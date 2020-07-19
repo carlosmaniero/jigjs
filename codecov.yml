@@ -1,3 +1,14 @@
+coverage:
+  status:
+    project:
+      jig:
+        target: auto
+        flags:
+          - jigjs
+      jigcss:
+        target: auto
+        flags:
+          - jigcss
 flags:
   jigjs:
     paths:
