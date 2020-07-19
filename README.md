@@ -1,9 +1,11 @@
  ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Jig](https://github.com/carlosmaniero/jigjs/workflows/Jig/badge.svg) [![npm version](https://badge.fury.io/js/jigjs.svg)](https://badge.fury.io/js/jigjs) [![Coverage Status](https://coveralls.io/repos/github/carlosmaniero/jigjs/badge.svg?branch=main)](https://coveralls.io/github/carlosmaniero/jigjs?branch=main)
 
+<p align="center" style="color: #343a40">
+  <img src="jig/ghassets/logo.svg" alt="jigjs" align="center">
+  <h1 align="center">a front-end framework</h1>
+</p>
 
-# ![Jig Logo](jig/ghassets/logo.svg) a front-end library.
-
-Jig.js is a web library that combines reactiveness with OOP. Making it easy to react to
+jigjs is a web library that combines reactiveness with OOP. Making it easy to react to
 object side-effects.
 
 
@@ -109,12 +111,12 @@ export class CounterPage {
 renderComponent(document.querySelector('#root'), new CounterPage());
 ```
 
-In jisjs you control the component instance. There isn't a magic way to update a component props. The component props
+In jigjs you control the component instance. There isn't a magic way to update a component props. The component props
 is its state, and you update it by using class methods.
 
 ## Styling the component
 
-There is a css-in-js module for Jig.js.
+There is a css-in-js module for jigjs.
 
 Read more about Jig.css [here](/jigcss).
 
@@ -210,16 +212,16 @@ When you need to process async functions in your components you can make your ha
 
 ```typescript
 const routerModule = new RouterModule(window, platform, new Routes([
-        {
-            path: '/user/:id',
-            name: 'show-user',
-            async handler(params, render) {
-                render(new PageLoadingComponent());
-                const user = await fetchUser(params.id);
-                render(new UserPage(user));
-            }
+    {
+        path: '/user/:id',
+        name: 'show-user',
+        async handler(params, render) {
+            render(new PageLoadingComponent());
+            const user = await fetchUser(params.id);
+            render(new UserPage(user));
         }
-    ]));
+    }
+]));
 ```
 
 The server will only release the request when the promise is resolved. You can call the `render` function as much as
@@ -264,22 +266,22 @@ to browser thought the `TransferState.getState`.
 
 ```typescript
 const routerModule = new RouterModule(window, platform, new Routes([
-        {
-            path: '/my-transfer-state-page',
-            name: 'my-transfer-state-page',
-            async handler(params, render, transferState) {
-                if (transferState.hasState('page-title')) {
-                    render(new MyPage(transferState.getState('page-title')));
-                    return;
-                }
-
-                render(new PageLoadingComponent());
-                const pageTitle = await asyncMethodThatReturnsANicePageTitle();
-                transferState.setState('page-title', pageTitle);
-                render(new MyPage(pageTitle));
+    {
+        path: '/my-transfer-state-page',
+        name: 'my-transfer-state-page',
+        async handler(params, render, transferState) {
+            if (transferState.hasState('page-title')) {
+                render(new MyPage(transferState.getState('page-title')));
+                return;
             }
+
+            render(new PageLoadingComponent());
+            const pageTitle = await asyncMethodThatReturnsANicePageTitle();
+            transferState.setState('page-title', pageTitle);
+            render(new MyPage(pageTitle));
         }
-    ]));
+    }
+]));
 ```
 
 ### SSR limitations
