@@ -39,6 +39,6 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: jigcss/coverage/clover.xml
+          file: ./jigcss/coverage/lcov.info
           flags: jigcss
           fail_ci_if_error: true
