@@ -26,7 +26,7 @@ class MyComponent {
     }
   `;
 
-    // class with extra selectors
+  // class with extra selectors
   private static readonly byeClassName = css`
       & {
         backgroundColor: black;
@@ -70,7 +70,7 @@ class MyComponent {
 
 ## css into static properties
 
-By adding css styles into static properties you ear some optimization as the style will be processed once.
+As Jig.css is a runtime library you can earn some optimization by adding your css classes into static properties.
 
 ## The & wildcard
 
