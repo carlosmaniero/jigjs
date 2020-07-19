@@ -1,0 +1,9 @@
+flags:
+  jigjs:
+    paths:
+      - jig/
+    carryforward: true
+  jigcss:
+    paths:
+      - jigcss/
+    carryforward: true
