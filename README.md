@@ -5,10 +5,10 @@
   <h1 align="center">a front-end framework</h1>
 </p>
 
- ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Jig](https://github.com/carlosmaniero/jigjs/workflows/Jig/badge.svg) 
- ![npm version](https://badge.fury.io/js/jigjs.svg)
- [![Coverage Status](https://coveralls.io/repos/github/carlosmaniero/jigjs/badge.svg?branch=main)](https://coveralls.io/github/carlosmaniero/jigjs?branch=main) 
- ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)![Jig](https://github.com/carlosmaniero/jigjs/workflows/Jig/badge.svg) 
+![npm version](https://badge.fury.io/js/jigjs.svg)
+[![Coverage Status](https://codecov.io/gh/carlosmaniero/jigjs/branch/main/graph/badge.svg?flag=jigjs)](https://codecov.io/gh/carlosmaniero/jigjs) 
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
 jigjs is a web library that combines reactiveness with OOP. Making it easy to react to
 object side-effects.

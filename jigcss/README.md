@@ -6,7 +6,9 @@
 </p>
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+![Jig](https://github.com/carlosmaniero/jigjs/workflows/JigCss/badge.svg) 
 ![npm version](https://badge.fury.io/js/jigcss.svg)
+[![Coverage Status](https://codecov.io/gh/carlosmaniero/jigjs/branch/main/graph/badge.svg?flag=jigcss)](https://codecov.io/gh/carlosmaniero/jigjs)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
 This package enables runtime CSS-in-JS. No babel required.
