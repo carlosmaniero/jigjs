@@ -4,17 +4,19 @@ coverage:
       jig:
         target: auto
         flags:
-          - jigjs
+          - jig
       jigcss:
         target: auto
         flags:
           - jigcss
 flags:
-  jigjs:
+  jig:
     paths:
       - jig/**/*
     carryforward: true
+    joined: true
   jigcss:
     paths:
       - jigcss/**/*
     carryforward: false
+    joined: true
