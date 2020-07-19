@@ -25,7 +25,27 @@ const isPlaceHolder = (value: string): boolean => placeHolderRegex().test(value)
 const isHtmlTemplate = (value: unknown): value is HtmlTemplate => typeof value === 'object' && 'renderAt' in value;
 
 export const createTemplateElement = (document: Document): HTMLTemplateElement => {
-  return document.createElementNS('http://www.w3.org/1999/xhtml', 'template') as HTMLTemplateElement;
+  return document.createElement('template');
+};
+
+type LazyRunWithDocument<T> = {
+  jigLazyRun: (document: Document) => T
+}
+
+export const lazyEvaluation = <T>(callback: (document: Document) => T): LazyRunWithDocument<T> => ({
+  jigLazyRun: (document) => callback(document),
+});
+
+const isLazyEvaluation = <T>(value: unknown): value is LazyRunWithDocument<T> => {
+  return value && typeof value === 'object' && !!(value as Record<string, unknown>).jigLazyRun;
+};
+
+const evaluate = <T>(document: Document, value: unknown): T => {
+  if (isLazyEvaluation<T>(value)) {
+    return value.jigLazyRun(document);
+  }
+
+  return value as T;
 };
 
 const cloneActualElementFromFragment = (bindElement: Node & ParentNode, documentFragment: DocumentFragment): Node & ParentNode => {
@@ -202,7 +222,7 @@ const createElementChildNodesForValue = (document, value: unknown): ChildNode[] 
     return Array.from(value.renderAt(document).childNodes);
   }
 
-  return [document.createTextNode(value.toString())];
+  return [document.createTextNode(evaluate(document, value).toString())];
 };
 
 const fillChildNodesContentPlaceholder = (content: DocumentFragment | ChildNode, values: unknown[]): void => {
@@ -253,10 +273,12 @@ interface AttributeHandler {
 const bindElementEvent = (attributeName: string, element: HTMLElementWithJigProperties, value: () => void) => {
   const event = attributeName.replace('on', '') as keyof HTMLElementEventMap;
 
-  element.events = element.events || {};
-  element.events[event] = value;
+  const evaluatedValue = evaluate<() => void>(element.ownerDocument, value);
 
-  element.addEventListener(event, value as () => void);
+  element.events = element.events || {};
+  element.events[event] = evaluatedValue;
+
+  element.addEventListener(event, evaluatedValue);
   element.removeAttribute(attributeName);
 };
 
@@ -276,6 +298,9 @@ const eventAttributeHandler = {
     return attributeName.startsWith('on');
   },
   validate(originalAttribute: string, placeholder: string, attributeName, value: unknown): void {
+    if (isLazyEvaluation(value)) {
+      return;
+    }
     if (originalAttribute !== placeholder) {
       throw new Error(`${attributeName} must be a function it was "${originalAttribute.replace(placeholder, '[function]')}"`);
     }
@@ -295,7 +320,7 @@ const commonAttributeHandler = {
     let attributeToAdd = originalAttribute;
 
     placeHolderIndexes.forEach((placeholderIndex) => {
-      const value = values[placeholderIndex];
+      const value = evaluate(props.element.ownerDocument, values[placeholderIndex]);
       const placeholder = createPlaceholderForIndex(placeholderIndex);
       attributeToAdd = attributeToAdd.replace(placeholder, value as string);
     });
@@ -319,7 +344,7 @@ const attributeMapHandler = {
           if (attributeName.startsWith('on')) {
             bindElementEvent(attributeName, props.element, attributeMap[attributeName] as () => void);
           } else {
-            props.element.setAttribute(attributeName, attributeMap[attributeName] as string);
+            props.element.setAttribute(attributeName, evaluate<string>(props.element.ownerDocument, attributeMap[attributeName]));
           }
         }
       }
@@ -378,7 +403,10 @@ export const html = (template: TemplateStringsArray, ...values: unknown[]): Rend
     renderAt: (document): DocumentFragment => {
       const templateElement: HTMLTemplateElement = createTemplateElement(document);
       templateElement.innerHTML = createTemplateWithPlaceholders(template, values);
-      const content = templateElement.content;
+
+      const content = document.createDocumentFragment();
+      content.appendChild(templateElement.content);
+
       fillPlaceholders(content, values);
       return content;
     },

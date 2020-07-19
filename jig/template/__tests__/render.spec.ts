@@ -1,4 +1,4 @@
-import {html, HTMLElementWithJigProperties, render} from '../render';
+import {html, HTMLElementWithJigProperties, render, lazyEvaluation} from '../render';
 import {configureJSDOM} from '../../core/dom';
 
 describe('Render', () => {
@@ -200,6 +200,27 @@ describe('Render', () => {
       expect(element.id).toBe('my-id');
       expect(element.getAttributeNames()).toHaveLength(2);
     });
+
+    it('fills class object attribute ignores prototype options', () => {
+      class Attributes {
+        class = 'hi';
+        id = 'my-id';
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (Attributes.prototype as any).title = 'prototype title';
+
+      const attrs = new Attributes();
+
+      render(html`<div ${attrs}></div>`)(document.body);
+
+      const element = document.body.querySelector('div');
+
+      expect(element.className).toBe('hi');
+      expect(element.id).toBe('my-id');
+      expect(element.title).toBe('');
+      expect(element.getAttributeNames()).toHaveLength(2);
+    });
   });
 
   describe('handling events', () => {
@@ -383,6 +404,57 @@ describe('Render', () => {
       render(document.createElement('strong'))(bindElement);
 
       expect(element.onDisconnect).not.toBeCalled();
+    });
+  });
+
+  describe('Lazy evaluation', () => {
+    it('fills basic attributes using lazy strategy', () => {
+      const className = 'my-class-name';
+
+      render(html`<div class="${lazyEvaluation((thisDocument) => {
+        expect(thisDocument === document).toBeTruthy();
+        return className;
+      })}"></div>`)(document.body);
+
+      const element = document.body.querySelector('div');
+
+      expect(element.className).toBe('my-class-name');
+    });
+
+    it('fills attribute attributes using lazy strategy', () => {
+      const className = 'my-class-name';
+
+      render(html`<div ${{class: lazyEvaluation((thisDocument) => {
+        expect(thisDocument === document).toBeTruthy();
+        return className;
+      })}}></div>`)(document.body);
+
+      const element = document.body.querySelector('div');
+
+      expect(element.className).toBe('my-class-name');
+    });
+
+    it('fills content using lazy strategy', () => {
+      render(html`<div>${lazyEvaluation((thisDocument) => {
+        expect(thisDocument === document).toBeTruthy();
+        return 'Hello!';
+      })}</div>`)(document.body);
+
+      expect(document.body.innerHTML).toContain('Hello!');
+    });
+
+    it('adds click event using lazy strategy', () => {
+      const mock = jest.fn();
+
+      render(html`
+                <div>
+                    <button onclick="${lazyEvaluation((document) => () => mock(document))}">Hit me!</button>
+                </div>
+            `)(document.body);
+
+      const buttonElement = document.querySelector('button');
+      buttonElement.click();
+      expect(mock).toBeCalledWith(document);
     });
   });
 });
