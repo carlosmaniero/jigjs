@@ -7,7 +7,7 @@ import {Routes} from './routes';
 export class Route {
   constructor(
       private readonly name: string,
-      private readonly params: Record<string, string> = {}) {
+      private readonly params: Record<string, string | > = {}) {
   }
 
   reverse(routes: Routes): string {
@@ -21,7 +21,7 @@ export class Route {
 
 export class RouteLinkElement {
   constructor(readonly content: Renderable | string | number | RenderableComponent,
-              readonly attributes: Record<string, string> = {}) {
+              readonly attributes: Record<string, unknown> = {}) {
   }
 
   renderLink(url: string, onClick: (event: MouseEvent) => void): Renderable {
