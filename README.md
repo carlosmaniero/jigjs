@@ -265,7 +265,7 @@ When you make a request to the jigjs server, it will pre-render the entire page 
 browser, jigjs will execute the same code that had executed on server. It means that, any request you performed at the
 server-side will be performed again.
 
-To prevent this kind of behaviour you must use `TransferState`. The`TransferState` is a key-value object that can 
+To prevent this kind of behavior you must use `TransferState`. The`TransferState` is a key-value object that can 
 be shared from server to browser. Once the server stores a value using `TransferState.setState` it will be available 
 to browser thought the `TransferState.getState`.
 

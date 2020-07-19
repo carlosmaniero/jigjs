@@ -36,9 +36,9 @@ jobs:
       - run: yarn --cwd jigcss test:coverage
         env:
           CI: true
-      - name: Coveralls
-        uses: coverallsapp/github-action@master
+      - uses: codecov/codecov-action@v1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          base-path: jigcss
-          path-to-lcov: ./jigcss/coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: jigcss/coverage/clover.xml
+          flags: jigcss
+          fail_ci_if_error: true
