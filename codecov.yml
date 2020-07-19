@@ -1,3 +1,13 @@
+flags:
+  jigjs:
+    paths:
+      - jig/**/*
+    carryforward: true
+  jigcss:
+    paths:
+      - jigcss/**/*
+    carryforward: false
+
 coverage:
   status:
     project:
