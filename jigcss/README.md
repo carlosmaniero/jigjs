@@ -1,8 +1,15 @@
- ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+<p align="center" style="color: #343a40">
+  <p align="center" >
+    <img src="ghassets/logo.svg" alt="jigcss" align="center">
+  </p>
+  <h1 align="center">css in js for jigjs</h1>
+</p>
 
-# Jig.css - A CSS-in-JS package for Jig.js. No babel required.
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+![npm version](https://badge.fury.io/js/jigcss.svg)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
-This package enables runtime CSS-in-JS
+This package enables runtime CSS-in-JS. No babel required.
 
 ## Installation
 
@@ -68,7 +75,7 @@ class MyComponent {
 }
 ```
 
-## The & wildcard
+## The `&` wildcard
 
 The `&` wildcard will be replaced with the class name.
 
