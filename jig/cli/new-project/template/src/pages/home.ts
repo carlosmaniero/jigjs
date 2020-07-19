@@ -29,8 +29,8 @@ export class Home {
                 }
             </style>
             <main>
-                <img src="/logo.png" alt="Jig.js Logo" width="300px">
-                <h1>Welcome to your Jig.js application</h1>
+                <img src="/logo.png" alt="jigjs Logo" width="300px">
+                <h1>Welcome to your jigs application</h1>
 
                 <div>
                     ${this.counter}

@@ -123,7 +123,7 @@ is its state, and you update it by using class methods.
 
 There is a css-in-js module for jigjs.
 
-Read more about Jig.css [here](/jigcss).
+Read more about jigcss [here](/jigcss).
 
 ## Creating an APP
 
