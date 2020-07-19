@@ -34,19 +34,10 @@ export type JigCssClass = {
   jigLazyRun: (document: Document) => string;
 };
 
-export const css = (template: TemplateStringsArray, ...values: unknown[]): JigCssClass => {
-  let evaluated: string = null;
-  return lazyEvaluation((document) => {
-    if (evaluated) {
-      return evaluated;
-    }
+export const css = (template: TemplateStringsArray, ...values: unknown[]): JigCssClass =>
+ lazyEvaluation((document) => jigcss(document)(template, ...values))
 
-    evaluated = _jigcss(document)(template, ...values);
-    return evaluated;
-  });
-}
-
-export const _jigcss = (document: Document) => {
+const jigcss = (document: Document) => {
   const getOrCreateStyleElement = () => {
     return document.getElementById(JIG_STYLE_ID) || this.createStyleElement();
   }

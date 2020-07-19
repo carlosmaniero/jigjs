@@ -1,7 +1,6 @@
 import { screen } from "@testing-library/dom";
 import { component, html, renderComponent } from "jigjs/components";
 import { observing } from "jigjs/reactive";
-import * as jigcss from "../";
 import { Css, css } from "../";
 
 describe('jigcss', () => {
@@ -309,23 +308,6 @@ describe('jigcss', () => {
 
     expect(helloClassName.jigLazyRun(document)).toBe(byeClassName.jigLazyRun(document));
     expect(document.documentElement.outerHTML.match(new RegExp(helloClassName.jigLazyRun(document), 'g'))).toHaveLength(1);
-  });
-
-  it('prevents same class to be evaluated twice', async () => {
-    jest.spyOn(jigcss, '_jigcss');
-
-    const helloClassName = css`
-      & {
-        background: black;
-        color: red
-      }
-    `;
-
-    helloClassName.jigLazyRun(document);
-    helloClassName.jigLazyRun(document);
-
-    expect(jigcss._jigcss).toBeCalledTimes(1);
-
   });
 
   it('prevents amp character replaced inside a content', async () => {

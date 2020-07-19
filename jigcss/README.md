@@ -68,10 +68,6 @@ class MyComponent {
 }
 ```
 
-## css into static properties
-
-As Jig.css is a runtime library you can earn some optimization by adding your css classes into static properties.
-
 ## The & wildcard
 
 The `&` wildcard will be replaced with the class name.
