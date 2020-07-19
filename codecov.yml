@@ -7,15 +7,3 @@ flags:
     paths:
       - jigcss/**/*
     carryforward: false
-
-coverage:
-  status:
-    project:
-      jigjs:
-        target: auto
-        flags:
-          - jigjs
-      jigcss:
-        target: auto
-        flags:
-          - jigcss
