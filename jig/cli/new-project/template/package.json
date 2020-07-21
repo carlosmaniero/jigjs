@@ -3,14 +3,15 @@
   "scripts": {
     "start": "ts-node src/server.ts",
     "build": "jigjs-build",
-    "build:analyse-bundle": "SHOW_BUNDLE_REPORT=true npm run build",
-    "build:watch": "DEV=true BUILD_WATCH=true npm run build",
-    "server:watch": "DEV=true ts-node-dev --no-notify src/server.ts",
-    "dev": "concurrently -n build,server \"npm run build:watch\" \"DEV=true ts-node-dev --no-notify src/server.ts\"",
+    "build:analyse-bundle": "cross-env SHOW_BUNDLE_REPORT=true npm run build",
+    "build:watch": "cross-env DEV=true BUILD_WATCH=true npm run build",
+    "server:watch": "cross-env DEV=true ts-node-dev --no-notify src/server.ts",
+    "dev": "concurrently -n build,server \"npm run build:watch\" \"npm run server:watch\"",
     "test": "jest"
   },
   "dependencies": {
     "jigjs": "^{{jigjs-version}}",
+    "cross-env": "^7.0.2",
     "express": "^4.17.1",
     "ts-loader": "^7.0.1",
     "ts-node": "^8.10.1",
